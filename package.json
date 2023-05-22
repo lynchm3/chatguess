@@ -16,7 +16,7 @@
         "tmi.js": "^1.8.5"
     },
     "scripts": {
-      "start": "node app.js"
+      "start": "NODE_OPTIONS='--experimental-specifier-resolution=node' node app.js"
     },
     "engines": {
       "node": ">=12.0.0"

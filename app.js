@@ -1,15 +1,13 @@
 // Chapter on getting oauth token https://www.youtube.com/watch?v=7uSjKbAUHXg
 
 import fetch from 'node-fetch';
-import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import { Game, GameImage } from './Game.js';
 import { HintProvider } from './HintProvider.js';
 import { GuessChecker } from './GuessChecker.js';
 import { Chatbot } from './chatbot/chatbot.js';
-import { RedemptionBot } from './redemptionBot.js';
 import { showImage, showCoverImage, showTitle, setCallback } from './htmlController.js';
 import { CorrectAnswer, Scoreboard } from './scoreboard.js';
-import { oAuthToken, botName, channelName } from './env.js';
+import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 
 // console.log(`app.js - Starting Guess The Game`)
 

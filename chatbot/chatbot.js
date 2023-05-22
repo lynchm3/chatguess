@@ -56,7 +56,7 @@ export class Chatbot {
 				callback.startWhatsTheGame()
 			} else if (message == "!unbrb" && username == "lynchml")
 				callback.setAutoPlay(false)
-			else if (message == "!wtg" && username == "lynchml")
+			else if (message == "!cgg" && username == "lynchml")
 				callback.startWhatsTheGame()
 			else if (message == "!giveup" && username == "lynchml")
 				callback.giveUp()

@@ -8,11 +8,37 @@ const http = Server(app);
 import { Server as SocketIOServer } from 'socket.io';
 const io = new SocketIOServer(http)
 
-app.use(express.static('./'));
+const port = 8080;
+// app.listen(port, () => {
+//   console.log(`chatguess: listening on port ${port}`);
+// });
+app.use(express.static('public'));
 
-http.listen(3000, () => {
-  // console.log('listening on *:3000');
+http.listen(port, () => {
+  console.log(`chatguess: listening on port ${port}`);
 });
+
+
+// app.get('/', (req, res) => {
+//   const name = process.env.NAME || 'World';
+//   res.send(`ChatGuess.com`);
+// });
+
+//////// use 8080 ///////////////
+// app.get('/', (req, res) => {
+//   const name = process.env.NAME || 'World';
+//   res.send(`Hello ${name}!`);
+// });
+
+// const port = 8080;
+// app.listen(port, () => {
+//   console.log(`helloworld: listening on port ${port}`);
+// });
+
+// http.listen(port, () => {
+//   // console.log('listening on *:3000');
+// });
+//////// use 8080 ///////////////
 
 io.on("connection", (socket) => {
   // console.log("connected = " + guess)
