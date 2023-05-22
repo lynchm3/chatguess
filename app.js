@@ -1,5 +1,3 @@
-// Chapter on getting oauth token https://www.youtube.com/watch?v=7uSjKbAUHXg
-
 import fetch from 'node-fetch';
 import { Game, GameImage } from './Game.js';
 import { HintProvider } from './HintProvider.js';
@@ -8,8 +6,6 @@ import { Chatbot } from './chatbot/chatbot.js';
 import { showImage, showCoverImage, showTitle, setCallback } from './htmlController.js';
 import { CorrectAnswer, Scoreboard } from './scoreboard.js';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
-
-// console.log(`app.js - Starting Guess The Game`)
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
@@ -25,14 +21,6 @@ function getRandomInt(max) {
 }
 
 var queue = 0
-
-//New - 
-//collection, Reference ID for Collection,	The series the game belongs to
-//involved_companies,	Array of Involved Company IDs,	Companies who developed this game
-//parent_game, Reference ID for Game,	If a DLC, expansion or part of a bundle, this is the main game or bundle
-//status,	Status Enum,	The status of the games release
-//version_parent,	Reference ID for Game	If a version, this is the main game (Not gold or collectors edition)
-
 const ENDPOINT_GAMES = "/games"
 const MIN_FOLLOWERS = 45
 const GAMES_WITH_50_RATING = 897
@@ -76,9 +64,6 @@ const getGame = async (accessToken) => {
   });
   const responseJson = await response.json();
 
-  // console.log("responseJson")
-  // console.log(responseJson)
-
   game = new Game(
     /* id = */ responseJson[0].id,
         /* name = */ responseJson[0].name,
@@ -105,13 +90,9 @@ const getGame = async (accessToken) => {
 
   )
 
-  // console.log(JSON.stringify(game))
-
   hintProvider = new HintProvider(game, new HintProviderCallback())
   guessChecker = new GuessChecker(game)
 }
-
-
 
 const getAccessToken = async () => {
   const response = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${TWITCH_CLIENT_ID}&client_secret=${TWITCH_CLIENT_SECRET}&grant_type=client_credentials&scope=channel%3Amanage%3Aredemptions`, {
@@ -119,8 +100,6 @@ const getAccessToken = async () => {
   });
   const responseJson = await response.json();
   accessToken = responseJson.access_token
-  // console.log("accessToken")
-  // console.log(accessToken)
 }
 
 const getProfileImage = async (userID, accessToken) => {
@@ -135,14 +114,7 @@ const getProfileImage = async (userID, accessToken) => {
   });
 
   const twitchUserResponseJson = await twitchUserResponse.json();
-
-  // console.log("twitchUserResponseJson")
-  // console.log(twitchUserResponseJson)
 }
-
-//troubleshoot for 401 - https://discuss.dev.twitch.tv/t/401-missing-user-oauth-token-get-custom-rewards/34902
-//https://dev.twitch.tv/docs/api/reference/#get-custom-reward
-//https://dev.twitch.tv/docs/authentication/scopes/
 
 const getRedemptions = async (userID, accessToken) => {
   const redemptionsResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${userID}`, {
@@ -160,10 +132,7 @@ const getRedemptions = async (userID, accessToken) => {
   console.log(redemptionsResponseJson)
 }
 
-// function for polling every 15 seconds to check for user redemptions 
 const pollForRedemptions = async (userID, accessToken) => {
-
-
   const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userID}&reward_id=${"123"}&status=UNFULFILLED`, {
     method: 'GET',
     headers: {
@@ -235,8 +204,6 @@ class ChatbotCallback {
 
   giveUp() {
     chatbot.chat(`lynchm1Youwhat No one guessed correctly! The game was ${game.name}! lynchm1Youwhat`)
-    // console.log("game.coverArt")
-    // console.log(game.coverArt)
     showCoverImage(game.coverArt, "No one")
     game = null
     guessChecker = null
@@ -253,9 +220,6 @@ class ChatbotCallback {
   }
 
   messageCallback(message, tags, username, userId, channelId) {
-    // getProfileImage(userId, accessToken)
-    // getRedemptions(userId, oAuthToken)
-    // pollForRedemptions(userId, oAuthToken)
     checkGuess(message, username, userId, channelId)
   }
 
@@ -278,8 +242,6 @@ function checkGuess(message, username, userId, channelId) {
     correctAnswer.insertCorrectAnswer()
     chatbot.chat(`lynchm1Youwhat ${username} guessed correctly! The game was ${game.name}! lynchm1Youwhat`)
     
-    // new Scoreboard().getScoreboard(accessToken, chatbot, channelId)
-
     new Scoreboard().getUserScoreAndRival(chatbot, userId, channelId, username, accessToken)
 
     if (userId != null)
@@ -308,9 +270,6 @@ class HtmlControllerCallback {
 
 setCallback(new HtmlControllerCallback())
 
-// console.log("app.js - Starting Chat Bot")
 let chatbot = new Chatbot(new ChatbotCallback())
-
-
 
 getAccessToken()

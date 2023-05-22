@@ -18,8 +18,6 @@ function rotate(elem, startAngle, endAngle, speed) {
         angle -= speed;
       }
       elem.style.transform = 'rotate(' + angle + 'deg)';
-      // elem.style.width = width + 'px';
-      // elem.style.height = width + 'px';
     }
   }
 }
@@ -75,66 +73,54 @@ function bounce(elem, img) {
   var speed = 1
   var goingRight = Math.random() < 0.5
   var goingDown = Math.random() < 0.5
+  var width = elem.offsetWidth
+  var height = elem.offsetHeight
 
-  // img.onload = function () {
+  var x = Math.floor(Math.random() * (1280 - width))
+  var y = Math.floor(Math.random() * (720 - height))
 
-    // alert(this.width + 'x' + this.height);
-    var width = elem.offsetWidth
-    var height = elem.offsetHeight
+  var counter = 0
 
-    var x = Math.floor(Math.random() * (1280 - width))
-    var y = Math.floor(Math.random() * (720 - height))
-    // console.log("x = " + x)
-    // console.log("x = " + x)
+  elem.style.left = x + 'px';
+  elem.style.top = y + 'px';
 
-    var counter = 0
+  var id = setInterval(frame, 10);
+  function frame() {
 
-    elem.style.left = x + 'px';
-    elem.style.top = y + 'px';
+    counter++
 
-    var id = setInterval(frame, 10);
-    function frame() {
+    if (counter == 1000) {
+      elem.remove()
+      clearInterval(id)
+    }
 
-      counter++
-
-      if(counter == 1000) {
-        elem.remove()
-        clearInterval(id)
-      }
-
-      if (goingRight) {
-        x += speed;
-        if (x + width >= 1280)
-          goingRight = false
-      }
-      else {
-        x -= speed;
-        if (x <= 0)
-          goingRight = true
-      }
-
-
-      if (goingDown) {
-        y += speed;
-        if (y + height >= 720)
-          goingDown = false
-      }
-      else {
-        y -= speed;
-        if (y <= 0)
-          goingDown = true
-      }
-
-
-      elem.style.left = x + 'px';
-      elem.style.top = y + 'px';
+    if (goingRight) {
+      x += speed;
+      if (x + width >= 1280)
+        goingRight = false
+    }
+    else {
+      x -= speed;
+      if (x <= 0)
+        goingRight = true
     }
 
 
+    if (goingDown) {
+      y += speed;
+      if (y + height >= 720)
+        goingDown = false
+    }
+    else {
+      y -= speed;
+      if (y <= 0)
+        goingDown = true
+    }
 
-  // }
 
-
+    elem.style.left = x + 'px';
+    elem.style.top = y + 'px';
+  }
 }
 
 function moveX(elem, start, end) {
@@ -221,9 +207,9 @@ function fadeOut(el, speed = 0.01) {
 }
 
 function bounceWithFade(el, speed = 0.1) {
-    fadeIn(el, speed)
-    bounce(el)    
-    setTimeout(function() {fadeOut(el, speed)}, 8_000);  
+  fadeIn(el, speed)
+  bounce(el)
+  setTimeout(function () { fadeOut(el, speed) }, 8_000);
 }
 
 function hideFullImage() {
