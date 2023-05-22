@@ -81,7 +81,8 @@ body {
 .title {
     float: left;
     position: fixed;
-    margin: 60px;
+    margin-top: 60px;
+    margin-left: 0px;
     z-index: 100;
 }
 

@@ -1,8 +1,10 @@
 {
-    "name": "guess-the-game",
+    "name": "chatguess",
     "version": "0.1",
-    "author": "Your Ma",
+    "author": "Mark Lynch",
     "type": "module",
+    "private": true,
+    "main": "app.js",
     "dependencies": {
         "express": "^4.18.2",
         "http": "0.0.1-security",
@@ -12,5 +14,12 @@
         "socket.io": "^4.6.1",
         "sqlite3": "^5.1.6",
         "tmi.js": "^1.8.5"
-    }
+    },
+    "scripts": {
+      "start": "node app.js"
+    },
+    "engines": {
+      "node": ">=12.0.0"
+    },
+    "license": "Apache-2.0"
 }

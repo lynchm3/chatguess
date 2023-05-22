@@ -232,13 +232,25 @@ export class Scoreboard {
                                     const index = result.findIndex(x => x.userID == userId)
                                     monthPosition = index + 1
                                     var rivalIndex = index - 1
-                                    if (rivalIndex < 0)
-                                        rivalIndex = 0
-                                    const rivalRow = result[rivalIndex]
-                                    const rivalScore = rivalRow.score
-                                    const pointsBehind = rivalScore - monthScore
-                                    const rivalUserID = rivalRow.userID  
-                                    this.getRivalName(userDisplayName, monthPosition,monthScore,  accessToken, pointsBehind, rivalUserID, chatbot)       
+                                    var rivalRow = null
+                                    while (rivalIndex > 0 && rivalRow == null) {
+                                        var potentialRivalRow = result[rivalIndex]
+                                        if (potentialRivalRow.score > monthScore) {
+                                            rivalRow = potentialRivalRow
+                                        } else {
+                                            rivalIndex--
+                                        }
+                                    }
+
+                                    if (rivalRow != null) {
+                                        const rivalScore = rivalRow.score
+                                        const pointsBehind = rivalScore - monthScore
+                                        const rivalUserID = rivalRow.userID
+                                        this.getRivalName(userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot)
+                                    } else {
+                                        chatbot.chat(`${userDisplayName} is in ${this.numberToOrdinal(monthPosition)} 
+                                        with ${monthScore} ${monthScore != 1 ? "points" : "point"}`)
+                                    }
                                 } else {
                                     chatbot.chat(`${userDisplayName} has not points this month.`)
                                 }
@@ -246,9 +258,9 @@ export class Scoreboard {
                         });
                 }
             });
-    }    
+    }
 
-    getRivalName = async (userDisplayName, monthPosition,monthScore,  accessToken, pointsBehind, rivalUserID, chatbot) => {
+    getRivalName = async (userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot) => {
 
         const twitchUserResponse = await fetch(`https://api.twitch.tv/helix/users?id=${rivalUserID}`, {
             method: 'GET',
@@ -263,7 +275,7 @@ export class Scoreboard {
         const rivalDisplayName = users.data[0].display_name
 
         chatbot.chat(`${userDisplayName} is in ${this.numberToOrdinal(monthPosition)} with ${monthScore} ${monthScore != 1 ? "points" : "point"},
-            ${pointsBehind} behind ${rivalDisplayName}`)
+            ${pointsBehind}  ${pointsBehind != 1 ? "points" : "point"} behind ${rivalDisplayName}`)
 
     }
 
