@@ -9,51 +9,87 @@
 </head>
 
 <body>
-  
-  <!-- <img style="display:inline;" src="https://i.redd.it/bwv58k96gnn91.png" class="countDownLogo" />
-  <div id="countdown" style="display:inline; white-space:nowrap;" class="countDown"></div> -->
-
 
   <div class="div-gifs" id="div-gifs"></div>
 
   <div id="box"></div><!-- Display the countdown timer in an element -->
 
-  <script>
-    // var countDownDate = new Date("May 11, 2023 17:00:00").getTime();
-    // var x = setInterval(function () {
-    //   var now = new Date().getTime();
-    //   var distance = countDownDate - now;
-    //   var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    //   var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    //   var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    //   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    //   document.getElementById("countdown").innerHTML =
-    //     hours.toLocaleString('en-US', {
-    //       minimumIntegerDigits: 2,
-    //       useGrouping: false
-    //     }) + ":" +
-    //     minutes.toLocaleString('en-US', {
-    //       minimumIntegerDigits: 2,
-    //       useGrouping: false
-    //     }) + ":" +
-    //     seconds.toLocaleString('en-US', {
-    //       minimumIntegerDigits: 2,
-    //       useGrouping: false
-    //     })
-
-    //   if (distance < 0) {
-    //     clearInterval(x);
-    //     document.getElementById("countdown").innerHTML = "00:00:00";
-    //   }
-    // }, 1000);
-  </script>
-
   <!-- <input class="guessBox" type="text" placeholder="Guess?" onkeydown="search(this)"/> -->
 
   <!-- socket.io -->
   <script src="/socket.io/socket.io.js"></script>
-  <script type="text/javascript">
+
+  <script>
+
     var socket = io();
+    const gameImages = []
+
+    const canvas = document.createElement("canvas");
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    const draw = (body, ctx) => {
+      ctx.beginPath();
+      body.forEach(e => ctx.lineTo(e.x, e.y));
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    };
+
+    socket.once("connect", () => {
+      socket.emit("register", res => {
+        canvas.width = res.canvas.width;
+        canvas.height = res.canvas.height;
+      });
+    });
+
+    socket.on("update state", ({ boxes, walls }) => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#fff";
+      walls.forEach(wall => draw(wall, ctx));
+      // ctx.fillStyle = "#fff";
+      // boxes.forEach(box => draw(box, ctx));
+
+      boxes.forEach(function (box, i) {
+        console.log("boxes.forEach");
+        var img = new Image();
+        console.log('img');
+        console.log(img);
+        console.log('i');
+        console.log(i);
+        console.log('gameImages[i]');
+        console.log(gameImages[i]);
+        img.src = gameImages[i].url;
+        img.onload = function (e) {
+          ctx.drawImage(img, box[0].x, box[0].y, box[1].x-box[0].x, box[3].y - box[0].y);
+        }
+      });
+    });
+
+    // function loadImage(path) {
+    //   var img = new Image();
+    //   img.onload = drawImage;
+    //   img.src = path;
+    // }
+
+    // function drawImage(event) {
+    //   var img = event.target;
+    //   var imgSize = Math.min(img.width, img.height);
+    //   // The following two lines yield a central based cropping.
+    //   // They can both be amended to be 0, if you wish it to be
+    //   // a left based cropped image.
+    //   var left = (img.width - imgSize) / 2;
+    //   var top = (img.height - imgSize) / 2;
+    //   //var left = 0; // If you wish left based cropping instead.
+    //   //var top = 0; // If you wish left based cropping instead.
+    //   ctx.drawImage(event.target, left, top, imgSize, imgSize, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    // }
+
+    document.addEventListener("mousedown", e => {
+      socket.emit("player click", { x: e.offsetX, y: e.offsetY });
+    });
+
 
     function search(element) {
       if (event.key === 'Enter') {
@@ -124,9 +160,9 @@
         var naturalWidth = img.naturalWidth;
         var naturalHeight = img.naturalHeight;
 
-        let screenWidth = 1280
-        let screenHeight = 720
-        let maxCoverHeight = 500
+        let screenWidth = window.innerWidth;
+        let screenHeight = window.innerHeight;
+        let maxCoverHeight = screenHeight * 0.8
 
         //Container Height
         let containerHeight = maxCoverHeight
@@ -167,8 +203,10 @@
       }
     });
 
-    //showImage    
+    //showImage  
     socket.on('showImage', function (gameImage, maxWidth) {
+
+      gameImages.push(gameImage)
 
       // console.log("memes.html showImage gameImage = ")
       // console.log(gameImage)
@@ -189,8 +227,10 @@
         var naturalWidth = img.naturalWidth;
         var naturalHeight = img.naturalHeight;
 
-        let screenWidth = 1280
-        let screenHeight = 720
+        let screenWidth = window.innerWidth;
+        let screenHeight = window.innerHeight;
+        console.log("screenWidth")
+        console.log(screenWidth)
 
         //Container Height
         let croppedWidth = maxWidth
@@ -280,10 +320,13 @@
 
       // video.onload = function () {
       var width = 800//container.offsetWidth
-      var height = 500//container.offsetHeight
+      var height = 500//container.offsetHeight      
 
-      var x = Math.floor(Math.random() * (1280 - width))
-      var y = Math.floor(Math.random() * (720 - height))
+      let screenWidth = window.innerWidth;
+      let screenHeight = window.innerHeight;
+
+      var x = Math.floor(Math.random() * (screenWidth - width))
+      var y = Math.floor(Math.random() * (screenHeight - height))
 
       container.style.left = x + 'px';
       container.style.top = y + 'px';
@@ -323,8 +366,6 @@
     // video.onended = function () {
     //   videoContainer.style.display = "none"
     // };
-
-    var socket = io();
 
     socket.on('showVideo', function (video) {
       // console.log("video.html showVideo() video = " + video)

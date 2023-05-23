@@ -6,6 +6,14 @@ import { Chatbot } from './chatbot/chatbot.js';
 import { showImage, showCoverImage, showTitle, setCallback } from './htmlController.js';
 import { CorrectAnswer, Scoreboard } from './scoreboard.js';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
+import { RedemptionBot } from './redemptionBot.js';
+import { oAuthToken, botName, channelName } from './env.js';
+// import { Engine, World, Bodies, Composite } from 'matter';
+
+// const redemptionBot = new RedemptionBot(oAuthToken)
+// redemptionBot.getRedemptions()
+// redemptionBot.pollForRedemptions()
+// redemptionBot.validate()
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
@@ -64,8 +72,20 @@ const getGame = async (accessToken) => {
   });
   const responseJson = await response.json();
 
+  // console.log(responseJson)
+
   game = new Game(
     /* id = */ responseJson[0].id,
+
+    //TODO
+//     file:///C:/Users/lynch/Documents/GitHub/chatguess/app.js:76
+//     /* id = */ responseJson[0].id,
+//                                ^
+// TypeError: Cannot read properties of undefined (reading 'id')
+//     at getGame (file:///C:/Users/lynch/Documents/GitHub/chatguess/app.js:76:32)
+//     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+
+
         /* name = */ responseJson[0].name,
         /* follows = */ responseJson[0].follows,
         /* hypes = */ responseJson[0].hypes,

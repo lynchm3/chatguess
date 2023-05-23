@@ -29,6 +29,9 @@ export class Chatbot {
 			const userTextColor = tags.color
 			const channelId = channel
 
+			// console.log(username)
+			// console.log(userId)
+
 			if (message == "!brb" && username == "lynchml") {
 				callback.setAutoPlay(true)
 				callback.startWhatsTheGame()

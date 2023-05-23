@@ -1,8 +1,14 @@
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
 
-const BROADCASTER_ID = "57016188"
+const CHATGUESS_ID = "907414000"
+const BROADCASTER_ID = CHATGUESS_ID
 const REWARD_ID = "123456"
+
+//request OAuth token with:
+//View redemptions
+//Poll redemptions
+//Chat
 
 export class RedemptionBot {
 
@@ -10,11 +16,26 @@ export class RedemptionBot {
         this.accessToken = accessToken
     }
 
+    validate = async () => {
+        console.log("validate")
+
+        const validateResponseJson = await fetch(`https://id.twitch.tv/oauth2/validate`, {
+            method: 'GET',
+            headers: {
+                "Client-ID": `${TWITCH_CLIENT_ID}`,
+                "Authorization": `Bearer ${this.accessToken}`,
+                "Accept": "application/json"
+            }
+        });
+        
+        console.log("validateResponseJson")
+        console.log(validateResponseJson)
+    }
+
     // returns an object containing the custom rewards, or if an error, null
     getRedemptions = async () => {
 
-        // console.log("this.accessToken")
-        // console.log(this.accessToken)
+        console.log("getRedemptions")
 
         const redemptionsResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${BROADCASTER_ID}`, {
             method: 'GET',
@@ -27,15 +48,14 @@ export class RedemptionBot {
 
         const redemptionsResponseJson = await redemptionsResponse.json();
 
-        // console.log("redemptionsResponseJson")
-        // console.log(redemptionsResponseJson)
+        console.log("redemptionsResponseJson")
+        console.log(redemptionsResponseJson)
     }
 
     // function for polling every 15 seconds to check for user redemptions 
     pollForRedemptions = async () => {
 
-        // console.log("this.accessToken")
-        // console.log(this.accessToken)
+        console.log("pollForRedemptions")
 
         const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${BROADCASTER_ID}&reward_id=${REWARD_ID}&status=UNFULFILLED`, {
             method: 'GET',
@@ -48,8 +68,8 @@ export class RedemptionBot {
 
         const redemptionResponseJson = await redemptionResponse.json();
 
-        // console.log("redemptionResponseJson")
-        // console.log(redemptionResponseJson)
+        console.log("redemptionResponseJson")
+        console.log(redemptionResponseJson)
 
 
         // let redemptions = body.data

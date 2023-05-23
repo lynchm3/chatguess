@@ -233,7 +233,7 @@ export class Scoreboard {
                                     monthPosition = index + 1
                                     var rivalIndex = index - 1
                                     var rivalRow = null
-                                    while (rivalIndex > 0 && rivalRow == null) {
+                                    while (rivalIndex > -1 && rivalRow == null) {
                                         var potentialRivalRow = result[rivalIndex]
                                         if (potentialRivalRow.score > monthScore) {
                                             rivalRow = potentialRivalRow
