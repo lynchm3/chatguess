@@ -1,9 +1,13 @@
 body {
+    display: flex;
+    flex-wrap: wrap;
+    position: absolute;
     overflow: hidden;
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: white;
     background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 @font-face {
@@ -12,7 +16,6 @@ body {
          url('hyliaserifbeta-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-
 }
 
 .countDownLogo {
@@ -52,6 +55,7 @@ body {
 .gameBackground {
     float: left;
     position: fixed;
+    /* background-color: rgba(0, 0, 0, 0.8); */
     background-color: rgba(0, 0, 0, 0);
     width: 100%;
     height: 100%;
@@ -123,6 +127,18 @@ body {
     margin: 10px;
     display: inline-block;
     position: fixed;
+}
+
+/*PHYSICS*/
+.div-physics {
+    display: flex;
+    flex-wrap: wrap;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
 }
 
 /*GIFS*/

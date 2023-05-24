@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 
+<!-- Matter.js simple examplehttps://redstapler.co/matter-js-tutorial-game-dev/ -->
+
 <head>
   <title>ChatGuessGames</title>
   <link rel="stylesheet" href="memes.css">
@@ -10,6 +12,7 @@
 
 <body>
 
+  <div class="div-physics" id="div-physics"></div>
   <div class="div-gifs" id="div-gifs"></div>
 
   <div id="box"></div><!-- Display the countdown timer in an element -->
@@ -17,16 +20,157 @@
   <!-- <input class="guessBox" type="text" placeholder="Guess?" onkeydown="search(this)"/> -->
 
   <!-- socket.io -->
+  <!-- <script  type="text/javascript" src="/matter.js"></script> -->
+  <!-- <script src="/matter-js/matter-js.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
 
-    var socket = io();
-    const gameImages = []
+    var div_gifs = document.getElementById('div-gifs');
+
+    const frameRate = 1000 / 30;
+    const boxSize = 20;
+    const wallThickness = 20;
+    const gameImage = []
 
     const canvas = document.createElement("canvas");
     document.body.appendChild(canvas);
     const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const entities = {
+      boxes: [],
+      walls: [
+        // Matter.Bodies.rectangle(
+        //   canvas.width / 2, 0,
+        //   canvas.width,
+        //   wallThickness,
+        //   { isStatic: true }
+        // ),
+        // Matter.Bodies.rectangle(
+        //   0, canvas.height / 2,
+        //   wallThickness,
+        //   canvas.height,
+        //   { isStatic: true }
+        // ),
+        // Matter.Bodies.rectangle(
+        //   canvas.width,
+        //   canvas.width / 2,
+        //   wallThickness,
+        //   canvas.width,
+        //   { isStatic: true }
+        // ),
+        //Bottom
+        Matter.Bodies.rectangle(
+          canvas.width / 2,
+          canvas.height,
+          canvas.width * 2,
+          wallThickness,
+          { isStatic: true }
+        ),
+      ]
+    };
+
+    const toVertices = e => e.vertices.map(({ x, y }) => ({ x, y }))
+
+    const showImage = (gameImage, maxWidth) => {
+      const img = new Image();
+      img.onload = () => {
+        showImageImageLoaded(img.src, maxWidth);
+      };
+      // img.onerror = onError();
+      img.src = gameImage.url;
+    };
+
+    function showImageImageLoaded(gameImageURL, maxWidth) {
+
+      var box = Matter.Bodies.rectangle(
+        Math.random() * canvas.width,
+        maxWidth,
+        maxWidth,
+        maxWidth,
+        {
+          // density: 0.0005,
+          // frictionAir: 0.06,
+          // restitution: 0.3,
+          // friction: 0.01,
+          render: {
+            sprite: {
+              texture: gameImageURL // set texture here
+            }
+          }
+        }
+      )
+
+      entities.boxes.push(box)
+      Matter.Composite.add(engine.world, box);
+    }
+
+    //     let engine = Matter.Engine.create();
+
+    // let render = Matter.Render.create({
+    //   element: document.body,
+    //   engine:engine
+    // });
+
+    const engine = Matter.Engine.create({
+      canvas: canvas,
+      width: canvas.width,
+      height: canvas.height
+    });
+
+
+    var div_physics = document.getElementById('div-physics');
+    const render = Matter.Render.create({
+      element: div_physics,
+      // element: document.body,
+      engine: engine,
+      options: {
+        width: canvas.width,
+        height: canvas.height,
+        wireframes: false,
+        background: 'transparent'
+      }
+    });
+
+    // Matter.Engine.run(engine);
+    Matter.Engine.run(engine);
+    Matter.Render.run(render);
+
+    Matter.Composite.add(engine.world, Object.values(entities).flat());
+
+    //EXAMPLE
+    // let engine2 = Matter.Engine.create();
+
+    // let render2 = Matter.Render.create({
+    //   element: document.body,
+    //   engine: engine2
+    // });
+
+    // //parms: x,y,width,height,options
+    // let ground = Matter.Bodies.rectangle(400, 500, 810, 60, { isStatic: true });
+    // let boxA = Matter.Bodies.rectangle(100, 200, 80, 80);
+    // let boxB = Matter.Bodies.rectangle(150, 50, 80, 80);
+
+    // Matter.World.add(engine2.world, [boxA, boxB, ground]);
+    // Matter.Engine.run(engine2);
+    // Matter.Render.run(render2);
+
+    // setInterval(() => {
+    //   Matter.Engine.update(engine, frameRate);
+    //   updateState(
+    //     entities.boxes.map(toVertices),
+    //     entities.walls.map(toVertices)
+    //   )
+    // }, frameRate);
+
+    //END OF PHYSICS
+
+    var socket = io();
+    var gameImages = []
+    var imgElementList = []
 
     const draw = (body, ctx) => {
       ctx.beginPath();
@@ -37,180 +181,58 @@
     };
 
     socket.once("connect", () => {
-      socket.emit("register", res => {
-        canvas.width = res.canvas.width;
-        canvas.height = res.canvas.height;
-      });
+      // socket.emit("register", res => {
+      //   canvas.width = res.canvas.width;
+      //   canvas.height = res.canvas.height;
+      // });
     });
 
-    socket.on("update state", ({ boxes, walls }) => {
+    function updateState(boxes, walls) {
+      console.log("boxes")
+      console.log(boxes)
+      console.log("walls")
+      console.log(walls)
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = "#fff";
-      walls.forEach(wall => draw(wall, ctx));
-      // ctx.fillStyle = "#fff";
+      // walls.forEach(wall => draw(wall, ctx));
+      ctx.fillStyle = "#fff";
       // boxes.forEach(box => draw(box, ctx));
 
       boxes.forEach(function (box, i) {
-        console.log("boxes.forEach");
-        var img = new Image();
-        console.log('img');
-        console.log(img);
-        console.log('i');
-        console.log(i);
-        console.log('gameImages[i]');
-        console.log(gameImages[i]);
-        img.src = gameImages[i].url;
-        img.onload = function (e) {
-          ctx.drawImage(img, box[0].x, box[0].y, box[1].x-box[0].x, box[3].y - box[0].y);
-        }
+        // console.log("boxes.forEach");
+        // console.log('img');
+        // console.log(img);
+        // console.log('i');
+        // console.log(i);
+        // console.log('imgElementList[i]');
+        // console.log(imgElementList[i]);
+        // console.log(box[0].x);
+        // console.log(box[0].y);
+        imgElementList[i].style.left = box[0].x + 'px';
+        imgElementList[i].style.top = box[0].y + 'px';
+        // img.src = gameImages[i].url;
+        // img.onload = function (e) {
+        //   container
+        //   // ctx.drawImage(img, box[0].x, box[0].y, box[1].x - box[0].x, box[3].y - box[0].y);
+        // }
       });
-    });
-
-    // function loadImage(path) {
-    //   var img = new Image();
-    //   img.onload = drawImage;
-    //   img.src = path;
-    // }
-
-    // function drawImage(event) {
-    //   var img = event.target;
-    //   var imgSize = Math.min(img.width, img.height);
-    //   // The following two lines yield a central based cropping.
-    //   // They can both be amended to be 0, if you wish it to be
-    //   // a left based cropped image.
-    //   var left = (img.width - imgSize) / 2;
-    //   var top = (img.height - imgSize) / 2;
-    //   //var left = 0; // If you wish left based cropping instead.
-    //   //var top = 0; // If you wish left based cropping instead.
-    //   ctx.drawImage(event.target, left, top, imgSize, imgSize, 0, 0, ctx.canvas.width, ctx.canvas.height);
-    // }
-
-    document.addEventListener("mousedown", e => {
-      socket.emit("player click", { x: e.offsetX, y: e.offsetY });
-    });
-
-
-    function search(element) {
-      if (event.key === 'Enter') {
-        socket.emit('guess', "" + element.value);
-        alert(element.value);
-      }
     }
 
-    //Text
-    socket.on('showText', function (text) {
-      showText(text)
-    })
-
-    function showText(text) {
-      const box = document.getElementById('box');
-      var container = document.createElement("div")
-      container.classList.add('hint');
-      const textNode = document.createTextNode(`\n\n${text}`);
-      container.appendChild(textNode);
-      box.appendChild(container);
-    }
-
-    function randomIntFromInterval(min, max) {
-      return Math.floor(Math.random() * (max - min + 1) + min)
-    }
-
-    var div_gifs = document.getElementById('div-gifs');
-
-    // clear images
-    socket.on('clearImages', function () {
-      div_gifs.innerHTML = "";
-    });
-
-    // show title
-    socket.on('showTitle', function () {
-
-      //background
-      var gameBackground3 = document.createElement("div")
-      gameBackground3.classList.add('gameBackground');
-      div_gifs.appendChild(gameBackground3);
-
-      //title
-      var container = document.createElement("div")
-      container.classList.add('title');
-      var img = document.createElement("img");
-      img.src = "whats_the_game_title.png";
-      container.appendChild(img);
-      div_gifs.appendChild(container);
-
-      //audio cue
-      const audio = new Audio("chatguessgames.mp3");
-      audio.play();
-    });
-
-    // clear images
-    socket.on('showCoverImage', function (gameImage, username) {
-
-      var container = document.createElement("div")
-      container.style.opacity = 0;
-      container.classList.add('coverArt');
-      var img = document.createElement("img");
-      img.src = gameImage.url;
-      container.appendChild(img);
-      div_gifs.appendChild(container);
-
-      img.onload = function () {
-
-        var naturalWidth = img.naturalWidth;
-        var naturalHeight = img.naturalHeight;
-
-        let screenWidth = window.innerWidth;
-        let screenHeight = window.innerHeight;
-        let maxCoverHeight = screenHeight * 0.8
-
-        //Container Height
-        let containerHeight = maxCoverHeight
-        if (containerHeight > naturalHeight)
-          containerHeight = naturalHeight
-        container.style.height = containerHeight + "px"
-        img.style.height = containerHeight + "px"
-
-        //Container Width
-        let containerWidth = containerHeight / naturalHeight * naturalWidth
-        if (containerWidth > naturalWidth)
-          containerWidth = naturalWidth
-        container.style.width = containerWidth + "px"
-        img.style.width = containerWidth + "px"
-
-        //Container position
-        var x = (screenWidth - containerWidth) / 2
-        var y = (screenHeight - containerHeight) / 2 - 16
-        container.style.left = x + 'px';
-        container.style.top = y + 'px';
-
-        var speed = 0.05
-        fadeIn(container, speed)
-
-        var textContainer = document.createElement("div")
-        textContainer.classList.add('winner');
-        textContainer.style.left = `${x}px`
-        textContainer.style.top = `${y + 350}px`
-        const textNode = document.createTextNode(`${username} got it!`);
-        textContainer.appendChild(textNode);
-        div_gifs.appendChild(textContainer);
-
-
-
-        setTimeout(function () {
-          div_gifs.innerHTML = "";
-        }, 10_000);
-      }
-    });
 
     //showImage  
     socket.on('showImage', function (gameImage, maxWidth) {
+
+      showImage(gameImage, maxWidth)
 
       gameImages.push(gameImage)
 
       // console.log("memes.html showImage gameImage = ")
       // console.log(gameImage)
       var container = document.createElement("div")
+      imgElementList.push(container)
+
       // container.style.visibility='hidden'
       container.style.opacity = 0;
       container.classList.add('crop');
@@ -276,26 +298,162 @@
           imgMarginBottom = totalVerticalMargin - imgMarginTop
         }
 
-        // console.log("croppedWidth: " + croppedWidth)
-        // console.log("naturalWidth: " + naturalWidth)
-        // console.log("croppedHeight: " + croppedHeight)
-        // console.log("naturalHeight: " + naturalHeight)
-
         img.style.marginLeft = `${imgMarginLeft}px`
         img.style.marginRight = `${imgMarginRight}px`
         img.style.marginTop = `${imgMarginTop}px`
         img.style.marginBottom = `${imgMarginBottom}px`
-
-        // console.log("imgMarginLeft: " + imgMarginLeft)
-        // console.log("imgMarginRight: " + imgMarginRight)
-        // console.log("imgMarginTop: " + imgMarginTop)
-        // console.log("imgMarginBottom: " + imgMarginBottom)
 
         var speedIn = 0.05
         fadeIn(container, speedIn)
       }
     });
     // End showImage
+
+    // function loadImage(path) {
+    //   var img = new Image();
+    //   img.onload = drawImage;
+    //   img.src = path;
+    // }
+
+    // function drawImage(event) {
+    //   var img = event.target;
+    //   var imgSize = Math.min(img.width, img.height);
+    //   // The following two lines yield a central based cropping.
+    //   // They can both be amended to be 0, if you wish it to be
+    //   // a left based cropped image.
+    //   var left = (img.width - imgSize) / 2;
+    //   var top = (img.height - imgSize) / 2;
+    //   //var left = 0; // If you wish left based cropping instead.
+    //   //var top = 0; // If you wish left based cropping instead.
+    //   ctx.drawImage(event.target, left, top, imgSize, imgSize, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    // }
+
+    document.addEventListener("mousedown", e => {
+      const force = 0.01;
+      const deltaVector = Matter.Vector.sub(box.position, { x: e.offsetX, y: e.offsetY });
+      const normalizedDelta = Matter.Vector.normalise(deltaVector);
+      const forceVector = Matter.Vector.mult(normalizedDelta, force);
+      Matter.Body.applyForce(box, box.position, forceVector);
+    });
+
+    function search(element) {
+      if (event.key === 'Enter') {
+        socket.emit('guess', "" + element.value);
+        alert(element.value);
+      }
+    }
+
+    //Text
+    socket.on('showText', function (text) {
+      showText(text)
+    })
+
+    function showText(text) {
+      const box = document.getElementById('box');
+      var container = document.createElement("div")
+      container.classList.add('hint');
+      const textNode = document.createTextNode(`\n\n${text}`);
+      container.appendChild(textNode);
+      box.appendChild(container);
+    }
+
+    function randomIntFromInterval(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+
+
+    // clear images
+    socket.on('clearImages', function () {
+      div_gifs.innerHTML = "";
+    });
+
+    // show title
+    socket.on('showTitle', function () {
+
+      gameImages = []
+      imgElementList = []
+
+      //background
+      var gameBackground3 = document.createElement("div")
+      gameBackground3.classList.add('gameBackground');
+      div_gifs.appendChild(gameBackground3);
+
+      //title
+      var container = document.createElement("div")
+      container.classList.add('title');
+      var img = document.createElement("img");
+      img.src = "whats_the_game_title.png";
+      container.appendChild(img);
+      div_gifs.appendChild(container);
+
+      //audio cue
+      const audio = new Audio("chatguessgames.mp3");
+      audio.play();
+    });
+
+    // clear images
+    socket.on('showCoverImage', function (gameImage, username) {
+
+      entities.boxes.forEach(function (box) {
+        Matter.Composite.remove(engine.world, box)
+        entities.boxes = []
+      })
+
+      var container = document.createElement("div")
+      container.style.opacity = 0;
+      container.classList.add('coverArt');
+      var img = document.createElement("img");
+      img.src = gameImage.url;
+      container.appendChild(img);
+      div_gifs.appendChild(container);
+
+      img.onload = function () {
+
+        var naturalWidth = img.naturalWidth;
+        var naturalHeight = img.naturalHeight;
+
+        let screenWidth = window.innerWidth;
+        let screenHeight = window.innerHeight;
+        let maxCoverHeight = screenHeight * 0.8
+
+        //Container Height
+        let containerHeight = maxCoverHeight
+        if (containerHeight > naturalHeight)
+          containerHeight = naturalHeight
+        container.style.height = containerHeight + "px"
+        img.style.height = containerHeight + "px"
+
+        //Container Width
+        let containerWidth = containerHeight / naturalHeight * naturalWidth
+        if (containerWidth > naturalWidth)
+          containerWidth = naturalWidth
+        container.style.width = containerWidth + "px"
+        img.style.width = containerWidth + "px"
+
+        //Container position
+        var x = (screenWidth - containerWidth) / 2
+        var y = (screenHeight - containerHeight) / 2 - 16
+        container.style.left = x + 'px';
+        container.style.top = y + 'px';
+
+        var speed = 0.05
+        fadeIn(container, speed)
+
+        var textContainer = document.createElement("div")
+        textContainer.classList.add('winner');
+        textContainer.style.left = `${x}px`
+        textContainer.style.top = `${y + 350}px`
+        const textNode = document.createTextNode(`${username} got it!`);
+        textContainer.appendChild(textNode);
+        div_gifs.appendChild(textContainer);
+
+
+
+        setTimeout(function () {
+          div_gifs.innerHTML = "";
+        }, 10_000);
+      }
+    });
 
 
     //playVideo
