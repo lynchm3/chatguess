@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 
-<!-- Matter.js simple examplehttps://redstapler.co/matter-js-tutorial-game-dev/ -->
+<!-- Matter.js simple example https://redstapler.co/matter-js-tutorial-game-dev/ -->
+<!-- Draw image on canvas given points https://stackoverflow.com/questions/24727899/draw-image-to-canvas-with-points -->
 
 <head>
   <title>ChatGuessGames</title>
@@ -12,16 +13,14 @@
 
 <body>
 
+  <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg">
+
   <div class="div-physics" id="div-physics"></div>
   <div class="div-gifs" id="div-gifs"></div>
 
-  <div id="box"></div><!-- Display the countdown timer in an element -->
+  <div id="box"></div>
+  <canvas class="canvas" id="canvas"></canvas>
 
-  <!-- <input class="guessBox" type="text" placeholder="Guess?" onkeydown="search(this)"/> -->
-
-  <!-- socket.io -->
-  <!-- <script  type="text/javascript" src="/matter.js"></script> -->
-  <!-- <script src="/matter-js/matter-js.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
@@ -33,12 +32,17 @@
     const boxSize = 20;
     const wallThickness = 20;
     const gameImage = []
+    const widths = []
+    var loadedImages = []
 
-    const canvas = document.createElement("canvas");
-    document.body.appendChild(canvas);
+    const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    console.log("canvas.width")
+    console.log(canvas.width)
+    console.log("canvas.height")
+    console.log(canvas.height)
 
     const entities = {
       boxes: [],
@@ -78,42 +82,41 @@
     const showImage = (gameImage, maxWidth) => {
       const img = new Image();
       img.onload = () => {
-        showImageImageLoaded(img.src, maxWidth);
+        // document.body.appendChild(img)
+        loadedImages.push(img)
+
+        //Add physics object for the image
+        var box = Matter.Bodies.rectangle(
+          Math.random() * canvas.width,
+          maxWidth,
+          maxWidth,
+          maxWidth,
+          {
+            // density: 0.0005,
+            // frictionAir: 0.06,
+            // restitution: 0.3,
+            // friction: 0.01,
+            // render: {
+            //   sprite: {
+            //     texture: gameImageURL // set texture here
+            //   }
+            // }
+          }
+        )
+
+        widths.push(maxWidth)
+
+        console.log(box)
+
+        entities.boxes.push(box)
+        Matter.Composite.add(engine.world, box);
+
+
+
       };
       // img.onerror = onError();
       img.src = gameImage.url;
     };
-
-    function showImageImageLoaded(gameImageURL, maxWidth) {
-
-      var box = Matter.Bodies.rectangle(
-        Math.random() * canvas.width,
-        maxWidth,
-        maxWidth,
-        maxWidth,
-        {
-          // density: 0.0005,
-          // frictionAir: 0.06,
-          // restitution: 0.3,
-          // friction: 0.01,
-          render: {
-            sprite: {
-              texture: gameImageURL // set texture here
-            }
-          }
-        }
-      )
-
-      entities.boxes.push(box)
-      Matter.Composite.add(engine.world, box);
-    }
-
-    //     let engine = Matter.Engine.create();
-
-    // let render = Matter.Render.create({
-    //   element: document.body,
-    //   engine:engine
-    // });
 
     const engine = Matter.Engine.create({
       canvas: canvas,
@@ -123,62 +126,63 @@
 
 
     var div_physics = document.getElementById('div-physics');
-    const render = Matter.Render.create({
-      element: div_physics,
-      // element: document.body,
-      engine: engine,
-      options: {
-        width: canvas.width,
-        height: canvas.height,
-        wireframes: false,
-        background: 'transparent'
-      }
-    });
 
-    // Matter.Engine.run(engine);
-    Matter.Engine.run(engine);
-    Matter.Render.run(render);
+    Matter.Runner.run(engine);
 
     Matter.Composite.add(engine.world, Object.values(entities).flat());
 
-    //EXAMPLE
-    // let engine2 = Matter.Engine.create();
-
-    // let render2 = Matter.Render.create({
-    //   element: document.body,
-    //   engine: engine2
-    // });
-
-    // //parms: x,y,width,height,options
-    // let ground = Matter.Bodies.rectangle(400, 500, 810, 60, { isStatic: true });
-    // let boxA = Matter.Bodies.rectangle(100, 200, 80, 80);
-    // let boxB = Matter.Bodies.rectangle(150, 50, 80, 80);
-
-    // Matter.World.add(engine2.world, [boxA, boxB, ground]);
-    // Matter.Engine.run(engine2);
-    // Matter.Render.run(render2);
-
-    // setInterval(() => {
-    //   Matter.Engine.update(engine, frameRate);
-    //   updateState(
-    //     entities.boxes.map(toVertices),
-    //     entities.walls.map(toVertices)
-    //   )
-    // }, frameRate);
-
-    //END OF PHYSICS
 
     var socket = io();
     var gameImages = []
     var imgElementList = []
 
-    const draw = (body, ctx) => {
+    const drawShape = (shape, ctx) => {
       ctx.beginPath();
-      body.forEach(e => ctx.lineTo(e.x, e.y));
+      shape.vertices.forEach(e => ctx.lineTo(e.x, e.y));
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
     };
+
+    const drawImage = (shape, index, ctx) => {
+      var img = loadedImages[index]
+      // ctx.drawImage(img, shape.vertices[0].x, shape.vertices[0].y, 100, 100)
+
+
+      // save the unrotated context of the canvas so we can restore it later
+      // the alternative is to untranslate & unrotate after drawing
+      ctx.save();
+
+      // move to the center of the canvas
+      ctx.translate(shape.vertices[0].x, shape.vertices[0].y);
+
+      // rotate the canvas to the specified degrees
+      ctx.rotate(shape.angle);
+
+      // move back to now rotated 0,0
+      // ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+      // draw the image
+      // since the context is rotated, the image will be rotated also
+      ctx.drawImage(img, 0, 0, widths[index], widths[index])
+
+      // we’re done with the rotating so restore the unrotated context
+      ctx.restore();
+    };
+
+    // {id: 2, type: 'body', label: 'Rectangle Body', parts: Array(1), plugin: {…}, …}
+
+    setInterval(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#888";
+      ctx.strokeStyle = "#888";
+      entities.walls.forEach(wall => drawShape(wall, ctx));
+      for (var i = 0; i < entities.boxes.length; i++) {
+        drawShape(entities.boxes[i], ctx)
+        drawImage(entities.boxes[i], i, ctx)
+        // stretchImage(entities.boxes[i], i, ctx)
+      }
+    }, frameRate);
 
     socket.once("connect", () => {
       // socket.emit("register", res => {
@@ -188,12 +192,7 @@
     });
 
     function updateState(boxes, walls) {
-      console.log("boxes")
-      console.log(boxes)
-      console.log("walls")
-      console.log(walls)
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = "#fff";
       // walls.forEach(wall => draw(wall, ctx));
@@ -201,22 +200,8 @@
       // boxes.forEach(box => draw(box, ctx));
 
       boxes.forEach(function (box, i) {
-        // console.log("boxes.forEach");
-        // console.log('img');
-        // console.log(img);
-        // console.log('i');
-        // console.log(i);
-        // console.log('imgElementList[i]');
-        // console.log(imgElementList[i]);
-        // console.log(box[0].x);
-        // console.log(box[0].y);
         imgElementList[i].style.left = box[0].x + 'px';
         imgElementList[i].style.top = box[0].y + 'px';
-        // img.src = gameImages[i].url;
-        // img.onload = function (e) {
-        //   container
-        //   // ctx.drawImage(img, box[0].x, box[0].y, box[1].x - box[0].x, box[3].y - box[0].y);
-        // }
       });
     }
 
@@ -225,87 +210,84 @@
     socket.on('showImage', function (gameImage, maxWidth) {
 
       showImage(gameImage, maxWidth)
-
       gameImages.push(gameImage)
 
-      // console.log("memes.html showImage gameImage = ")
-      // console.log(gameImage)
-      var container = document.createElement("div")
-      imgElementList.push(container)
+      // var container = document.createElement("div")
+      // imgElementList.push(container)
 
-      // container.style.visibility='hidden'
-      container.style.opacity = 0;
-      container.classList.add('crop');
-      // console.log("memes.html showImage container = " + container)
-      var img = document.createElement("img");
-      img.src = gameImage.url;
-      // console.log("memes.html showImage img = " + img)
+      // // container.style.visibility='hidden'
+      // container.style.opacity = 0;
+      // container.classList.add('crop');
+      // // console.log("memes.html showImage container = " + container)
+      // var img = document.createElement("img");
+      // img.src = gameImage.url;
+      // // console.log("memes.html showImage img = " + img)
 
-      container.appendChild(img);
-      div_gifs.appendChild(container);
+      // container.appendChild(img);
+      // div_gifs.appendChild(container);
 
-      img.onload = function () {
+      // img.onload = function () {
 
-        var naturalWidth = img.naturalWidth;
-        var naturalHeight = img.naturalHeight;
+      //   var naturalWidth = img.naturalWidth;
+      //   var naturalHeight = img.naturalHeight;
 
-        let screenWidth = window.innerWidth;
-        let screenHeight = window.innerHeight;
-        console.log("screenWidth")
-        console.log(screenWidth)
+      //   let screenWidth = window.innerWidth;
+      //   let screenHeight = window.innerHeight;
+      //   console.log("screenWidth")
+      //   console.log(screenWidth)
 
-        //Container Height
-        let croppedWidth = maxWidth
-        if (croppedWidth > naturalWidth)
-          croppedWidth = naturalWidth
-        container.style.width = croppedWidth + "px"
+      //   //Container Height
+      //   let croppedWidth = maxWidth
+      //   if (croppedWidth > naturalWidth)
+      //     croppedWidth = naturalWidth
+      //   container.style.width = croppedWidth + "px"
 
-        //Container Width
-        let croppedHeight = croppedWidth / naturalWidth * naturalHeight
-        if (croppedHeight > naturalHeight)
-          croppedHeight = naturalHeight
-        container.style.height = croppedHeight + "px"
+      //   //Container Width
+      //   let croppedHeight = croppedWidth / naturalWidth * naturalHeight
+      //   if (croppedHeight > naturalHeight)
+      //     croppedHeight = naturalHeight
+      //   container.style.height = croppedHeight + "px"
 
-        //Container position
-        var x = 0
-        var y = 0
-        const maxAttempts = 10
-        var attempts = 0
-        while ((x < 320 && y < 210) || (x + croppedWidth > 1000 && y + croppedHeight > 520)) {
-          var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
-          var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
-          attempts++
-          if (attempts > maxAttempts)
-            break
-        }
+      //   //Container position
+      //   var x = 0
+      //   var y = 0
+      //   const maxAttempts = 10
+      //   var attempts = 0
+      //   while ((x < 320 && y < 210) || (x + croppedWidth > 1000 && y + croppedHeight > 520)) {
+      //     var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
+      //     var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
+      //     attempts++
+      //     if (attempts > maxAttempts)
+      //       break
+      //   }
 
-        container.style.left = x + 'px';
-        container.style.top = y + 'px';
+      //   container.style.left = x + 'px';
+      //   container.style.top = y + 'px';
 
-        var totalHorizontalMargin = croppedWidth - naturalWidth;
-        var imgMarginLeft = totalHorizontalMargin / 2
-        var imgMarginRight = imgMarginLeft
-        if (imgMarginLeft < -100) {
-          imgMarginLeft = randomIntFromInterval((totalHorizontalMargin) + 100, -100)
-          imgMarginRight = totalHorizontalMargin - imgMarginLeft
-        }
+      //   var totalHorizontalMargin = croppedWidth - naturalWidth;
+      //   var imgMarginLeft = totalHorizontalMargin / 2
+      //   var imgMarginRight = imgMarginLeft
+      //   if (imgMarginLeft < -100) {
+      //     imgMarginLeft = randomIntFromInterval((totalHorizontalMargin) + 100, -100)
+      //     imgMarginRight = totalHorizontalMargin - imgMarginLeft
+      //   }
 
-        var totalVerticalMargin = croppedHeight - naturalHeight;
-        var imgMarginTop = totalVerticalMargin / 2
-        var imgMarginBottom = imgMarginTop
-        if (imgMarginTop < -100) {
-          imgMarginTop = randomIntFromInterval((totalVerticalMargin) + 100, -100)
-          imgMarginBottom = totalVerticalMargin - imgMarginTop
-        }
+      //   var totalVerticalMargin = croppedHeight - naturalHeight;
+      //   var imgMarginTop = totalVerticalMargin / 2
+      //   var imgMarginBottom = imgMarginTop
+      //   if (imgMarginTop < -100) {
+      //     imgMarginTop = randomIntFromInterval((totalVerticalMargin) + 100, -100)
+      //     imgMarginBottom = totalVerticalMargin - imgMarginTop
+      //   }
 
-        img.style.marginLeft = `${imgMarginLeft}px`
-        img.style.marginRight = `${imgMarginRight}px`
-        img.style.marginTop = `${imgMarginTop}px`
-        img.style.marginBottom = `${imgMarginBottom}px`
+      //   img.style.marginLeft = `${imgMarginLeft}px`
+      //   img.style.marginRight = `${imgMarginRight}px`
+      //   img.style.marginTop = `${imgMarginTop}px`
+      //   img.style.marginBottom = `${imgMarginBottom}px`
 
-        var speedIn = 0.05
-        fadeIn(container, speedIn)
-      }
+      //   var speedIn = 0.05
+      //   fadeIn(container, speedIn)
+      // }
     });
     // End showImage
 
@@ -328,13 +310,13 @@
     //   ctx.drawImage(event.target, left, top, imgSize, imgSize, 0, 0, ctx.canvas.width, ctx.canvas.height);
     // }
 
-    document.addEventListener("mousedown", e => {
-      const force = 0.01;
-      const deltaVector = Matter.Vector.sub(box.position, { x: e.offsetX, y: e.offsetY });
-      const normalizedDelta = Matter.Vector.normalise(deltaVector);
-      const forceVector = Matter.Vector.mult(normalizedDelta, force);
-      Matter.Body.applyForce(box, box.position, forceVector);
-    });
+    // document.addEventListener("mousedown", e => {
+    //   const force = 0.01;
+    //   const deltaVector = Matter.Vector.sub(box.position, { x: e.offsetX, y: e.offsetY });
+    //   const normalizedDelta = Matter.Vector.normalise(deltaVector);
+    //   const forceVector = Matter.Vector.mult(normalizedDelta, force);
+    //   Matter.Body.applyForce(box, box.position, forceVector);
+    // });
 
     function search(element) {
       if (event.key === 'Enter') {
@@ -396,8 +378,9 @@
 
       entities.boxes.forEach(function (box) {
         Matter.Composite.remove(engine.world, box)
-        entities.boxes = []
       })
+      entities.boxes = []
+      loadedImages = []
 
       var container = document.createElement("div")
       container.style.opacity = 0;
