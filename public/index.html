@@ -13,7 +13,11 @@
 
 <body>
 
-  <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg">
+  <!-- <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg"> -->
+  <div class="gameBackground" id="gameBackground"></div>
+  <div class="logo" id="logo">
+    <img src="whats_the_game_title.png"/>
+  </div>
 
   <div class="div-physics" id="div-physics"></div>
   <div class="div-gifs" id="div-gifs"></div>
@@ -27,6 +31,11 @@
   <script>
 
     var div_gifs = document.getElementById('div-gifs');
+    var gameBackground = document.getElementById('gameBackground');    
+    gameBackground.style.visibility='hidden'
+    var logo = document.getElementById('logo');    
+    logo.style.visibility='hidden'
+
 
     const frameRate = 1000 / 30;
     const boxSize = 20;
@@ -67,13 +76,13 @@
         //   { isStatic: true }
         // ),
         //Bottom
-        Matter.Bodies.rectangle(
-          canvas.width / 2,
-          canvas.height,
-          canvas.width * 2,
-          wallThickness,
-          { isStatic: true }
-        ),
+        // Matter.Bodies.rectangle(
+        //   canvas.width / 2,
+        //   canvas.height,
+        //   canvas.width * 2,
+        //   wallThickness,
+        //   { isStatic: true }
+        // ),
       ]
     };
 
@@ -178,8 +187,8 @@
       ctx.strokeStyle = "#888";
       entities.walls.forEach(wall => drawShape(wall, ctx));
       for (var i = 0; i < entities.boxes.length; i++) {
-        drawShape(entities.boxes[i], ctx)
-        drawImage(entities.boxes[i], i, ctx)
+        // drawShape(entities.boxes[i], ctx)
+        // drawImage(entities.boxes[i], i, ctx)
         // stretchImage(entities.boxes[i], i, ctx)
       }
     }, frameRate);
@@ -212,82 +221,82 @@
       showImage(gameImage, maxWidth)
       gameImages.push(gameImage)
 
-      // var container = document.createElement("div")
-      // imgElementList.push(container)
+      var container = document.createElement("div")
+      imgElementList.push(container)
 
-      // // container.style.visibility='hidden'
-      // container.style.opacity = 0;
-      // container.classList.add('crop');
-      // // console.log("memes.html showImage container = " + container)
-      // var img = document.createElement("img");
-      // img.src = gameImage.url;
-      // // console.log("memes.html showImage img = " + img)
+      // container.style.visibility='hidden'
+      container.style.opacity = 0;
+      container.classList.add('crop');
+      // console.log("memes.html showImage container = " + container)
+      var img = document.createElement("img");
+      img.src = gameImage.url;
+      // console.log("memes.html showImage img = " + img)
 
-      // container.appendChild(img);
-      // div_gifs.appendChild(container);
+      container.appendChild(img);
+      div_gifs.appendChild(container);
 
-      // img.onload = function () {
+      img.onload = function () {
 
-      //   var naturalWidth = img.naturalWidth;
-      //   var naturalHeight = img.naturalHeight;
+        var naturalWidth = img.naturalWidth;
+        var naturalHeight = img.naturalHeight;
 
-      //   let screenWidth = window.innerWidth;
-      //   let screenHeight = window.innerHeight;
-      //   console.log("screenWidth")
-      //   console.log(screenWidth)
+        let screenWidth = window.innerWidth;
+        let screenHeight = window.innerHeight;
+        console.log("screenWidth")
+        console.log(screenWidth)
 
-      //   //Container Height
-      //   let croppedWidth = maxWidth
-      //   if (croppedWidth > naturalWidth)
-      //     croppedWidth = naturalWidth
-      //   container.style.width = croppedWidth + "px"
+        //Container Height
+        let croppedWidth = maxWidth
+        if (croppedWidth > naturalWidth)
+          croppedWidth = naturalWidth
+        container.style.width = croppedWidth + "px"
 
-      //   //Container Width
-      //   let croppedHeight = croppedWidth / naturalWidth * naturalHeight
-      //   if (croppedHeight > naturalHeight)
-      //     croppedHeight = naturalHeight
-      //   container.style.height = croppedHeight + "px"
+        //Container Width
+        let croppedHeight = croppedWidth / naturalWidth * naturalHeight
+        if (croppedHeight > naturalHeight)
+          croppedHeight = naturalHeight
+        container.style.height = croppedHeight + "px"
 
-      //   //Container position
-      //   var x = 0
-      //   var y = 0
-      //   const maxAttempts = 10
-      //   var attempts = 0
-      //   while ((x < 320 && y < 210) || (x + croppedWidth > 1000 && y + croppedHeight > 520)) {
-      //     var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
-      //     var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
-      //     attempts++
-      //     if (attempts > maxAttempts)
-      //       break
-      //   }
+        //Container position
+        var x = 0
+        var y = 0
+        const maxAttempts = 10
+        var attempts = 0
+        while ((x < 320 && y < 210) || (x + croppedWidth > 1000 && y + croppedHeight > 520)) {
+          var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
+          var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
+          attempts++
+          if (attempts > maxAttempts)
+            break
+        }
 
-      //   container.style.left = x + 'px';
-      //   container.style.top = y + 'px';
+        container.style.left = x + 'px';
+        container.style.top = y + 'px';
 
-      //   var totalHorizontalMargin = croppedWidth - naturalWidth;
-      //   var imgMarginLeft = totalHorizontalMargin / 2
-      //   var imgMarginRight = imgMarginLeft
-      //   if (imgMarginLeft < -100) {
-      //     imgMarginLeft = randomIntFromInterval((totalHorizontalMargin) + 100, -100)
-      //     imgMarginRight = totalHorizontalMargin - imgMarginLeft
-      //   }
+        var totalHorizontalMargin = croppedWidth - naturalWidth;
+        var imgMarginLeft = totalHorizontalMargin / 2
+        var imgMarginRight = imgMarginLeft
+        if (imgMarginLeft < -100) {
+          imgMarginLeft = randomIntFromInterval((totalHorizontalMargin) + 100, -100)
+          imgMarginRight = totalHorizontalMargin - imgMarginLeft
+        }
 
-      //   var totalVerticalMargin = croppedHeight - naturalHeight;
-      //   var imgMarginTop = totalVerticalMargin / 2
-      //   var imgMarginBottom = imgMarginTop
-      //   if (imgMarginTop < -100) {
-      //     imgMarginTop = randomIntFromInterval((totalVerticalMargin) + 100, -100)
-      //     imgMarginBottom = totalVerticalMargin - imgMarginTop
-      //   }
+        var totalVerticalMargin = croppedHeight - naturalHeight;
+        var imgMarginTop = totalVerticalMargin / 2
+        var imgMarginBottom = imgMarginTop
+        if (imgMarginTop < -100) {
+          imgMarginTop = randomIntFromInterval((totalVerticalMargin) + 100, -100)
+          imgMarginBottom = totalVerticalMargin - imgMarginTop
+        }
 
-      //   img.style.marginLeft = `${imgMarginLeft}px`
-      //   img.style.marginRight = `${imgMarginRight}px`
-      //   img.style.marginTop = `${imgMarginTop}px`
-      //   img.style.marginBottom = `${imgMarginBottom}px`
+        img.style.marginLeft = `${imgMarginLeft}px`
+        img.style.marginRight = `${imgMarginRight}px`
+        img.style.marginTop = `${imgMarginTop}px`
+        img.style.marginBottom = `${imgMarginBottom}px`
 
-      //   var speedIn = 0.05
-      //   fadeIn(container, speedIn)
-      // }
+        var speedIn = 0.05
+        fadeIn(container, speedIn)
+      }
     });
     // End showImage
 
@@ -356,17 +365,10 @@
       imgElementList = []
 
       //background
-      var gameBackground3 = document.createElement("div")
-      gameBackground3.classList.add('gameBackground');
-      div_gifs.appendChild(gameBackground3);
+      gameBackground.style.visibility='visible'
 
       //title
-      var container = document.createElement("div")
-      container.classList.add('title');
-      var img = document.createElement("img");
-      img.src = "whats_the_game_title.png";
-      container.appendChild(img);
-      div_gifs.appendChild(container);
+      logo.style.visibility='visible'
 
       //audio cue
       const audio = new Audio("chatguessgames.mp3");
@@ -434,6 +436,9 @@
 
         setTimeout(function () {
           div_gifs.innerHTML = "";
+          gameBackground.style.visibility='hidden'
+          logo.style.visibility='hidden'
+
         }, 10_000);
       }
     });
