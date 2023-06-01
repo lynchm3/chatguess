@@ -8,6 +8,8 @@ import { CorrectAnswer, Scoreboard } from './scoreboard.js';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import { RedemptionBot } from './redemptionBot.js';
 import { oAuthToken, botName, channelName } from './env.js';
+import './Twurple.js';
+
 // import { Engine, World, Bodies, Composite } from 'matter';
 
 // const redemptionBot = new RedemptionBot(oAuthToken)

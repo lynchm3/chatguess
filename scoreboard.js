@@ -71,9 +71,11 @@ class ScoreboardEntry {
 
 export class Scoreboard {
 
-    // Top 5 of all time
+    // Top 5 of the month
     getScoreboard(accessToken, chatbot, channelId) {
-        db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channelId}' GROUP BY userID ORDER BY Score DESC LIMIT 5;`,
+        
+        const startOfTheMonth = this.getTimestampForStartOfMonth()
+        db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channelId}' AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC LIMIT 5;`,
             (err, result) => {
                 if (err) {
                     console.log("getScoreboard err ");
@@ -102,7 +104,7 @@ export class Scoreboard {
         const scoreboardWithNames =
             result.map(x => new ScoreboardEntry(users.data.find(y => y.id == x.userID).display_name, x.score))
 
-        chatbot.chat("Scoreboard: " + scoreboardWithNames.map(x => x.username + ": " + x.score).join(", "))
+        chatbot.chat("This Month's Scoreboard: " + scoreboardWithNames.map(x => x.username + ": " + x.score).join(", "))
     }
 
     //All time
