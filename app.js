@@ -8,7 +8,7 @@ import { CorrectAnswer, Scoreboard } from './scoreboard.js';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import { RedemptionBot } from './redemptionBot.js';
 import { oAuthToken, botName, channelName } from './env.js';
-import './Twurple.js';
+import { setRedemptionCallback } from './Twurple.js';
 
 // import { Engine, World, Bodies, Composite } from 'matter';
 
@@ -21,6 +21,7 @@ const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
 let accessToken = null
 var autoplay = false
+var gameCount = 0
 
 let game = null
 let hintProvider = null
@@ -218,7 +219,10 @@ class ChatbotCallback {
   }
 
   startWhatsTheGame() {
+
+    gameCount++
     if (game == null) {
+      gameCount--
       getGame(accessToken)
       showTitle()
     }
@@ -232,13 +236,23 @@ class ChatbotCallback {
     hintProvider.stop()
     hintProvider = null
 
-    if (autoplay)
+    if (autoplay) {
       setTimeout(function () {
         if (game == null) {
           getGame(accessToken)
           showTitle()
         }
       }, 11_000);
+    }
+    else if (gameCount > 0) {
+      setTimeout(function () {
+        if (game == null) {
+          getGame(accessToken)
+          showTitle()
+          gameCount--
+        }
+      }, 11_000);
+    }
   }
 
   messageCallback(message, tags, username, userId, channelId) {
@@ -263,7 +277,7 @@ function checkGuess(message, username, userId, channelId) {
       game.id)
     correctAnswer.insertCorrectAnswer()
     chatbot.chat(`lynchm1Youwhat ${username} guessed correctly! The game was ${game.name}! lynchm1Youwhat`)
-    
+
     new Scoreboard().getUserScoreAndRival(chatbot, userId, channelId, username, accessToken)
 
     if (userId != null)
@@ -274,13 +288,22 @@ function checkGuess(message, username, userId, channelId) {
     hintProvider.stop()
     hintProvider = null
 
-    if (autoplay)
+    if (autoplay) {
       setTimeout(function () {
         if (game == null) {
           getGame(accessToken)
           showTitle()
         }
       }, 11_000);
+    } else if (gameCount > 0) {
+      setTimeout(function () {
+        if (game == null) {
+          getGame(accessToken)
+          showTitle()
+          gameCount--
+        }
+      }, 11_000);
+    }
   }
 }
 
@@ -293,5 +316,21 @@ class HtmlControllerCallback {
 setCallback(new HtmlControllerCallback())
 
 let chatbot = new Chatbot(new ChatbotCallback())
+
+
+
+//Chat Bot
+class RedemptionCallback {
+  addGamesToQueue(gc) {
+    gameCount += gc
+    if (gameCount > 0 && game == null) {
+      gameCount--
+      getGame(accessToken)
+      showTitle()
+    }
+  }
+}
+
+setRedemptionCallback(new RedemptionCallback())
 
 getAccessToken()

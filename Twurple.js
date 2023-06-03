@@ -4,6 +4,9 @@ import { promises as fs } from 'fs';
 import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
 import fetch from 'node-fetch';
 
+var callback = null
+export function setRedemptionCallback(cb) { callback = cb }
+
 const channel = 'lynchml'
 const tokenData = JSON.parse(await fs.readFile(`./tokens.57016188.json`, 'UTF-8'));
 
@@ -19,9 +22,9 @@ const authProvider = new RefreshingAuthProvider(
 
 await authProvider.addUserForToken(tokenData, ['chat', 'redemptions']);
 
-const createRedemption = async () => {
+const createReward = async () => {
 
-	console.log("createRedemption")
+	console.log("createReward")
 
 	const createRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${userId}`, {
 		method: 'POST',
@@ -37,18 +40,18 @@ const createRedemption = async () => {
 		}`
 	});
 
-	const createRedemptionJson = await createRedemptionResponse.json();
+	const createRewardJson = await createRedemptionResponse.json();
 
-	console.log("createRedemptionJson")
-	console.log(createRedemptionJson)
+	console.log("createRewardJson")
+	console.log(createRewardJson)
 }
 
-createRedemption()
+// createRedemption()
 
 
-const getRedemptions = async () => {
+const getRewards = async () => {
 
-	console.log("getRedemptions")
+	console.log("getRewards")
 
 	const redemptionsResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${userId}`, {
 		method: 'GET',
@@ -59,18 +62,14 @@ const getRedemptions = async () => {
 		}
 	});
 
-	const redemptionsResponseJson = await redemptionsResponse.json();
+	const getRewardsResponseJson = await redemptionsResponse.json();
 
-	console.log("redemptionsResponseJson")
-	console.log(redemptionsResponseJson)
+	console.log("getRewardsResponseJson")
+	console.log(getRewardsResponseJson)
 }
 
-// getRedemptions()
-
-
-
-// function for polling every 15 seconds to check for user redemptions 
-const CHAT_GUESS_GAMES_REWARD_ID = "57b3482c-f832-4c64-b0e5-30ddb2936a58"
+// getRewards()
+const CHAT_GUESS_GAMES_REWARD_ID = "ab562539-eea4-4a49-b570-cb9c4a57b704"
 const pollForRedemptions = async () => {
 
 	console.log("pollForRedemptions")
@@ -81,7 +80,7 @@ const pollForRedemptions = async () => {
 			"Client-ID": `${clientId}`,
 			"Authorization": `Bearer ${tokenData.accessToken}`,
 			"Accept": "application/json"
-		}		
+		}
 	});
 
 	const redemptionResponseJson = await redemptionResponse.json();
@@ -89,38 +88,38 @@ const pollForRedemptions = async () => {
 	console.log("redemptionResponseJson")
 	console.log(redemptionResponseJson)
 
-	// let redemptions = body.data
-	// let successfulRedemptions = []
-	// let failedRedemptions = []
+	let redemptions = redemptionResponseJson.data
 
-	// for (let redemption of redemptions) {
-	//     // can't follow yourself :) 
-	//     if (redemption.broadcaster_id == redemption.user_id) {
-	//         failedRedemptions.push(redemption.id)
-	//         continue
-	//     }
-	//     // if failed, add to the failed redemptions
-	//     if (await followUser(redemption.broadcaster_id, redemption.user_id) == false) {
-	//         failedRedemptions.push(redemption.id)
-	//         continue
-	//     }
-	//     // otherwise, add to the successful redemption list
-	//     successfulRedemptions.push(redemption.id)
-	// }
+	if (callback != null) {
+		callback.addGamesToQueue(redemptions.length)
+		for (let redemption of redemptions) {
+			fulfillRedemption(redemption.id)
+		}
+	}
+	setTimeout(pollForRedemptions, 15 * 1000)
 
-	// // do this in parallel
-	// await Promise.all([
-	//     fulfillRewards(successfulRedemptions, "FULFILLED"),
-	//     fulfillRewards(failedRedemptions, "CANCELED")
-	// ])
-
-	// console.log(`Processed ${successfulRedemptions.length + failedRedemptions.length} redemptions.`)
-
-	// // instead of an interval, we wait 15 seconds between completion and the next call
-	// pollingInterval = setTimeout(pollForRedemptions, 15 * 1000)
 }
 
-// pollForRedemptions()
+setTimeout(pollForRedemptions, 15 * 1000)
+
+const fulfillRedemption = async (redemptionId) => {
+
+	const fulfillRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${CHAT_GUESS_GAMES_REWARD_ID}&id=${redemptionId}`, {
+		method: 'PATCH',
+		headers: {
+			"Client-ID": `${clientId}`,
+			"Authorization": `Bearer ${tokenData.accessToken}`,
+			"Accept": "application/json",
+			"Content-Type": "application/json"
+		},
+		body: `{"status": "FULFILLED"}`
+	});
+
+	const fulfillRedemptionResponseJson = await fulfillRedemptionResponse.json();
+
+	console.log("fulfillRedemptionResponseJson")
+	console.log(fulfillRedemptionResponseJson)
+}
 
 
 
