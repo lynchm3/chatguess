@@ -2,31 +2,31 @@
 // import { express } from 'express';
 import express from 'express';
 // const { express } = pkg;
-const app = express();
+const expressApp = express();
 import { Server } from 'http';
-const http = Server(app);
+const httpServer = Server(expressApp);
 import { Server as SocketIOServer } from 'socket.io';
-const io = new SocketIOServer(http)
+const io = new SocketIOServer(httpServer)
 
 const port = 8080;
-// app.listen(port, () => {
+// expressApp.listen(port, () => {
 //   console.log(`chatguess: listening on port ${port}`);
 // });
 
 
-// app.get('/', (req, res) => {
+// expressApp.get('/', (req, res) => {
 //   const name = process.env.NAME || 'World';
 //   res.send(`ChatGuess.com`);
 // });
 
 //////// use 8080 ///////////////
-// app.get('/', (req, res) => {
+// expressApp.get('/', (req, res) => {
 //   const name = process.env.NAME || 'World';
 //   res.send(`Hello ${name}!`);
 // });
 
 // const port = 8080;
-// app.listen(port, () => {
+// expressApp.listen(port, () => {
 //   console.log(`helloworld: listening on port ${port}`);
 // });
 
@@ -44,17 +44,14 @@ export function showText(text) { io.emit('showText', text); }
 export function showVideo(video) { io.emit('showVideo', video); }
 
 export function showGif(src, number) {
-  // console.log('html.js showGif src = ' + src);
   io.emit('showGif', src, number);
 }
 
 export function playVideo(src) {
-  // console.log('html.js function playVideo src = ' + src);
   io.emit('playVideo', src);
 }
 
 export function playAudio(src) {
-  //  console.log('html.js playAudio src = ' + src);
   io.emit('playAudio', src);
 }
 
@@ -70,34 +67,42 @@ export function showCoverImage(gameImage, username) {
   io.emit('showCoverImage', gameImage, username);
 }
 
-export function showImage(gameImage, maxWidth) {   
-  io.emit('showImage', gameImage, maxWidth); 
+export function showImage(gameImage, maxWidth) {
+  io.emit('showImage', gameImage, maxWidth);
 }
 
 io.on("connection", (socket) => {
-  // console.log("connected = " + guess)
+  console.log("socket connected")
+  // console.log(socket)
 })
 
-// io.on("connection", socket => {
-//   socket.on("register", cb => cb({ canvas }));
-//   socket.on("player click", coordinates => {
-//     entities.boxes.forEach(box => {
-//       // servers://stackoverflow.com/a/50472656/6243352
-//       const force = 0.01;
-//       const deltaVector = Matter.Vector.sub(box.position, coordinates);
-//       const normalizedDelta = Matter.Vector.normalise(deltaVector);
-//       const forceVector = Matter.Vector.mult(normalizedDelta, force);
-//       Matter.Body.applyForce(box, box.position, forceVector);
-//     });
-//   });
-//   socket.on('guess', function (guess) {
-//     // console.log("htmlController.js guess = " + guess)
-//     callback.guess()
-//   });
-// });
+//static access to public folder
+// expressApp.use(express.static('public'));
 
-app.use(express.static('public'));
+expressApp.use((req, res, next) => {
+  console.log(`Req: ${req.originalUrl} Time: ${Date.now()}`)
+  // console.log("req.originalUrl")
+  // console.log(req.originalUrl)
 
-http.listen(port, () => {
+  if (    
+    // req.originalUrl.endsWith("index.html") ||
+    req.originalUrl.endsWith(".png") ||
+    req.originalUrl.endsWith(".mp3") ||
+    req.originalUrl.endsWith(".jpg") ||
+    req.originalUrl.endsWith(".jpeg") ||
+    req.originalUrl.endsWith(".js") ||
+    req.originalUrl.endsWith(".css")) {
+    next()
+  }
+
+  // console.log('req:', req)
+  // console.log('res:', res)
+})
+
+expressApp.use(express.static('public'));
+
+// expressApp.use(express.)
+
+httpServer.listen(port, () => {
   console.log(`chatguess: listening on port ${port}`);
 });
