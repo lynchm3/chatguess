@@ -75,14 +75,6 @@ export class Game {
                 this.steamURL = websites[i].url
             }
         }
-
-        console.log("this.websites")
-        console.log(this.websites)
-        console.log("WebsiteCategories.steam")
-        console.log(WebsiteCategories.steam)
-        console.log("this.steamURL")
-        console.log(this.steamURL)
-
     }
 }
 

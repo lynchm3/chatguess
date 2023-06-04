@@ -6,26 +6,34 @@ import { Chatbot } from './chatbot/chatbot.js';
 import { showImage, showCoverImage, showTitle, setCallback } from './htmlController.js';
 import { CorrectAnswer, Scoreboard } from './scoreboard.js';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
-import { RedemptionBot } from './redemptionBot.js';
 import { oAuthToken, botName, channelName } from './env.js';
 import { setRedemptionCallback } from './Twurple.js';
 
-// import { Engine, World, Bodies, Composite } from 'matter';
+//Not sure whether to do map or array here
+var ChannelStatusMap = {}
+var ChannelStatuses = []
 
-// const redemptionBot = new RedemptionBot(oAuthToken)
-// redemptionBot.getRedemptions()
-// redemptionBot.pollForRedemptions()
-// redemptionBot.validate()
+// Class to track separate instances of the game running
+class ChannelStatus{
+  constructor(channel) {
+    this.channel = channel
+    this.game = null
+    this.queue = 0
+    this.hintProvider = null
+    this.guessChecker = null
+  }
+}
 
-const BASE_IGDB_URL = "https://api.igdb.com/v4"
-
-let accessToken = null
-var autoplay = false
-var gameCount = 0
-
+// To be replaced by ChannelStatus class
+let gameCount = 0
 let game = null
 let hintProvider = null
 let guessChecker = null
+
+const BASE_IGDB_URL = "https://api.igdb.com/v4"
+
+let igdbAccessToken = null
+let autoplay = false
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -51,7 +59,7 @@ let i = 0;
 
 const SEARCH_TERM = ""
 
-const getGame = async (accessToken) => {
+const getGame = async (igdbAccessToken) => {
 
   chatbot.chat(`lynchm1Youwhat Starting a new round of WHAT'S THE GAME! lynchm1Youwhat`)
 
@@ -69,7 +77,7 @@ const getGame = async (accessToken) => {
       `,
     headers: {
       "Client-ID": `${TWITCH_CLIENT_ID}`,
-      "Authorization": `Bearer ${accessToken}`,
+      "Authorization": `Bearer ${igdbAccessToken}`,
       "Accept": "application/json"
     }
   });
@@ -115,90 +123,27 @@ const getGame = async (accessToken) => {
   guessChecker = new GuessChecker(game)
 }
 
-const getAccessToken = async () => {
+const getIgdbAccessToken = async () => {
   const response = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${TWITCH_CLIENT_ID}&client_secret=${TWITCH_CLIENT_SECRET}&grant_type=client_credentials&scope=channel%3Amanage%3Aredemptions`, {
     method: 'POST'
   });
   const responseJson = await response.json();
-  accessToken = responseJson.access_token
+  igdbAccessToken = responseJson.access_token
 }
 
-const getProfileImage = async (userID, accessToken) => {
+// const getProfileImage = async (userID, accessToken) => {
 
-  const twitchUserResponse = await fetch(`https://api.twitch.tv/helix/users?id=${userID}`, {
-    method: 'GET',
-    headers: {
-      "Client-ID": `${TWITCH_CLIENT_ID}`,
-      "Authorization": `Bearer ${accessToken}`,
-      "Accept": "application/json"
-    }
-  });
+//   const twitchUserResponse = await fetch(`https://api.twitch.tv/helix/users?id=${userID}`, {
+//     method: 'GET',
+//     headers: {
+//       "Client-ID": `${TWITCH_CLIENT_ID}`,
+//       "Authorization": `Bearer ${accessToken}`,
+//       "Accept": "application/json"
+//     }
+//   });
 
-  const twitchUserResponseJson = await twitchUserResponse.json();
-}
-
-const getRedemptions = async (userID, accessToken) => {
-  const redemptionsResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${userID}`, {
-    method: 'GET',
-    headers: {
-      "Client-ID": `${TWITCH_CLIENT_ID}`,
-      "Authorization": `Bearer ${accessToken}`,
-      "Accept": "application/json"
-    }
-  });
-
-  const redemptionsResponseJson = await redemptionsResponse.json();
-
-  console.log("redemptionsResponseJson")
-  console.log(redemptionsResponseJson)
-}
-
-const pollForRedemptions = async (userID, accessToken) => {
-  const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userID}&reward_id=${"123"}&status=UNFULFILLED`, {
-    method: 'GET',
-    headers: {
-      "Client-ID": `${TWITCH_CLIENT_ID}`,
-      "Authorization": `Bearer ${accessToken}`,
-      "Accept": "application/json"
-    }
-  });
-
-  const redemptionResponseJson = await redemptionResponse.json();
-
-  console.log("redemptionResponseJson")
-  console.log(redemptionResponseJson)
-
-
-  // let redemptions = body.data
-  // let successfulRedemptions = []
-  // let failedRedemptions = []
-
-  // for (let redemption of redemptions) {
-  //     // can't follow yourself :) 
-  //     if (redemption.broadcaster_id == redemption.user_id) {
-  //         failedRedemptions.push(redemption.id)
-  //         continue
-  //     }
-  //     // if failed, add to the failed redemptions
-  //     if (await followUser(redemption.broadcaster_id, redemption.user_id) == false) {
-  //         failedRedemptions.push(redemption.id)
-  //         continue
-  //     }
-  //     // otherwise, add to the successful redemption list
-  //     successfulRedemptions.push(redemption.id)
-  // }
-
-  // // do this in parallel
-  // await Promise.all([
-  //     fulfillRewards(successfulRedemptions, "FULFILLED"),
-  //     fulfillRewards(failedRedemptions, "CANCELED")
-  // ])
-
-  // console.log(`Processed ${successfulRedemptions.length + failedRedemptions.length} redemptions.`)
-
-  // // instead of an interval, we wait 15 seconds between completion and the next call
-  // pollingInterval = setTimeout(pollForRedemptions, 15 * 1000)
-}
+//   const twitchUserResponseJson = await twitchUserResponse.json();
+// }
 
 class HintProviderCallback {
   giveTextHint(hint) {
@@ -220,16 +165,16 @@ class ChatbotCallback {
     gameCount++
     if (gameCount > 0 && game == null) {
       gameCount--
-      getGame(accessToken)
+      getGame(igdbAccessToken)
       showTitle()
     }
   }
 
   giveUp() {
     chatbot.chat(`lynchm1Youwhat No one guessed correctly! The game was ${game.name}! lynchm1Youwhat`)
-    if (game.steamURL != null) {
-      chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
-    }
+    // if (game.steamURL != null) {
+    //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
+    // }
     showCoverImage(game.coverArt, "No one")
     guessChecker = null
     hintProvider.stop()
@@ -277,9 +222,9 @@ function checkGuess(message, username, userId, channelId) {
     correctAnswer.insertCorrectAnswer()
 
     chatbot.chat(`lynchm1Youwhat ${username} guessed correctly! The game was ${game.name}! lynchm1Youwhat`)
-    if (game.steamURL != null) {
-      chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
-    }
+    // if (game.steamURL != null) {
+    //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
+    // }
 
     new Scoreboard().getUserScoreAndRival(chatbot, userId, channelId, username, accessToken)
 
@@ -335,4 +280,4 @@ class RedemptionCallback {
 
 setRedemptionCallback(new RedemptionCallback())
 
-getAccessToken()
+getIgdbAccessToken()
