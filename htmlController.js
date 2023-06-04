@@ -37,7 +37,7 @@ const port = 8080;
 
 //Socket emits
 var callback = null
-export function setCallback(cb) { callback = cb }
+export function setHTMLControllerCallback(cb) { callback = cb }
 
 export function showText(text) { io.emit('showText', text); }
 

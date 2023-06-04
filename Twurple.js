@@ -24,8 +24,6 @@ await authProvider.addUserForToken(tokenData, ['chat', 'redemptions']);
 
 const createReward = async () => {
 
-	console.log("createReward")
-
 	const createRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${userId}`, {
 		method: 'POST',
 		headers: {
@@ -41,9 +39,6 @@ const createReward = async () => {
 	});
 
 	const createRewardJson = await createRedemptionResponse.json();
-
-	console.log("createRewardJson")
-	console.log(createRewardJson)
 }
 
 // createRedemption()
@@ -63,9 +58,6 @@ const getRewards = async () => {
 	});
 
 	const getRewardsResponseJson = await redemptionsResponse.json();
-
-	console.log("getRewardsResponseJson")
-	console.log(getRewardsResponseJson)
 }
 
 // getRewards()
@@ -84,15 +76,14 @@ const pollForRedemptions = async () => {
 	});
 
 	const redemptionResponseJson = await redemptionResponse.json();
-
 	console.log("redemptionResponseJson")
 	console.log(redemptionResponseJson)
 
 	let redemptions = redemptionResponseJson.data
 
 	if (callback != null) {
-		callback.addGamesToQueue(redemptions.length)
 		for (let redemption of redemptions) {
+			callback.addGamesToQueue(1, redemption.user_name)
 			fulfillRedemption(redemption.id)
 		}
 	}
@@ -116,9 +107,6 @@ const fulfillRedemption = async (redemptionId) => {
 	});
 
 	const fulfillRedemptionResponseJson = await fulfillRedemptionResponse.json();
-
-	console.log("fulfillRedemptionResponseJson")
-	console.log(fulfillRedemptionResponseJson)
 }
 
 

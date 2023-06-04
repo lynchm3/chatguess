@@ -69,8 +69,6 @@ export class Game {
         //get the steam url docs - https://api-docs.igdb.com/#website
         this.steamURL = null
         for (let i in websites) {
-            console.log("websites[i]")
-            console.log(websites[i])
             if (websites[i].category == WebsiteCategories.steam) {
                 this.steamURL = websites[i].url
             }
