@@ -1,3 +1,23 @@
+const WebsiteCategories = {
+    official: 1,
+    wikia: 2,
+    wikipedia: 3,
+    facebook: 4,
+    twitter: 5,
+    twitch: 6,
+    instagram: 8,
+    youtube: 9,
+    iphone: 10,
+    ipad: 11,
+    android: 12,
+    steam: 13,
+    reddit: 14,
+    itch: 15,
+    epicgames: 16,
+    gog: 17,
+    discord: 18
+}
+
 export class Game {
     constructor(
         id,
@@ -45,6 +65,23 @@ export class Game {
         this.themes = themes;
         this.videos = videos;
         this.websites = websites;
+
+        //get the steam url docs - https://api-docs.igdb.com/#website
+        this.steamURL = null
+        for (let i in websites) {
+            console.log("websites[i]")
+            console.log(websites[i])
+            if (websites[i].category == WebsiteCategories.steam) {
+                this.steamURL = websites[i].url
+            }
+        }
+
+        console.log("this.websites")
+        console.log(this.websites)
+        console.log("WebsiteCategories.steam")
+        console.log(WebsiteCategories.steam)
+        console.log("this.steamURL")
+        console.log(this.steamURL)
 
     }
 }

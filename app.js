@@ -39,7 +39,7 @@ const MAX_OFFSET = GAMES_WITH_50_RATING
 const RESULT_COUNT = 1
 const FIELDS = `name, follows, hypes, aggregated_rating, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
-  storyline, summary, themes.name, videos.*, websites.url,
+  storyline, summary, themes.name, videos.*, websites.*,
   collection.name, 
   involved_companies.company.name`
 const IMAGE_BIG_COVER_URL = `https://images.igdb.com/igdb/image/upload/t_cover_big/`
@@ -88,7 +88,6 @@ const getGame = async (accessToken) => {
 //     at getGame (file:///C:/Users/lynch/Documents/GitHub/chatguess/app.js:76:32)
 //     at processTicksAndRejections (node:internal/process/task_queues:96:5)
 
-
         /* name = */ responseJson[0].name,
         /* follows = */ responseJson[0].follows,
         /* hypes = */ responseJson[0].hypes,
@@ -109,8 +108,7 @@ const getGame = async (accessToken) => {
         /* summary = */ responseJson[0].summary,
         /* themes = */ responseJson[0].themes?.map(x => x.name),
         /* videos = */ responseJson[0].videos?.map(x => x.video_id),
-        /* websites = */ responseJson[0].websites?.map(x => x.url)
-
+        /* websites = */ responseJson[0].websites
   )
 
   hintProvider = new HintProvider(game, new HintProviderCallback())
@@ -219,9 +217,8 @@ class ChatbotCallback {
   }
 
   startWhatsTheGame() {
-
     gameCount++
-    if (game == null) {
+    if (gameCount > 0 && game == null) {
       gameCount--
       getGame(accessToken)
       showTitle()
@@ -230,27 +227,29 @@ class ChatbotCallback {
 
   giveUp() {
     chatbot.chat(`lynchm1Youwhat No one guessed correctly! The game was ${game.name}! lynchm1Youwhat`)
+    if (game.steamURL != null) {
+      chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
+    }
     showCoverImage(game.coverArt, "No one")
-    game = null
     guessChecker = null
     hintProvider.stop()
     hintProvider = null
 
     if (autoplay) {
       setTimeout(function () {
-        if (game == null) {
-          getGame(accessToken)
-          showTitle()
-        }
+        getGame(accessToken)
+        showTitle()
       }, 11_000);
     }
     else if (gameCount > 0) {
       setTimeout(function () {
-        if (game == null) {
-          getGame(accessToken)
-          showTitle()
-          gameCount--
-        }
+        getGame(accessToken)
+        showTitle()
+        gameCount--
+      }, 11_000);
+    } else {
+      setTimeout(function () {
+        game = null
       }, 11_000);
     }
   }
@@ -276,32 +275,35 @@ function checkGuess(message, username, userId, channelId) {
       channelId,
       game.id)
     correctAnswer.insertCorrectAnswer()
+
     chatbot.chat(`lynchm1Youwhat ${username} guessed correctly! The game was ${game.name}! lynchm1Youwhat`)
+    if (game.steamURL != null) {
+      chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
+    }
 
     new Scoreboard().getUserScoreAndRival(chatbot, userId, channelId, username, accessToken)
 
     if (userId != null)
       getProfileImage(userId, accessToken)
     showCoverImage(game.coverArt, username)
-    game = null
     guessChecker = null
     hintProvider.stop()
     hintProvider = null
 
     if (autoplay) {
       setTimeout(function () {
-        if (game == null) {
-          getGame(accessToken)
-          showTitle()
-        }
+        getGame(accessToken)
+        showTitle()
       }, 11_000);
     } else if (gameCount > 0) {
       setTimeout(function () {
-        if (game == null) {
-          getGame(accessToken)
-          showTitle()
-          gameCount--
-        }
+        getGame(accessToken)
+        showTitle()
+        gameCount--
+      }, 11_000);
+    } else {
+      setTimeout(function () {
+        game = null
       }, 11_000);
     }
   }
