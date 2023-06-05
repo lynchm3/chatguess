@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+
+<!-- Matter.js simple example https://redstapler.co/matter-js-tutorial-game-dev/ -->
+<!-- Draw image on canvas given points https://stackoverflow.com/questions/24727899/draw-image-to-canvas-with-points -->
+
+<head>
+  <title>ChatGuessGames</title>
+  <link rel="stylesheet" href="memes.css">
+  <link rel="stylesheet" href="infinity-mirror.css">
+  <script src="/utils.js"></script>
+</head>
+
+<body>
+
+  <!-- <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg"> -->
+  <div class="gameBackground" id="gameBackground"></div>
+  <div class="logo" id="logo">
+    <img src="whats_the_game_title.png"/>
+  </div>
+
+  <div class="div-physics" id="div-physics"></div>
+  <div class="div-gifs" id="div-gifs"></div>
+
+  <div id="box"></div>
+  <canvas class="canvas" id="canvas"></canvas>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+
+    var div_gifs = document.getElementById('div-gifs');
+    var gameBackground = document.getElementById('gameBackground');    
+    gameBackground.style.visibility='hidden'
+    var logo = document.getElementById('logo');    
+    logo.style.visibility='hidden'
+
+    const frameRate = 1000 / 30;
+    const boxSize = 20;
+    const wallThickness = 20;
+    const gameImage = []
+    const widths = []
+    var loadedImages = []
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    console.log("canvas.width")
+    console.log(canvas.width)
+    console.log("canvas.height")
+    console.log(canvas.height)
+
+    const entities = {
+      boxes: [],
+      walls: [
+        // Matter.Bodies.rectangle(
+        //   canvas.width / 2, 0,
+        //   canvas.width,
+        //   wallThickness,
+        //   { isStatic: true }
+        // ),
+        // Matter.Bodies.rectangle(
+        //   0, canvas.height / 2,
+        //   wallThickness,
+        //   canvas.height,
+        //   { isStatic: true }
+        // ),
+        // Matter.Bodies.rectangle(
+        //   canvas.width,
+        //   canvas.width / 2,
+        //   wallThickness,
+        //   canvas.width,
+        //   { isStatic: true }
+        // ),
+        //Bottom
+        // Matter.Bodies.rectangle(
+        //   canvas.width / 2,
+        //   canvas.height,
+        //   canvas.width * 2,
+        //   wallThickness,
+        //   { isStatic: true }
+        // ),
+      ]
+    };
+
+    const toVertices = e => e.vertices.map(({ x, y }) => ({ x, y }))
+
+    const showImage = (gameImage, maxWidth) => {
+      const img = new Image();
+      img.onload = () => {
+        // document.body.appendChild(img)
+        loadedImages.push(img)
+
+        //Add physics object for the image
+        var box = Matter.Bodies.rectangle(
+          Math.random() * canvas.width,
+          maxWidth,
+          maxWidth,
+          maxWidth,
+          {
+            // density: 0.0005,
+            // frictionAir: 0.06,
+            // restitution: 0.3,
+            // friction: 0.01,
+            // render: {
+            //   sprite: {
+            //     texture: gameImageURL // set texture here
+            //   }
+            // }
+          }
+        )
+
+        widths.push(maxWidth)
+
+        console.log(box)
+
+        entities.boxes.push(box)
+        Matter.Composite.add(engine.world, box);
+
+
+
+      };
+      // img.onerror = onError();
+      img.src = gameImage.url;
+    };
+
+    const engine = Matter.Engine.create({
+      canvas: canvas,
+      width: canvas.width,
+      height: canvas.height
+    });
+
+
+    var div_physics = document.getElementById('div-physics');
+
+    Matter.Runner.run(engine);
+
+    Matter.Composite.add(engine.world, Object.values(entities).flat());
+
+
+    var socket = io();
+    var gameImages = []
+    var imgElementList = []
+
+    const drawShape = (shape, ctx) => {
+      ctx.beginPath();
+      shape.vertices.forEach(e => ctx.lineTo(e.x, e.y));
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    };
+
+    const drawImage = (shape, index, ctx) => {
+      var img = loadedImages[index]
+      // ctx.drawImage(img, shape.vertices[0].x, shape.vertices[0].y, 100, 100)
+
+
+      // save the unrotated context of the canvas so we can restore it later
+      // the alternative is to untranslate & unrotate after drawing
+      ctx.save();
+
+      // move to the center of the canvas
+      ctx.translate(shape.vertices[0].x, shape.vertices[0].y);
+
+      // rotate the canvas to the specified degrees
+      ctx.rotate(shape.angle);
+
+      // move back to now rotated 0,0
+      // ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+      // draw the image
+      // since the context is rotated, the image will be rotated also
+      ctx.drawImage(img, 0, 0, widths[index], widths[index])
+
+      // we’re done with the rotating so restore the unrotated context
+      ctx.restore();
+    };
+
+    // {id: 2, type: 'body', label: 'Rectangle Body', parts: Array(1), plugin: {…}, …}
+
+    setInterval(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#888";
+      ctx.strokeStyle = "#888";
+      entities.walls.forEach(wall => drawShape(wall, ctx));
+      for (var i = 0; i < entities.boxes.length; i++) {
+        // drawShape(entities.boxes[i], ctx)
+        // drawImage(entities.boxes[i], i, ctx)
+        // stretchImage(entities.boxes[i], i, ctx)
+      }
+    }, frameRate);
+
+    socket.once("connect", () => {
+      // socket.emit("register", res => {
+      //   canvas.width = res.canvas.width;
+      //   canvas.height = res.canvas.height;
+      // });
+    });
+
+    function updateState(boxes, walls) {
+
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#fff";
+      // walls.forEach(wall => draw(wall, ctx));
+      ctx.fillStyle = "#fff";
+      // boxes.forEach(box => draw(box, ctx));
+
+      boxes.forEach(function (box, i) {
+        imgElementList[i].style.left = box[0].x + 'px';
+        imgElementList[i].style.top = box[0].y + 'px';
+      });
+    }
+
+
+    //showImage  
+    socket.on('showImage', function (gameImage, maxWidth) {
+
+      showImage(gameImage, maxWidth)
+      gameImages.push(gameImage)
+
+      var container = document.createElement("div")
+      imgElementList.push(container)
+
+      // container.style.visibility='hidden'
+      container.style.opacity = 0;
+      container.classList.add('crop');
+      // console.log("memes.html showImage container = " + container)
+      var img = document.createElement("img");
+      img.src = gameImage.url;
+      // console.log("memes.html showImage img = " + img)
+
+      container.appendChild(img);
+      div_gifs.appendChild(container);
+
+      img.onload = function () {
+
+        var naturalWidth = img.naturalWidth;
+        var naturalHeight = img.naturalHeight;
+
+        let screenWidth = window.innerWidth;
+        let screenHeight = window.innerHeight;
+        console.log("screenWidth")
+        console.log(screenWidth)
+
+        //Container Height
+        let croppedWidth = maxWidth
+        if (croppedWidth > naturalWidth)
+          croppedWidth = naturalWidth
+        container.style.width = croppedWidth + "px"
+
+        //Container Width
+        let croppedHeight = croppedWidth / naturalWidth * naturalHeight
+        if (croppedHeight > naturalHeight)
+          croppedHeight = naturalHeight
+        container.style.height = croppedHeight + "px"
+
+        //Container position
+        var x = 0
+        var y = 0
+        const maxAttempts = 10
+        var attempts = 0
+        while ((x < 320 && y < 210) || (x + croppedWidth > 1000 && y + croppedHeight > 520)) {
+          var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
+          var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
+          attempts++
+          if (attempts > maxAttempts)
+            break
+        }
+
+        container.style.left = x + 'px';
+        container.style.top = y + 'px';
+
+        var totalHorizontalMargin = croppedWidth - naturalWidth;
+        var imgMarginLeft = totalHorizontalMargin / 2
+        var imgMarginRight = imgMarginLeft
+        if (imgMarginLeft < -100) {
+          imgMarginLeft = randomIntFromInterval((totalHorizontalMargin) + 100, -100)
+          imgMarginRight = totalHorizontalMargin - imgMarginLeft
+        }
+
+        var totalVerticalMargin = croppedHeight - naturalHeight;
+        var imgMarginTop = totalVerticalMargin / 2
+        var imgMarginBottom = imgMarginTop
+        if (imgMarginTop < -100) {
+          imgMarginTop = randomIntFromInterval((totalVerticalMargin) + 100, -100)
+          imgMarginBottom = totalVerticalMargin - imgMarginTop
+        }
+
+        img.style.marginLeft = `${imgMarginLeft}px`
+        img.style.marginRight = `${imgMarginRight}px`
+        img.style.marginTop = `${imgMarginTop}px`
+        img.style.marginBottom = `${imgMarginBottom}px`
+
+        var speedIn = 0.05
+        fadeIn(container, speedIn)
+      }
+    });
+    // End showImage
+
+    // function loadImage(path) {
+    //   var img = new Image();
+    //   img.onload = drawImage;
+    //   img.src = path;
+    // }
+
+    // function drawImage(event) {
+    //   var img = event.target;
+    //   var imgSize = Math.min(img.width, img.height);
+    //   // The following two lines yield a central based cropping.
+    //   // They can both be amended to be 0, if you wish it to be
+    //   // a left based cropped image.
+    //   var left = (img.width - imgSize) / 2;
+    //   var top = (img.height - imgSize) / 2;
+    //   //var left = 0; // If you wish left based cropping instead.
+    //   //var top = 0; // If you wish left based cropping instead.
+    //   ctx.drawImage(event.target, left, top, imgSize, imgSize, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    // }
+
+    // document.addEventListener("mousedown", e => {
+    //   const force = 0.01;
+    //   const deltaVector = Matter.Vector.sub(box.position, { x: e.offsetX, y: e.offsetY });
+    //   const normalizedDelta = Matter.Vector.normalise(deltaVector);
+    //   const forceVector = Matter.Vector.mult(normalizedDelta, force);
+    //   Matter.Body.applyForce(box, box.position, forceVector);
+    // });
+
+    function search(element) {
+      if (event.key === 'Enter') {
+        socket.emit('guess', "" + element.value);
+        alert(element.value);
+      }
+    }
+
+    //Text
+    socket.on('showText', function (text) {
+      showText(text)
+    })
+
+    function showText(text) {
+      const box = document.getElementById('box');
+      var container = document.createElement("div")
+      container.classList.add('hint');
+      const textNode = document.createTextNode(`\n\n${text}`);
+      container.appendChild(textNode);
+      box.appendChild(container);
+    }
+
+    function randomIntFromInterval(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+
+
+    // clear images
+    socket.on('clearImages', function () {
+      div_gifs.innerHTML = "";
+    });
+
+    // show title
+    socket.on('showTitle', function () {
+
+      gameImages = []
+      imgElementList = []
+
+      //background
+      gameBackground.style.visibility='visible'
+
+      //title
+      logo.style.visibility='visible'
+
+      //audio cue
+      const audio = new Audio("chatguessgames.mp3");
+      audio.play();
+    });
+
+    // clear images
+    socket.on('showCoverImage', function (gameImage, username) {
+
+      entities.boxes.forEach(function (box) {
+        Matter.Composite.remove(engine.world, box)
+      })
+      entities.boxes = []
+      loadedImages = []
+
+      var container = document.createElement("div")
+      container.style.opacity = 0;
+      container.classList.add('coverArt');
+      var img = document.createElement("img");
+      img.src = gameImage.url;
+      container.appendChild(img);
+      div_gifs.appendChild(container);
+
+      img.onload = function () {
+
+        var naturalWidth = img.naturalWidth;
+        var naturalHeight = img.naturalHeight;
+
+        let screenWidth = window.innerWidth;
+        let screenHeight = window.innerHeight;
+        let maxCoverHeight = screenHeight * 0.8
+
+        //Container Height
+        let containerHeight = maxCoverHeight
+        if (containerHeight > naturalHeight)
+          containerHeight = naturalHeight
+        container.style.height = containerHeight + "px"
+        img.style.height = containerHeight + "px"
+
+        //Container Width
+        let containerWidth = containerHeight / naturalHeight * naturalWidth
+        if (containerWidth > naturalWidth)
+          containerWidth = naturalWidth
+        container.style.width = containerWidth + "px"
+        img.style.width = containerWidth + "px"
+
+        //Container position
+        var x = (screenWidth - containerWidth) / 2
+        var y = (screenHeight - containerHeight) / 2 - 16
+        container.style.left = x + 'px';
+        container.style.top = y + 'px';
+
+        var speed = 0.05
+        fadeIn(container, speed)
+
+        var textContainer = document.createElement("div")
+        textContainer.classList.add('winner');
+        textContainer.style.left = `${x}px`
+        textContainer.style.top = `${y + 350}px`
+        const textNode = document.createTextNode(`${username} got it!`);
+        textContainer.appendChild(textNode);
+        div_gifs.appendChild(textContainer);
+
+
+
+        setTimeout(function () {
+          div_gifs.innerHTML = "";
+          gameBackground.style.visibility='hidden'
+          logo.style.visibility='hidden'
+
+        }, 10_000);
+      }
+    });
+
+
+    //playVideo
+    socket.on('playVideo', function (src) {
+      playSmallVideo(src)
+    })
+
+    function playSmallVideo(src) {
+
+      var container = document.createElement("div")
+      container.classList.add('div-gif-holder');
+
+      var video = document.createElement("video")
+      video.classList.add('div-gif');
+      // video.style.height = "160px"
+      video.style.width = "284px"
+      video.style.opacity = 1
+      container.appendChild(video);
+      container.style.opacity = 1
+      // container.style.height = "160px"
+      container.style.width = "284px"
+
+      // video.onload = function () {
+      var width = 800//container.offsetWidth
+      var height = 500//container.offsetHeight      
+
+      let screenWidth = window.innerWidth;
+      let screenHeight = window.innerHeight;
+
+      var x = Math.floor(Math.random() * (screenWidth - width))
+      var y = Math.floor(Math.random() * (screenHeight - height))
+
+      container.style.left = x + 'px';
+      container.style.top = y + 'px';
+
+      div_gifs.appendChild(container);
+      // }
+
+      video.onended = function () { container.remove() }
+
+      video.src = src
+      video.autoplay = true
+      // video.load()
+      // video.play()
+    }
+
+
+    // playAudio
+    socket.on('playAudio', function (src) {
+      // console.log("memes.html playAudio - " + src)
+      playAudio(src)
+    });
+
+    function playAudio(src) {
+      var audio = new Audio(src)
+      audio.addEventListener('canplaythrough', (event) => {
+        audio.play()
+      });
+    }
+    // End playAudio
+
+
+    //VIDEO
+
+    // var videoContainer = document.getElementById("video");
+    // var video = document.getElementById("videoID");
+
+    // video.onended = function () {
+    //   videoContainer.style.display = "none"
+    // };
+
+    socket.on('showVideo', function (video) {
+      // console.log("video.html showVideo() video = " + video)
+      PlayVideo(video)
+      return;
+    });
+
+    function StopVideo() {
+      document.getElementById('videoID').pause();
+    }
+    //END VIDEO
+
+  </script>
+  <!-- End socket.io -->
+</body>
+
+</html>

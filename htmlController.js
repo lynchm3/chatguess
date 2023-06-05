@@ -41,19 +41,9 @@ const port = 8080;
 //////// use 8080 ///////////////
 
 //Socket emits
-var callback = null
-export function setHTMLControllerCallback(cb) { callback = cb }
-
 export function showText(text) { io.emit('showText', text); }
 
 export function showVideo(video) { io.emit('showVideo', video); }
-
-export function clearImages(broadcasterUsername) {
-  var socketsForChannel = sockets[broadcasterUsername]
-  for (let i in socketsForChannel) {
-    socketsForChannel[i].emit('clearImages');
-  }
-}
 
 export function showTitle(broadcasterUsername) {
   var socketsForChannel = sockets[broadcasterUsername]
@@ -129,12 +119,12 @@ expressApp.use((req, res, next) => {
     console.log(channelName)
 
     // Attempts at routing to index file
-    res.sendFile(__dirname + '/public/index.html');
-    // res.render('public/index.html');
+    res.sendFile(__dirname + '/public/chatguessgames.html');
+    // res.render('public/chatguessgames.html');
     // res.send("Hello world!");
 
     // Redirect
-    // res.redirect('./index.html');
+    // res.redirect('./chatguessgames.html');
     // next()
   }
 

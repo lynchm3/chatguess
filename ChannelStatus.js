@@ -4,8 +4,8 @@ import { HintProvider } from './HintProvider.js';
 import { GuessChecker } from './GuessChecker.js';
 import { Chatbot } from './chatbot/chatbot.js'; import { CorrectAnswer, Scoreboard } from './scoreboard.js';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
-import { setRedemptionCallback } from './Twurple.js';
-import { showImage, showCoverImage, showTitle, setHTMLControllerCallback } from './htmlController.js';
+import { Redemption } from './Redemption.js';
+import { showImage, showCoverImage, showTitle } from './htmlController.js';
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 let igdbAccessToken = null
@@ -27,7 +27,7 @@ const THUMB_URL = `//images.igdb.com/igdb/image/upload/t_thumb/`
 const SEARCH_TERM = ""
 
 export class ChannelStatus {
-    constructor(channel) {
+    constructor(channel, broadcasterId) {
         this.channel = channel
         this.game = null
         this.queue = 0
@@ -35,6 +35,7 @@ export class ChannelStatus {
         this.guessChecker = null
         this.autoplay = false
         this.chatbot = new Chatbot(this)
+        this.redemption = new Redemption(this, broadcasterId)
     }
 
     getGame = async (igdbAccessToken) => {
@@ -108,7 +109,7 @@ export class ChannelStatus {
 
             // if (userId != null)
             //     getProfileImage(userId, igdbAccessToken)
-            showCoverImage(this.game.coverArt, username)
+            showCoverImage(this.game.coverArt, username, this.channel)
             this.guessChecker = null
             this.hintProvider.stop()
             this.hintProvider = null
@@ -124,7 +125,7 @@ export class ChannelStatus {
         // if (game.steamURL != null) {
         //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
         // }
-        showCoverImage(this.game.coverArt, "No one")
+        showCoverImage(this.game.coverArt, "No one", this.channel)
         this.guessChecker = null
         this.hintProvider.stop()
         this.hintProvider = null
@@ -146,7 +147,7 @@ export class ChannelStatus {
             this.queue--
             console.log("calling get game")
             this.getGame(igdbAccessToken)
-            showTitle()
+            showTitle(this.channel)
         } else {
             this.chatbot.chat(`There's a game running right now, but yours has been queued up ${username}!`)
         }
@@ -161,14 +162,14 @@ export class ChannelStatus {
     }
 
     giveImageHint(hint, hintCount) {
-        showImage(hint.gameImage, 100 + 25 * hintCount)
+        showImage(hint.gameImage, 100 + 25 * hintCount, this.channel)
     }
 
     setAutoPlay(a) {
         this.autoplay = a
         if (this.game == null) {
             this.getGame(igdbAccessToken)
-            showTitle()
+            showTitle(this.channel)
         }
     }
 
@@ -190,10 +191,10 @@ export class ChannelStatus {
         console.log(this.autoplay)
         if (this.autoplay) {
             this.getGame(igdbAccessToken)
-            showTitle()
+            showTitle(this.channel)
         } else if (this.queue > 0) {
             this.getGame(igdbAccessToken)
-            showTitle()
+            showTitle(this.channel)
             this.queue--
         } else {
             this.game = null
