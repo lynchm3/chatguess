@@ -48,35 +48,34 @@ export function showText(text) { io.emit('showText', text); }
 
 export function showVideo(video) { io.emit('showVideo', video); }
 
-export function showGif(src, number) {
-  io.emit('showGif', src, number);
+export function clearImages(broadcasterUsername) {
+  var socketsForChannel = sockets[broadcasterUsername]
+  for (let i in socketsForChannel) {
+    socketsForChannel[i].emit('clearImages');
+  }
 }
 
-export function playVideo(src) {
-  io.emit('playVideo', src);
+export function showTitle(broadcasterUsername) {
+  var socketsForChannel = sockets[broadcasterUsername]
+  for (let i in socketsForChannel) {
+    socketsForChannel[i].emit('showTitle');
+  }
 }
 
-export function playAudio(src) {
-  io.emit('playAudio', src);
+export function showCoverImage(gameImage, username, broadcasterUsername) {
+  var socketsForChannel = sockets[broadcasterUsername]
+  for (let i in socketsForChannel) {
+    socketsForChannel[i].emit('showCoverImage', gameImage, username);
+  }
 }
 
-export function clearImages() {
-  io.emit('clearImages');
+export function showImage(gameImage, maxWidth, broadcasterUsername) {
+  var socketsForChannel = sockets[broadcasterUsername]
+  for (let i in socketsForChannel) {
+    socketsForChannel[i].emit('showImage', gameImage, maxWidth);
+  }
 }
 
-export function showTitle() {
-  io.emit('showTitle');
-}
-
-export function showCoverImage(gameImage, username) {
-  io.emit('showCoverImage', gameImage, username);
-}
-
-export function showImage(gameImage, maxWidth) {
-  io.emit('showImage', gameImage, maxWidth);
-}
-
-//sockets = {"lynchml":[socket1,socket2]}
 //How do I detect and remove dead sockets?
 
 // io.on("*",function(event,data) {
@@ -85,9 +84,23 @@ export function showImage(gameImage, maxWidth) {
 //   console.log(data);
 // });
 
+const sockets = {}
 io.on("connection", (socket) => {
   console.log("connection EVENT")
-  // console.log(socket)
+  
+  var broadcasterUsername = socket.handshake.headers.referer.split('/').pop();
+
+  console.log("broadcasterUsername:")
+  console.log(broadcasterUsername)
+
+  var socketsForChannel = sockets[broadcasterUsername]
+
+  if (socketsForChannel == null) {
+    sockets[broadcasterUsername] = [socket];
+  } else {
+    socketsForChannel.push(socket)
+    sockets[broadcasterUsername] = socketsForChannel
+  }
 })
 
 //static access to public folder
@@ -97,11 +110,11 @@ expressApp.use((req, res, next) => {
   console.log(`Req: ${req.originalUrl} Time: ${Date.now()}`)
   console.log("req.originalUrl")
   console.log(req.originalUrl)
-  
+
   console.log("__dirname")
   console.log(__dirname)
 
-  if (    
+  if (
     req.originalUrl.endsWith("index.html") ||
     req.originalUrl.endsWith(".png") ||
     req.originalUrl.endsWith(".mp3") ||
@@ -113,8 +126,8 @@ expressApp.use((req, res, next) => {
   } else {
     let channelName = req.originalUrl.substring(1)
     console.log("channelName")
-    console.log(channelName)   
-    
+    console.log(channelName)
+
     // Attempts at routing to index file
     res.sendFile(__dirname + '/public/index.html');
     // res.render('public/index.html');

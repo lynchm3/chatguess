@@ -40,9 +40,9 @@ export class Chatbot {
 				callback.addGamesToQueue(1, displayName)
 			else if (message == "!giveup" && username == "lynchml")
 				callback.giveUp()
-			else if (message == "!points")
+			else if (message == "!points" || message == "!score")
 				callback.points(userId, channelId, displayName)
-			else if (message == "!scoreboard")
+			else if (message == "!scoreboard" || message == "!top")
 				callback.scoreboard(channelId)
 			else
 				callback.messageCallback(message, tags, displayName, userId, channelId)
