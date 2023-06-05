@@ -8,6 +8,11 @@ const httpServer = Server(expressApp);
 import { Server as SocketIOServer } from 'socket.io';
 const io = new SocketIOServer(httpServer)
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const port = 8080;
 // expressApp.listen(port, () => {
 //   console.log(`chatguess: listening on port ${port}`);
@@ -71,8 +76,17 @@ export function showImage(gameImage, maxWidth) {
   io.emit('showImage', gameImage, maxWidth);
 }
 
+//sockets = {"lynchml":[socket1,socket2]}
+//How do I detect and remove dead sockets?
+
+// io.on("*",function(event,data) {
+//   console.log("* EVENT")
+//   console.log(event);
+//   console.log(data);
+// });
+
 io.on("connection", (socket) => {
-  console.log("socket connected")
+  console.log("connection EVENT")
   // console.log(socket)
 })
 
@@ -81,11 +95,14 @@ io.on("connection", (socket) => {
 
 expressApp.use((req, res, next) => {
   console.log(`Req: ${req.originalUrl} Time: ${Date.now()}`)
-  // console.log("req.originalUrl")
-  // console.log(req.originalUrl)
+  console.log("req.originalUrl")
+  console.log(req.originalUrl)
+  
+  console.log("__dirname")
+  console.log(__dirname)
 
   if (    
-    // req.originalUrl.endsWith("index.html") ||
+    req.originalUrl.endsWith("index.html") ||
     req.originalUrl.endsWith(".png") ||
     req.originalUrl.endsWith(".mp3") ||
     req.originalUrl.endsWith(".jpg") ||
@@ -93,6 +110,19 @@ expressApp.use((req, res, next) => {
     req.originalUrl.endsWith(".js") ||
     req.originalUrl.endsWith(".css")) {
     next()
+  } else {
+    let channelName = req.originalUrl.substring(1)
+    console.log("channelName")
+    console.log(channelName)   
+    
+    // Attempts at routing to index file
+    res.sendFile(__dirname + '/public/index.html');
+    // res.render('public/index.html');
+    // res.send("Hello world!");
+
+    // Redirect
+    // res.redirect('./index.html');
+    // next()
   }
 
   // console.log('req:', req)

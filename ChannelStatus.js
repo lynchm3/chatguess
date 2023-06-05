@@ -96,7 +96,7 @@ export class ChannelStatus {
                 Date.now(),
                 userId,
                 channelId,
-                game.id)
+                this.game.id)
             correctAnswer.insertCorrectAnswer()
 
             this.chatbot.chat(`lynchm1Youwhat ${username} guessed correctly! The game was ${this.game.name}! lynchm1Youwhat`)
@@ -106,8 +106,8 @@ export class ChannelStatus {
 
             new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, igdbAccessToken)
 
-            if (userId != null)
-                getProfileImage(userId, igdbAccessToken)
+            // if (userId != null)
+            //     getProfileImage(userId, igdbAccessToken)
             showCoverImage(this.game.coverArt, username)
             this.guessChecker = null
             this.hintProvider.stop()
