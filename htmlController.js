@@ -105,13 +105,15 @@ expressApp.use((req, res, next) => {
   console.log(__dirname)
 
   if (
+    req.originalUrl == "/" ||
     req.originalUrl.endsWith("index.html") ||
     req.originalUrl.endsWith(".png") ||
     req.originalUrl.endsWith(".mp3") ||
     req.originalUrl.endsWith(".jpg") ||
     req.originalUrl.endsWith(".jpeg") ||
     req.originalUrl.endsWith(".js") ||
-    req.originalUrl.endsWith(".css")) {
+    req.originalUrl.endsWith(".css") ||
+    req.originalUrl.endsWith(".ico")) {
     next()
   } else {
     let channelName = req.originalUrl.substring(1)
