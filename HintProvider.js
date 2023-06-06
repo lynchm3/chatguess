@@ -15,14 +15,14 @@ const HINT_TYPE_IMAGE = "HINT_TYPE_IMAGE"
 
 const MAX_HINT_LENGTH = 400
 
-const IMAGE_HINT_INTERVAL_MS = 7_000
 const TEXT_HINT_INTERVAL_MS = 30_000
 
 export class HintProvider {
 
-    constructor(game, callback) {
+    constructor(game, callback, imageHintIntervalMS) {
 
         this.stopped = false
+        this.imageHintIntervalMS = imageHintIntervalMS
 
         // Compile and randomise image hints
         this.imageHints = []
@@ -137,7 +137,7 @@ export class HintProvider {
             } else {
                 clearInterval(intervalId);
             }
-        }, IMAGE_HINT_INTERVAL_MS);
+        }, this.imageHintIntervalMS);
     }
 
     giveTextHint() {

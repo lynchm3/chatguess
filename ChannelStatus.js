@@ -8,7 +8,6 @@ import { Redemption } from './Redemption.js';
 import { showImage, showCoverImage, showTitle } from './htmlController.js';
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
-let igdbAccessToken = null
 
 const ENDPOINT_GAMES = "/games"
 const MIN_FOLLOWERS = 45
@@ -27,7 +26,8 @@ const THUMB_URL = `//images.igdb.com/igdb/image/upload/t_thumb/`
 const SEARCH_TERM = ""
 
 export class ChannelStatus {
-    constructor(channel, broadcasterId) {
+    constructor(channel, broadcasterId, igdbAccessToken) {
+        this.igdbAccessToken = igdbAccessToken
         this.channel = channel
         this.game = null
         this.queue = 0
@@ -55,7 +55,7 @@ export class ChannelStatus {
           ${search}`,
             headers: {
                 "Client-ID": `${TWITCH_CLIENT_ID}`,
-                "Authorization": `Bearer ${igdbAccessToken}`,
+                "Authorization": `Bearer ${this.igdbAccessToken}`,
                 "Accept": "application/json"
             }
         });
@@ -87,7 +87,7 @@ export class ChannelStatus {
           /* websites = */ responseJson[0].websites
         )
 
-        this.hintProvider = new HintProvider(this.game, this)
+        this.hintProvider = new HintProvider(this.game, this, 7_000)
         this.guessChecker = new GuessChecker(this.game)
     }
 
@@ -105,7 +105,7 @@ export class ChannelStatus {
             //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
             // }
 
-            new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, igdbAccessToken)
+            new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, this.igdbAccessToken)
 
             // if (userId != null)
             //     getProfileImage(userId, igdbAccessToken)
@@ -146,7 +146,7 @@ export class ChannelStatus {
         if (this.queue > 0 && this.game == null) {
             this.queue--
             console.log("calling get game")
-            this.getGame(igdbAccessToken)
+            this.getGame(this.igdbAccessToken)
             showTitle(this.channel)
         } else {
             this.chatbot.chat(`There's a game running right now, but yours has been queued up ${username}!`)
@@ -168,7 +168,7 @@ export class ChannelStatus {
     setAutoPlay(a) {
         this.autoplay = a
         if (this.game == null) {
-            this.getGame(igdbAccessToken)
+            this.getGame(this.igdbAccessToken)
             showTitle(this.channel)
         }
     }
@@ -182,7 +182,7 @@ export class ChannelStatus {
     }
 
     scoreboard(channelId) {
-        new Scoreboard().getScoreboard(igdbAccessToken, this.chatbot, channelId)
+        new Scoreboard().getScoreboard(this.igdbAccessToken, this.chatbot, channelId)
     }
 
     roundEnded() {
@@ -190,10 +190,10 @@ export class ChannelStatus {
         console.log("this.autoplay")
         console.log(this.autoplay)
         if (this.autoplay) {
-            this.getGame(igdbAccessToken)
+            this.getGame(this.igdbAccessToken)
             showTitle(this.channel)
         } else if (this.queue > 0) {
-            this.getGame(igdbAccessToken)
+            this.getGame(this.igdbAccessToken)
             showTitle(this.channel)
             this.queue--
         } else {
@@ -204,12 +204,4 @@ export class ChannelStatus {
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
-}
-
-export const getIgdbAccessToken = async () => {
-    const response = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${TWITCH_CLIENT_ID}&client_secret=${TWITCH_CLIENT_SECRET}&grant_type=client_credentials&scope=channel%3Amanage%3Aredemptions`, {
-        method: 'POST'
-    });
-    const responseJson = await response.json();
-    igdbAccessToken = responseJson.access_token
 }

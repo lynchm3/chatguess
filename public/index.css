@@ -1,0 +1,104 @@
+body {
+    display: flex;
+    flex-wrap: wrap;
+    position: absolute;
+    overflow: hidden;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: white;
+    background-color: transparent;
+    background-color: #000000;
+}
+
+.gameBackground {
+    float: left;
+    position: fixed;
+    background-color: #222222;
+    width: 90%;
+    height: 90%;
+    border-radius: 25px;
+    border: 5px #087be6 solid;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+
+    
+    float: left;
+    position: fixed;
+    overflow: hidden;
+    /* this is important */
+    border: 2px solid #ccc;
+    border-radius: 25px;
+}
+
+.logo {
+    float: left;
+    position: fixed;
+    margin-top: 0px;
+    margin-left: 0px;
+    z-index: 100;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.twitch-button {
+    float: left;
+    position: fixed;
+    background-color: #222222;
+    border: 2px #7643ff solid;
+    border-radius: 25px;
+    margin-top: 100px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.try-in-browser-button {
+    float: left;
+    position: fixed;
+    background-color: #222222;
+    border: 2px #087be6 solid;
+    border-radius: 25px;
+    margin-top: 155px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+
+
+.crop {
+    float: left;
+    position: fixed;
+    overflow: hidden;
+    /* this is important */
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    z-index: 0;
+}
+
+/*GIFS*/
+.div-gifs {
+    display: flex;
+    flex-wrap: wrap;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    z-index: 0;
+}

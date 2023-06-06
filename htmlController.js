@@ -1,5 +1,6 @@
 //NEW HTTP WITH EXPRESS
 // import { express } from 'express';
+import { createHomeGame } from './app.js'
 import express from 'express';
 // const { express } = pkg;
 const expressApp = express();
@@ -66,6 +67,10 @@ export function showImage(gameImage, maxWidth, broadcasterUsername) {
   }
 }
 
+export function showHomeImage(gameImage, maxWidth, socket) {
+  socket.emit('showImage', gameImage, maxWidth);
+}
+
 //How do I detect and remove dead sockets?
 
 // io.on("*",function(event,data) {
@@ -77,19 +82,26 @@ export function showImage(gameImage, maxWidth, broadcasterUsername) {
 const sockets = {}
 io.on("connection", (socket) => {
   console.log("connection EVENT")
-  
+
+  console.log("socket.handshake.headers.referer")
+  console.log(socket.handshake.headers.referer)
+
   var broadcasterUsername = socket.handshake.headers.referer.split('/').pop();
 
   console.log("broadcasterUsername:")
   console.log(broadcasterUsername)
 
-  var socketsForChannel = sockets[broadcasterUsername]
-
-  if (socketsForChannel == null) {
-    sockets[broadcasterUsername] = [socket];
+  if (broadcasterUsername == "") {
+    createHomeGame(socket)
   } else {
-    socketsForChannel.push(socket)
-    sockets[broadcasterUsername] = socketsForChannel
+    var socketsForChannel = sockets[broadcasterUsername]
+
+    if (socketsForChannel == null) {
+      sockets[broadcasterUsername] = [socket];
+    } else {
+      socketsForChannel.push(socket)
+      sockets[broadcasterUsername] = socketsForChannel
+    }
   }
 })
 
@@ -97,12 +109,12 @@ io.on("connection", (socket) => {
 // expressApp.use(express.static('public'));
 
 expressApp.use((req, res, next) => {
-  console.log(`Req: ${req.originalUrl} Time: ${Date.now()}`)
-  console.log("req.originalUrl")
-  console.log(req.originalUrl)
+  // console.log(`Req: ${req.originalUrl} Time: ${Date.now()}`)
+  // console.log("req.originalUrl")
+  // console.log(req.originalUrl)
 
-  console.log("__dirname")
-  console.log(__dirname)
+  // console.log("__dirname")
+  // console.log(__dirname)
 
   if (
     req.originalUrl == "/" ||
@@ -117,8 +129,8 @@ expressApp.use((req, res, next) => {
     next()
   } else {
     let channelName = req.originalUrl.substring(1)
-    console.log("channelName")
-    console.log(channelName)
+    // console.log("channelName")
+    // console.log(channelName)
 
     // Attempts at routing to index file
     res.sendFile(__dirname + '/public/chatguessgames.html');

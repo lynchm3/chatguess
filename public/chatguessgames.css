@@ -179,29 +179,3 @@ body {
     color: white;
     font-size: 18pt;
 }
-
-.twitch-button {
-    /* display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    min-height: 100vh; */
-    float: left;
-    position: fixed;
-    background: #7643ff;
-    border-color: #7643ff;
-    /* background-color: rgba(0, 0, 0, 0); */
-    /* width: 100px;
-    height: 100px; */
-
-    /* margin-top: 5%; */
-    /* margin-left: 5%;
-    margin-right: 5%; */
-    border-radius: 25px;
-    /* border: 5px #7643ff solid; */
-    padding: 10px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
-}

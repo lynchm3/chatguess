@@ -3,24 +3,142 @@
 
 <head>
     <title>ChatGuessGames</title>
-    <link rel="stylesheet" href="memes.css">
+    <link rel="stylesheet" href="index.css">
     <script src="/utils.js"></script>
 </head>
 
 <body>
 
+    <!--
+        OPTIONS:
+        1. preset images that are displayed immediately
+        2. preset images that appear like when playing
+        3. Have a game in the background with a random game
+        4. Have a game in the background from a preset list of games
+            Minecraft 121
+            Mario Kart 8 26764
+            TOTK 119388
+            GTA V 1020
+            Fortnite 1905
+            Skyrim 472
+            Halo 3 987
+            Witcher 3 1942
+            Pokémon Ruby 1557
+            WOW 123
+            [121, 26764, 119388, 1020, 1905, 472, 987, 1942, 1557, 123]
+        4.1 After 10 images clear and do another game
+    -->
+
     <div class="gameBackground" id="gameBackground"></div>
+
     <div class="logo" id="logo">
         <img src="whats_the_game_title.png" />
     </div>
 
-    <div class="div-physics" id="div-physics"></div>
+    <div class="twitch-button">STREAMER LOGIN</div>
+
+    <div class="try-in-browser-button">TRY IN BROWSER</div>
+
     <div class="div-gifs" id="div-gifs"></div>
 
-    <div id="box"></div>
-    <canvas class="canvas" id="canvas"></canvas>
+    <script src="/socket.io/socket.io.js"></script>
 
-    <div class="twitch-button">Streamer Login</div>
+    <script>
+
+        var div_gifs = document.getElementById('div-gifs');
+        var gameBackground = document.getElementById('gameBackground');
+
+        var socket = io();
+        socket.once("connect", () => { });
+
+        //showImage  
+        socket.on('showImage', function (gameImage, maxWidth) {
+
+            // showImage(gameImage, maxWidth)
+            // gameImages.push(gameImage)
+
+            var container = document.createElement("div")
+            // imgElementList.push(container)
+
+            // container.style.visibility='hidden'
+            container.style.opacity = 0;
+            container.classList.add('crop');
+            // console.log("memes.html showImage container = " + container)
+            var img = document.createElement("img");
+            img.src = gameImage.url;
+            // console.log("memes.html showImage img = " + img)
+
+            container.appendChild(img);
+            div_gifs.appendChild(container);
+
+            img.onload = function () {
+
+                var naturalWidth = img.naturalWidth;
+                var naturalHeight = img.naturalHeight;
+
+                let screenWidth = window.innerWidth;
+                let screenHeight = window.innerHeight;
+                console.log("screenWidth")
+                console.log(screenWidth)
+
+                //Container Height
+                let croppedWidth = maxWidth
+                if (croppedWidth > naturalWidth)
+                    croppedWidth = naturalWidth
+                container.style.width = croppedWidth + "px"
+
+                //Container Width
+                let croppedHeight = croppedWidth / naturalWidth * naturalHeight
+                if (croppedHeight > naturalHeight)
+                    croppedHeight = naturalHeight
+                container.style.height = croppedHeight + "px"
+
+                //Container position
+                var x = 0
+                var y = 0
+                const maxAttempts = 10
+                var attempts = 0
+                var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
+                var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
+
+                container.style.left = x + 'px';
+                container.style.top = y + 'px';
+
+                var totalHorizontalMargin = croppedWidth - naturalWidth;
+                var imgMarginLeft = totalHorizontalMargin / 2
+                var imgMarginRight = imgMarginLeft
+                if (imgMarginLeft < -100) {
+                    imgMarginLeft = randomIntFromInterval((totalHorizontalMargin) + 100, -100)
+                    imgMarginRight = totalHorizontalMargin - imgMarginLeft
+                }
+
+                var totalVerticalMargin = croppedHeight - naturalHeight;
+                var imgMarginTop = totalVerticalMargin / 2
+                var imgMarginBottom = imgMarginTop
+                if (imgMarginTop < -100) {
+                    imgMarginTop = randomIntFromInterval((totalVerticalMargin) + 100, -100)
+                    imgMarginBottom = totalVerticalMargin - imgMarginTop
+                }
+
+                img.style.marginLeft = `${imgMarginLeft}px`
+                img.style.marginRight = `${imgMarginRight}px`
+                img.style.marginTop = `${imgMarginTop}px`
+                img.style.marginBottom = `${imgMarginBottom}px`
+
+                var speedIn = 0.05
+                fadeIn(container, speedIn)
+            }
+        });
+
+        // clear images
+        socket.on('clearImages', function () {
+            div_gifs.innerHTML = "";
+        });
+
+        function randomIntFromInterval(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+    </script>
 
 </body>
 
