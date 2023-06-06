@@ -63,7 +63,7 @@ export class Home {
     }
 
     giveImageHint(hint, hintCount) {
-        showHomeImage(hint.gameImage, 300 * hintCount, this.socket)
+        showHomeImage(hint.gameImage, 300, this.socket)
     }
 
     giveTextHint(hint) {}
