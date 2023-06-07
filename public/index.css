@@ -43,6 +43,39 @@ body {
     border: 2px solid #ccc;
 }
 
+@keyframes controller-animation {
+    from {
+        left: -100%;
+    }
+    to {
+        left: -20%;
+    }
+  }
+
+.controller {
+    float: left;
+    position: fixed;
+    margin-top: 0px;
+    margin-left: 0px;
+    z-index: 100;
+    left: -20%;
+    top: 50%;
+    height: 60%;
+    transform: translate(-0%, -50%);
+    z-index: 1;
+    background-color: #222222FF;
+    border-radius: 0px 25px 25px 0px;
+    padding-top: 0.5%;
+    padding-right: 0.5%;
+    padding-bottom: 0.5%;
+    border-top: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+    border-bottom: 2px solid #ccc;
+    animation-name: controller-animation;
+    animation-duration: 4s;
+    filter: drop-shadow(0px 10px 2px #000000AA);
+}
+
 .logo {
     float: left;
     position: fixed;
@@ -51,7 +84,7 @@ body {
     z-index: 100;
     left: 50%;
     top: 50%;
-    width: 50%;
+    height: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
     background-color: #222222FF;
@@ -96,8 +129,6 @@ body {
     transform: translate(-50%, -50%);
     z-index: 1;
 }
-
-
 
 .crop {
     float: left;
