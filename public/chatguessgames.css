@@ -179,3 +179,48 @@ body {
     color: white;
     font-size: 18pt;
 }
+
+@keyframes controller-animation {
+    from {
+        left: -30%;
+    }
+
+    to {
+        left: -4%;
+    }
+}
+
+@keyframes controller-animation-reverse {
+    from {
+        left: -4%;
+    }
+
+    to {
+        left: -30%;
+    }
+}
+
+.controller {
+    float: left;
+    position: fixed;
+    margin-top: 0px;
+    margin-left: 0px;
+    z-index: 100;
+    left: -30%;
+    top: 10%;
+    height: 20%;
+    z-index: 1;
+    background-color: #222222FF;
+    border-radius: 0px 25px 25px 0px;
+    padding-top: 0.5%;
+    padding-right: 0.5%;
+    padding-bottom: 0.5%;
+    border-top: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+    border-bottom: 2px solid #ccc;
+    filter: drop-shadow(0px 10px 2px #000000AA);
+    /* animation-name: controller-animation; */
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    /* animation-play-state:paused; */
+}

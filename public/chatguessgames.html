@@ -24,6 +24,8 @@
 
   <div id="box"></div>
   <canvas class="canvas" id="canvas"></canvas>
+  
+  <img class="controller" id="controller" src="images/home-logo-long.png" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -35,6 +37,7 @@
     gameBackground.style.visibility='hidden'
     var logo = document.getElementById('logo');    
     logo.style.visibility='hidden'
+    var controller = document.getElementById('controller');    
 
     const frameRate = 1000 / 30;
     const boxSize = 20;
@@ -351,7 +354,6 @@
       return Math.floor(Math.random() * (max - min + 1) + min)
     }
 
-
     // clear images
     socket.on('clearImages', function () {
       div_gifs.innerHTML = "";
@@ -367,7 +369,9 @@
       gameBackground.style.visibility='visible'
 
       //title
-      logo.style.visibility='visible'
+      // logo.style.visibility='visible'
+      controller.style.animationName ="controller-animation";
+      // controller.style.animationPlayState = "running";
 
       //audio cue
       const audio = new Audio("chatguessgames.mp3");
@@ -376,6 +380,7 @@
 
     // clear images
     socket.on('showCoverImage', function (gameImage, username) {
+      controller.style.animationName ="controller-animation-reverse";
 
       entities.boxes.forEach(function (box) {
         Matter.Composite.remove(engine.world, box)
@@ -440,52 +445,6 @@
       }
     });
 
-
-    //playVideo
-    socket.on('playVideo', function (src) {
-      playSmallVideo(src)
-    })
-
-    function playSmallVideo(src) {
-
-      var container = document.createElement("div")
-      container.classList.add('div-gif-holder');
-
-      var video = document.createElement("video")
-      video.classList.add('div-gif');
-      // video.style.height = "160px"
-      video.style.width = "284px"
-      video.style.opacity = 1
-      container.appendChild(video);
-      container.style.opacity = 1
-      // container.style.height = "160px"
-      container.style.width = "284px"
-
-      // video.onload = function () {
-      var width = 800//container.offsetWidth
-      var height = 500//container.offsetHeight      
-
-      let screenWidth = window.innerWidth;
-      let screenHeight = window.innerHeight;
-
-      var x = Math.floor(Math.random() * (screenWidth - width))
-      var y = Math.floor(Math.random() * (screenHeight - height))
-
-      container.style.left = x + 'px';
-      container.style.top = y + 'px';
-
-      div_gifs.appendChild(container);
-      // }
-
-      video.onended = function () { container.remove() }
-
-      video.src = src
-      video.autoplay = true
-      // video.load()
-      // video.play()
-    }
-
-
     // playAudio
     socket.on('playAudio', function (src) {
       // console.log("memes.html playAudio - " + src)
@@ -499,27 +458,6 @@
       });
     }
     // End playAudio
-
-
-    //VIDEO
-
-    // var videoContainer = document.getElementById("video");
-    // var video = document.getElementById("videoID");
-
-    // video.onended = function () {
-    //   videoContainer.style.display = "none"
-    // };
-
-    socket.on('showVideo', function (video) {
-      // console.log("video.html showVideo() video = " + video)
-      PlayVideo(video)
-      return;
-    });
-
-    function StopVideo() {
-      document.getElementById('videoID').pause();
-    }
-    //END VIDEO
 
   </script>
   <!-- End socket.io -->

@@ -53,7 +53,7 @@ export class Home {
          /* screenshots = */ screenshots
         )
 
-        this.hintProvider = new HintProvider(this.game, this, 4_000)
+        this.hintProvider = new HintProvider(this.game, this, 2_000)
     }
 
     addGamesToQueue(gc, username) {
