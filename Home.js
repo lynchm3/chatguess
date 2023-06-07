@@ -4,7 +4,8 @@ import { TWITCH_CLIENT_ID } from './secrets.js';
 import { showHomeImage } from './htmlController.js';
 import { HintProvider } from './HintProvider.js';
 
-const GAME_IDS = [121, 26764, 119388, 1020, 1905, 472, 987, 1942, 1557, 123]
+// const GAME_IDS = [121, 26764, 119388, 1020, 1905, 472, 987, 1942, 1557, 123]
+const GAME_IDS = "(121, 26764, 119388, 1020, 1905, 472, 987, 1942, 1557, 123)"
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
 const ENDPOINT_GAMES = "/games"
@@ -22,11 +23,11 @@ export class Home {
 
     getGame = async () => {
 
-        let randomlySelectedId = GAME_IDS[getRandomInt(9)]
+        // let randomlySelectedId = GAME_IDS[getRandomInt(9)]
 
         const response = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}`, {
             method: 'POST',
-            body: `fields ${FIELDS}; where id = ${randomlySelectedId};`,
+            body: `fields ${FIELDS}; where id = ${GAME_IDS};`,
             headers: {
                 "Client-ID": `${TWITCH_CLIENT_ID}`,
                 "Authorization": `Bearer ${this.igdbAccessToken}`,
@@ -36,10 +37,20 @@ export class Home {
 
         const responseJson = await response.json();
 
+        var artworks = []
+        for (let i in responseJson) {
+            artworks = artworks.concat(responseJson[i].artworks?.map(x => new GameImage(`${IMAGE_720_URL}${x.image_id}.jpg`, x.width, x.height)))
+        }
+
+        var screenshots = []
+        for (let i in responseJson) {
+            screenshots = screenshots.concat(responseJson[i].screenshots?.map(x => new GameImage(`${IMAGE_720_URL}${x.image_id}.jpg`, x.width, x.height)))
+        }
+
         this.game = new HomeGame(
           /* id = */ responseJson[0].id,
-          /* artworks = */ responseJson[0].artworks?.map(x => new GameImage(`${IMAGE_720_URL}${x.image_id}.jpg`, x.width, x.height)),
-         /* screenshots = */ responseJson[0].screenshots?.map(x => new GameImage(`${IMAGE_720_URL}${x.image_id}.jpg`, x.width, x.height)),
+          /* artworks = */ artworks,
+         /* screenshots = */ screenshots
         )
 
         this.hintProvider = new HintProvider(this.game, this, 4_000)
@@ -63,10 +74,10 @@ export class Home {
     }
 
     giveImageHint(hint, hintCount) {
-        showHomeImage(hint.gameImage, 300, this.socket)
+        showHomeImage(hint.gameImage, 400, this.socket)
     }
 
-    giveTextHint(hint) {}
+    giveTextHint(hint) { }
 }
 
 function getRandomInt(max) {

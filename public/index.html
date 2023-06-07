@@ -31,15 +31,27 @@
 
     <div class="gameBackground" id="gameBackground"></div>
 
-    <div class="logo" id="logo">
-        <img src="whats_the_game_title.png" />
+    <img class="logo" id="logo" src="images/home-logo.png" />
+
+    <!-- <div class="twitch-button">STREAMER LOGIN</div>
+
+    <div class="try-in-browser-button">TRY IN BROWSER</div> -->
+
+    <div class="div-gifs" id="div-gifs"
+    
+    
+    ></div>
+
+    <div class="socialsbarwrapper">
+        <div class="socialsbar">
+            <img src="./images/github-white.png" class="socials" />
+            <img src="./images/twitch-white.png" class="socials" />
+            <img src="./images/patreon-white.png" class="socials" />
+            <img src="./images/instagram-white.png" class="socials" />
+            <img src="./images/tiktok-white.png" class="socials" />
+            <img src="./images/twitter-white.png" class="socials" />
+        </div>
     </div>
-
-    <div class="twitch-button">STREAMER LOGIN</div>
-
-    <div class="try-in-browser-button">TRY IN BROWSER</div>
-
-    <div class="div-gifs" id="div-gifs"></div>
 
     <script src="/socket.io/socket.io.js"></script>
 
@@ -53,6 +65,8 @@
 
         //showImage  
         socket.on('showImage', function (gameImage, maxWidth) {
+
+            // return
 
             // showImage(gameImage, maxWidth)
             // gameImages.push(gameImage)
@@ -76,10 +90,8 @@
                 var naturalWidth = img.naturalWidth;
                 var naturalHeight = img.naturalHeight;
 
-                let screenWidth = window.innerWidth;
-                let screenHeight = window.innerHeight;
-                console.log("screenWidth")
-                console.log(screenWidth)
+                let areaWidth = div_gifs.offsetWidth;
+                let areaHeight = div_gifs.offsetHeight;
 
                 //Container Height
                 let croppedWidth = maxWidth
@@ -94,16 +106,12 @@
                 container.style.height = croppedHeight + "px"
 
                 //Container position
-                var x = 0
-                var y = 0
-                const maxAttempts = 10
-                var attempts = 0
-                var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
-                var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
-
+                var x = Math.floor(Math.random() * (areaWidth - container.offsetWidth + 400)) - 200
+                var y = Math.floor(Math.random() * (areaHeight - container.offsetHeight + 400)) - 200
                 container.style.left = x + 'px';
                 container.style.top = y + 'px';
 
+                //cropping
                 var totalHorizontalMargin = croppedWidth - naturalWidth;
                 var imgMarginLeft = totalHorizontalMargin / 2
                 var imgMarginRight = imgMarginLeft

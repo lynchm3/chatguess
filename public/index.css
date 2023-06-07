@@ -13,23 +13,34 @@ body {
 .gameBackground {
     float: left;
     position: fixed;
-    background-color: #222222;
+    /* background: radial-gradient(#222222, #00000000); */
+    /* background-color: #22222288; */
     width: 90%;
     height: 90%;
     border-radius: 25px;
-    border: 5px #087be6 solid;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: -1;
+    overflow: hidden;
+    border: 2px solid #ccc;
+}
 
-    
+/*GIFS*/
+.div-gifs {
     float: left;
     position: fixed;
-    overflow: hidden;
-    /* this is important */
-    border: 2px solid #ccc;
+    /* background-color: #222222; */
+    background-image: url('./images/home-background.png');
+    width: 90%;
+    height: 90%;
     border-radius: 25px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -2;
+    overflow: hidden;
+    border: 2px solid #ccc;
 }
 
 .logo {
@@ -40,8 +51,16 @@ body {
     z-index: 100;
     left: 50%;
     top: 50%;
+    width: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
+    background-color: #222222FF;
+    border-radius: 25px;
+    padding-left: 2%;
+    padding-top: 0.5%;
+    padding-right: 0.5%;
+    padding-bottom: 0.5%;
+    border: 2px solid #ccc;
 }
 
 .twitch-button {
@@ -90,8 +109,8 @@ body {
     z-index: 0;
 }
 
-/*GIFS*/
-.div-gifs {
+/*Socail links*/
+.socialsbarwrapper {
     display: flex;
     flex-wrap: wrap;
     position: absolute;
@@ -100,5 +119,27 @@ body {
     width: 100%;
     height: 100%;
     opacity: 1;
+    z-index: 1;
+}
+
+.socialsbar {
+    float: left;
+    position: fixed;
+    overflow: hidden;
     z-index: 0;
+    bottom: 7%;
+    left: 7%;
+}
+
+.socials {
+    margin-right: 16px;
+    width: 24px;
+    height: 24px;
+    /* -webkit-filter: brightness(0) invert(1);
+    filter: brightness(0) invert(1); */
+    background-color: #222222;
+    border-radius: 50%;
+    padding: 16px;
+    overflow: visible;
+    border: 2px solid #ccc;
 }
