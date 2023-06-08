@@ -96,21 +96,22 @@ body {
     border: 2px solid #ccc;
 }
 
-.twitch-button {
+.twitch-streamer-login-button {
     float: left;
     position: fixed;
+    color: #ffffff;
     background-color: #222222;
-    border: 2px #7643ff solid;
+    border: 2px #FFFFFF solid;
     border-radius: 25px;
-    margin-top: 100px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    padding-left: 16px;
-    padding-right: 16px;
-    left: 50%;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    padding-left: 32px;
+    padding-right: 32px;
+    right: 200px;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(0%, -50%);
     z-index: 1;
+    font-size: 32px;
 }
 
 .try-in-browser-button {

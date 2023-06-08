@@ -30,13 +30,15 @@
     -->
 
     <div class="gameBackground" id="gameBackground"></div>
-    
+
     <!-- <img class="logo" id="logo" src="images/home-logo.png" > -->
     <img class="controller" id="logo" src="images/home-logo-long.png" />
 
-    <!-- <div class="twitch-button">STREAMER LOGIN</div>
+    <a id="twitch-auth-button">
+        <div class="twitch-streamer-login-button">STREAMER LOGIN</div>
+    </a>
 
-    <div class="try-in-browser-button">TRY IN BROWSER</div> -->
+    <!-- <div class="try-in-browser-button">TRY IN BROWSER</div> -->
 
     <div class="div-gifs" id="div-gifs"></div>
 
@@ -59,6 +61,18 @@
 
         var div_gifs = document.getElementById('div-gifs');
         var gameBackground = document.getElementById('gameBackground');
+
+        //Twitch Auth Button
+        const CLIENT_ID = "4wsujxiz1khg6h9afkutmiyxhom8qv"
+        const REDIRECT_URL = "https://www.chatguess.com/twitchauthorizationredirect"
+        const SCOPE = "channel:read:redemptions+chat:edit+chat:read+channel:manage:redemptions"
+        const AUTH_URL_1 = "https://id.twitch.tv/oauth2/authorize" +
+            "?client_id=" + CLIENT_ID +
+            "&response_type=code" +
+            "&redirect_uri=" + REDIRECT_URL +
+            "&scope=" + SCOPE
+        var twitchAuthButton = document.getElementById('twitch-auth-button');
+        twitchAuthButton.href = AUTH_URL_1       
 
         var socket = io();
         socket.once("connect", () => { });
