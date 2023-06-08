@@ -216,6 +216,8 @@
       });
     }
 
+    const hintAnimations = ["fromTop","fromBottom","fromLeft","fromRight"]
+
 
     //showImage  
     socket.on('showImage', function (gameImage, maxWidth) {
@@ -297,6 +299,7 @@
         img.style.marginTop = `${imgMarginTop}px`
         img.style.marginBottom = `${imgMarginBottom}px`
 
+        container.style.animationName = hintAnimations[Math.floor(Math.random() * hintAnimations.length)];
         container.style.opacity = 1;
         // var speedIn = 0.05
         // fadeIn(container, speedIn)
