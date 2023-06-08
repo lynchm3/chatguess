@@ -1,5 +1,6 @@
 //NEW HTTP WITH EXPRESS
 // import { express } from 'express';
+import { clientId, clientSecret} from './TwurpleSecrets.js'
 import { createHomeGame } from './app.js'
 import express from 'express';
 // const { express } = pkg;
@@ -11,6 +12,8 @@ const io = new SocketIOServer(httpServer)
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import fetch from 'node-fetch';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -110,13 +113,16 @@ io.on("connection", (socket) => {
 
 expressApp.use((req, res, next) => {
   // console.log(`Req: ${req.originalUrl} Time: ${Date.now()}`)
-  // console.log("req.originalUrl")
-  // console.log(req.originalUrl)
+  console.log("req.originalUrl")
+  console.log(req.originalUrl)
 
   // console.log("__dirname")
   // console.log(__dirname)
 
+  //https://id.twitch.tv/oauth2/authorize?client_id=4wsujxiz1khg6h9afkutmiyxhom8qv&response_type=code&redirect_uri=https://www.chatguess.com/twitchauthorizationredirect&scope=channel:read:redemptions+chat:edit+chat:read+channel:manage:redemptions
+
   if (
+    req.originalUrl == "" ||
     req.originalUrl == "/" ||
     req.originalUrl.endsWith("index.html") ||
     req.originalUrl.endsWith(".png") ||
@@ -127,19 +133,21 @@ expressApp.use((req, res, next) => {
     req.originalUrl.endsWith(".css") ||
     req.originalUrl.endsWith(".ico")) {
     next()
+  } else if (req.originalUrl.startsWith("/twitchauthorizationredirect")) {
+    auth2(req.query.code)
   } else {
+
+    // console.log("req.query.x")
+    // console.log(req.query.x)
+
+    // console.log("req")
+    // console.log(req)
+
     let channelName = req.originalUrl.substring(1)
-    // console.log("channelName")
-    // console.log(channelName)
-
-    // Attempts at routing to index file
     res.sendFile(__dirname + '/public/chatguessgames.html');
-    // res.render('public/chatguessgames.html');
-    // res.send("Hello world!");
 
-    // Redirect
-    // res.redirect('./chatguessgames.html');
-    // next()
+    //if we don't have auth for the user, send them to the home screen
+    //do I do a redirect? Or just sendFile?
   }
 
   // console.log('req:', req)
@@ -148,8 +156,40 @@ expressApp.use((req, res, next) => {
 
 expressApp.use(express.static('public'));
 
-// expressApp.use(express.)
-
 httpServer.listen(port, () => {
   console.log(`chatguess: listening on port ${port}`);
 });
+
+const auth2 = async (authorizationCode) => {
+
+  console.log("auth2")
+  console.log("clientId")
+  console.log(clientId)
+  
+  var auth2URL = "https://id.twitch.tv/oauth2/token" +
+  "?client_id=" + clientId +
+    "&client_secret=" + clientSecret +
+    "&code=" + authorizationCode +
+    "&grant_type=authorization_code" +
+    "&redirect_uri=https://www.chatguess.com"
+
+  const auth2Response = await fetch(auth2URL, {
+    method: 'POST',
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    }
+
+  });
+
+  const auth2ResponseJSON = await auth2Response.json();
+  console.log("auth2ResponseJSON")
+  console.log(auth2ResponseJSON)  
+
+  var accessToken = auth2ResponseJSON.access_token
+  var refreshToken = auth2ResponseJSON.refresh_token
+  console.log("accessToken")
+  console.log(accessToken)
+  console.log("refreshToken")
+  console.log(refreshToken)
+}
