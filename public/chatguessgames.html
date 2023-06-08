@@ -16,7 +16,7 @@
   <!-- <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg"> -->
   <div class="gameBackground" id="gameBackground"></div>
   <div class="logo" id="logo">
-    <img src="whats_the_game_title.png"/>
+    <img src="whats_the_game_title.png" />
   </div>
 
   <div class="div-physics" id="div-physics"></div>
@@ -24,7 +24,7 @@
 
   <div id="box"></div>
   <canvas class="canvas" id="canvas"></canvas>
-  
+
   <img class="controller" id="controller" src="images/home-logo-long.png" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
@@ -33,11 +33,11 @@
   <script>
 
     var div_gifs = document.getElementById('div-gifs');
-    var gameBackground = document.getElementById('gameBackground');    
-    gameBackground.style.visibility='hidden'
-    var logo = document.getElementById('logo');    
-    logo.style.visibility='hidden'
-    var controller = document.getElementById('controller');    
+    var gameBackground = document.getElementById('gameBackground');
+    gameBackground.style.visibility = 'hidden'
+    var logo = document.getElementById('logo');
+    logo.style.visibility = 'hidden'
+    var controller = document.getElementById('controller');
 
     const frameRate = 1000 / 30;
     const boxSize = 20;
@@ -261,19 +261,20 @@
 
         //Container position
         var x = 0
-        var y = 0
+        var startY = 0
+        var endY = 0
         const maxAttempts = 10
         var attempts = 0
-        while ((x < 320 && y < 210) || (x + croppedWidth > 1000 && y + croppedHeight > 520)) {
+        while ((x < 320 && endY < 210) || (x + croppedWidth > 1000 && endY + croppedHeight > 520)) {
           var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
-          var y = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
+          var endY = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
           attempts++
           if (attempts > maxAttempts)
             break
         }
 
         container.style.left = x + 'px';
-        container.style.top = y + 'px';
+        container.style.top = endY + 'px';
 
         var totalHorizontalMargin = croppedWidth - naturalWidth;
         var imgMarginLeft = totalHorizontalMargin / 2
@@ -296,11 +297,45 @@
         img.style.marginTop = `${imgMarginTop}px`
         img.style.marginBottom = `${imgMarginBottom}px`
 
-        var speedIn = 0.05
-        fadeIn(container, speedIn)
+        container.style.opacity = 1;
+        // var speedIn = 0.05
+        // fadeIn(container, speedIn)
+        // animateIn(container, startY, endY)
       }
     });
     // End showImage
+
+    //Animate Image In
+    function animateIn(elem, startPos, endPos) {
+
+      var style = document.createElement('style');
+      style.type = 'text/css';
+      var keyFrames = '\
+@-webkit-keyframes spinIt {\
+    100% {\
+        -webkit-transform: rotate(A_DYNAMIC_VALUE);\
+    }\
+}\
+@-moz-keyframes spinIt {\
+    100% {\
+        -webkit-transform: rotate(A_DYNAMIC_VALUE);\
+    }\
+}';
+      style.innerHTML = keyFrames.replace(/A_DYNAMIC_VALUE/g, "180deg");
+      document.getElementsByTagName('head')[0].appendChild(style);
+
+
+      // var pos = startPos;
+      // var id = setInterval(frame, 30);
+      // function frame() {
+      //   if (pos >= endPos) {
+      //     clearInterval(id);
+      //   } else {
+      //     pos+=10
+      //     elem.style.top = pos + 'px';
+      //   }
+      // }
+    }
 
     // function loadImage(path) {
     //   var img = new Image();
@@ -366,11 +401,11 @@
       imgElementList = []
 
       //background
-      gameBackground.style.visibility='visible'
+      gameBackground.style.visibility = 'visible'
 
       //title
       // logo.style.visibility='visible'
-      controller.style.animationName ="controller-animation";
+      controller.style.animationName = "controller-animation";
       // controller.style.animationPlayState = "running";
 
       //audio cue
@@ -378,9 +413,9 @@
       audio.play();
     });
 
-    // clear images
+    // Show Cover Image
     socket.on('showCoverImage', function (gameImage, username) {
-      controller.style.animationName ="controller-animation-reverse";
+      controller.style.animationName = "controller-animation-reverse";
 
       entities.boxes.forEach(function (box) {
         Matter.Composite.remove(engine.world, box)
@@ -438,9 +473,8 @@
 
         setTimeout(function () {
           div_gifs.innerHTML = "";
-          gameBackground.style.visibility='hidden'
-          logo.style.visibility='hidden'
-
+          gameBackground.style.visibility = 'hidden'
+          logo.style.visibility = 'hidden'
         }, 10_000);
       }
     });

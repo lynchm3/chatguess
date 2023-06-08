@@ -113,6 +113,13 @@ body {
     margin-top: 0px;
 }
 
+
+@keyframes fall {
+    from {
+        top: -100%;
+    }
+}
+
 .crop {
     float: left;
     position: fixed;
@@ -120,6 +127,10 @@ body {
     /* this is important */
     border: 2px solid #ccc;
     border-radius: 25px;
+    animation-name: fall;
+    animation-fill-mode: forwards;
+    animation-duration: 2s;
+    filter: drop-shadow(0px 5px 2px #000000AA);
 }
 
 .hint {
