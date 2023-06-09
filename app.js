@@ -1,3 +1,22 @@
+// THE BIG ONES
+// https
+// Google cloud DB, firestore mentioned here? https://cloud.google.com/nodejs/getting-started
+// database layer (class)
+// auth table
+// network layer that re-auths on 401
+// delete dead sockets
+
+// Google Cloud Launch
+// Open Google CLoud SDK Shell
+// cd C:\Users\lynch\Documents\GitHub\chatguess\
+// gcloud run deploy
+
+// The cloud run dahsboard for managing the server
+// https://console.cloud.google.com/run?project=chatguess
+
+// Logs
+// https://console.cloud.google.com/logs/query?project=chatguess
+
 import {ChannelStatus} from './ChannelStatus.js'
 import {Home} from './Home.js'
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';

@@ -13,7 +13,7 @@ export class Redemption {
 
 		this.auth()
 
-		setTimeout(this.pollForRedemptions, 15 * 1000)
+		setTimeout(this.pollForRedemptions, 5 * 1000)
 	}
 
 	async auth(){
@@ -68,6 +68,7 @@ export class Redemption {
 
 	// getRewards()
 	pollForRedemptions = async () => {
+		// "accessToken": "cgka29ayy0kezol1ujydmkh2853oxn",
 
 		console.log("pollForRedemptions")
 
@@ -80,19 +81,27 @@ export class Redemption {
 			}
 		});
 
-		const redemptionResponseJson = await redemptionResponse.json();
-		console.log("redemptionResponseJson")
-		console.log(redemptionResponseJson)
+		console.log("redemptionResponse.status")
+		console.log(redemptionResponse.status)
 
-		let redemptions = redemptionResponseJson.data
-
-		if (this.callback != null) {
-			for (let redemption of redemptions) {
-				this.callback.addGamesToQueue(1, redemption.user_name)
-				this.fulfillRedemption(redemption.id)
-			}
+		if(redemptionResponse.status == 200) {		
+			const redemptionResponseJson = await redemptionResponse.json();
+			console.log("redemptionResponseJson")
+			console.log(redemptionResponseJson)
+	
+			let redemptions = redemptionResponseJson.data
+	
+			if (this.callback != null) {
+				for (let redemption of redemptions) {
+					this.callback.addGamesToQueue(1, redemption.user_name)
+					this.fulfillRedemption(redemption.id)
+				}
+			} else {
+				tokenRefresh()
+			}		
 		}
-		setTimeout(this.pollForRedemptions, 15 * 1000)
+
+		setTimeout(this.pollForRedemptions, 5 * 1000)
 	}
 
 	fulfillRedemption = async (redemptionId) => {

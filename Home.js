@@ -35,6 +35,10 @@ export class Home {
             }
         });
 
+
+        if (response.status != 200)
+            return
+            
         const responseJson = await response.json();
 
         var artworks = []

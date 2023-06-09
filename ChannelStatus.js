@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import { Game, GameImage } from './Game.js';
 import { HintProvider } from './HintProvider.js';
 import { GuessChecker } from './GuessChecker.js';
-import { Chatbot } from './chatbot/chatbot.js'; import { CorrectAnswer, Scoreboard } from './scoreboard.js';
+import { Chatbot } from './chatbot/chatbot.js'; import { CorrectAnswer, Scoreboard } from './db.js';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import { Redemption } from './Redemption.js';
 import { showImage, showCoverImage, showTitle } from './htmlController.js';

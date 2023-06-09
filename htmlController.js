@@ -1,6 +1,6 @@
 //NEW HTTP WITH EXPRESS
 // import { express } from 'express';
-import { clientId, clientSecret} from './TwurpleSecrets.js'
+import { clientId, clientSecret, userId} from './TwurpleSecrets.js'
 import { createHomeGame } from './app.js'
 import express from 'express';
 // const { express } = pkg;
@@ -12,6 +12,7 @@ const io = new SocketIOServer(httpServer)
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Auth } from './db.js';
 
 import fetch from 'node-fetch';
 
@@ -179,8 +180,10 @@ const auth2 = async (authorizationCode) => {
       "Accept": "application/json",
       "Content-Type": "application/json"
     }
-
   });
+
+  if(auth2Response.status != 200)
+    return
 
   const auth2ResponseJSON = await auth2Response.json();
   console.log("auth2ResponseJSON")
@@ -192,4 +195,30 @@ const auth2 = async (authorizationCode) => {
   console.log(accessToken)
   console.log("refreshToken")
   console.log(refreshToken)
+
+  // userId
+  const usersResponse = await fetch("https://api.twitch.tv/helix/users", {
+    method: 'GET',
+    headers: {
+      "Client-ID": `${clientId}`,
+      "Authorization": `Bearer ${accessToken}`,
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    }
+  });
+
+  if(usersResponse.status != 200)
+    return
+
+  const usersResponseJSON = await usersResponse.json();  
+
+  var userId = usersResponseJSON.data[0].userId
+  var login = usersResponseJSON.data[0].login
+
+  console.log("usersResponseJSON")
+  console.log(usersResponseJSON)
+  console.log("login")
+  console.log(login)  
+
+  new Auth(login, accessToken, refreshToken).insertAuth()
 }
