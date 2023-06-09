@@ -1,6 +1,6 @@
 //NEW HTTP WITH EXPRESS
 // import { express } from 'express';
-import { clientId, clientSecret, userId} from './TwurpleSecrets.js'
+import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
 import { createHomeGame } from './app.js'
 import express from 'express';
 // const { express } = pkg;
@@ -135,7 +135,12 @@ expressApp.use((req, res, next) => {
     req.originalUrl.endsWith(".ico")) {
     next()
   } else if (req.originalUrl.startsWith("/twitchauthorizationredirect")) {
-    auth2(req.query.code)
+    auth2(req.query.code, res)
+  } else if (req.originalUrl.startsWith("/twitchchannelnotregistered")) {
+    console.log("Looking for twitchchannelnotregistered")  
+    res.set('Content-Type', 'text/html');    
+    res.send("The channel " + req.query.channelName + " is not registered, go to chatguess.com in your browser to register yoour channel!");
+    // next()
   } else {
 
     // console.log("req.query.x")
@@ -145,7 +150,7 @@ expressApp.use((req, res, next) => {
     // console.log(req)
 
     let channelName = req.originalUrl.substring(1)
-    res.sendFile(__dirname + '/public/chatguessgames.html');
+    userRegisteredCheck(channelName, res)
 
     //if we don't have auth for the user, send them to the home screen
     //do I do a redirect? Or just sendFile?
@@ -161,14 +166,33 @@ httpServer.listen(port, () => {
   console.log(`chatguess: listening on port ${port}`);
 });
 
-const auth2 = async (authorizationCode) => {
+
+async function userRegisteredCheck(channelName, res) {
+
+  var auth = new Auth(channelName, null, null)
+  await auth.selectAuth(res)
+
+  console.log("auth")
+  console.log(auth)
+
+  if (!auth.accessToken) {
+    // res.redirect("/twitchchannelnotregistered?"+channelName)
+    res.redirect("/twitchchannelnotregistered.html?channelName="+channelName)
+    // res.
+    // res.sendFile(__dirname + '/public/notregistered.html');
+  } else {
+    res.sendFile(__dirname + '/public/chatguessgames.html');
+  }
+}
+
+const auth2 = async (authorizationCode, res) => {
 
   console.log("auth2")
   console.log("clientId")
   console.log(clientId)
-  
+
   var auth2URL = "https://id.twitch.tv/oauth2/token" +
-  "?client_id=" + clientId +
+    "?client_id=" + clientId +
     "&client_secret=" + clientSecret +
     "&code=" + authorizationCode +
     "&grant_type=authorization_code" +
@@ -182,12 +206,12 @@ const auth2 = async (authorizationCode) => {
     }
   });
 
-  if(auth2Response.status != 200)
+  if (auth2Response.status != 200)
     return
 
   const auth2ResponseJSON = await auth2Response.json();
   console.log("auth2ResponseJSON")
-  console.log(auth2ResponseJSON)  
+  console.log(auth2ResponseJSON)
 
   var accessToken = auth2ResponseJSON.access_token
   var refreshToken = auth2ResponseJSON.refresh_token
@@ -207,10 +231,10 @@ const auth2 = async (authorizationCode) => {
     }
   });
 
-  if(usersResponse.status != 200)
+  if (usersResponse.status != 200)
     return
 
-  const usersResponseJSON = await usersResponse.json();  
+  const usersResponseJSON = await usersResponse.json();
 
   var userId = usersResponseJSON.data[0].userId
   var login = usersResponseJSON.data[0].login
@@ -218,7 +242,12 @@ const auth2 = async (authorizationCode) => {
   console.log("usersResponseJSON")
   console.log(usersResponseJSON)
   console.log("login")
-  console.log(login)  
+  console.log(login)
 
   new Auth(login, accessToken, refreshToken).insertOrUpdateAuth()
+
+  let channelName = login
+  // res.sendFile(__dirname + '/public/chatguessgames.html');
+  res.redirect("/" + channelName)
+  // req.redi.red
 }

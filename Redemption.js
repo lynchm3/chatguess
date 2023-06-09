@@ -4,6 +4,8 @@ import { promises as fs } from 'fs';
 import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
 import fetch from 'node-fetch';
 
+//Twitch docs - https://dev.twitch.tv/docs/api/reference/#create-custom-rewards
+
 export class Redemption {
 
 	constructor(callback, broadcasterId) {
@@ -39,8 +41,8 @@ export class Redemption {
 				"Content-Type": "application/json"
 			},
 			body: `{
-			"title": "CGG TEST",
-			"cost": 999999
+			"title": "Chat Guess Games",
+			"cost": 300
 		}`
 		});
 

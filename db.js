@@ -335,7 +335,7 @@ export class Auth {
                 if (err) {
                     console.log("auth insert err ");
                     console.log(err);
-                } else {                    
+                } else {
                     console.log("auth insert success ");
                 }
             });
@@ -349,7 +349,7 @@ export class Auth {
                 if (err) {
                     console.log("auth update err ");
                     console.log(err);
-                } else {                    
+                } else {
                     console.log("auth update success ");
                 }
             });
@@ -359,7 +359,25 @@ export class Auth {
 
     }
 
-    selectAuth() {
-
+    async selectAuth() {
+        var auth = this
+        return new Promise(function (resolve, reject) {
+            db.all(`SELECT * FROM auth WHERE broadcaster = '${auth.broadcaster}';`,
+                (err, result) => {
+                    if (err) {
+                        console.log("auth select err ");
+                        console.log(err);
+                    } else {
+                        console.log("auth select success");
+                        console.log(result);
+                        if (result.length == 0) {
+                        } else {
+                            auth.accessToken = result[0].accessToken
+                            auth.refreshToken = result[0].refreshToken
+                        }
+                    }
+                    resolve()
+                });
+        });
     }
 }
