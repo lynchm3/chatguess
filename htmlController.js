@@ -220,5 +220,5 @@ const auth2 = async (authorizationCode) => {
   console.log("login")
   console.log(login)  
 
-  new Auth(login, accessToken, refreshToken).insertAuth()
+  new Auth(login, accessToken, refreshToken).insertOrUpdateAuth()
 }

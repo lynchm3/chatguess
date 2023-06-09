@@ -68,9 +68,7 @@ export class Redemption {
 
 	// getRewards()
 	pollForRedemptions = async () => {
-		// "accessToken": "cgka29ayy0kezol1ujydmkh2853oxn",
-
-		console.log("pollForRedemptions")
+		// console.log("pollForRedemptions")
 
 		const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${this.CHAT_GUESS_GAMES_REWARD_ID}&status=UNFULFILLED`, {
 			method: 'GET',
@@ -81,8 +79,8 @@ export class Redemption {
 			}
 		});
 
-		console.log("redemptionResponse.status")
-		console.log(redemptionResponse.status)
+		// console.log("redemptionResponse.status")
+		// console.log(redemptionResponse.status)
 
 		if(redemptionResponse.status == 200) {		
 			const redemptionResponseJson = await redemptionResponse.json();
