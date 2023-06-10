@@ -136,11 +136,11 @@ expressApp.use((req, res, next) => {
     next()
   } else if (req.originalUrl.startsWith("/twitchauthorizationredirect")) {
     auth2(req.query.code, res)
-  } else if (req.originalUrl.startsWith("/twitchchannelnotregistered")) {
-    console.log("Looking for twitchchannelnotregistered")  
-    res.set('Content-Type', 'text/html');    
-    res.send("The channel " + req.query.channelName + " is not registered, go to chatguess.com in your browser to register yoour channel!");
-    // next()
+  // } else if (req.originalUrl.startsWith("/twitchchannelnotregistered")) {
+  //   console.log("Looking for twitchchannelnotregistered")  
+  //   res.set('Content-Type', 'text/html');    
+  //   res.send("The channel " + req.query.channelName + " is not registered, go to chatguess.com in your browser to register yoour channel!");
+  //   // next()
   } else {
 
     // console.log("req.query.x")
@@ -175,10 +175,11 @@ async function userRegisteredCheck(channelName, res) {
   console.log("auth")
   console.log(auth)
 
-  if (!auth.accessToken) {
+  if (!auth.accessToken) { 
+    res.set('Content-Type', 'text/html');    
+    res.send("The channel " + channelName + ' is not registered, go to <a href="http://chatguess.com">chatguess.com</a> to enable ChatGuess for your channel!');
     // res.redirect("/twitchchannelnotregistered?"+channelName)
-    res.redirect("/twitchchannelnotregistered.html?channelName="+channelName)
-    // res.
+    // res.redirect("/twitchchannelnotregistered.html?channelName="+channelName)
     // res.sendFile(__dirname + '/public/notregistered.html');
   } else {
     res.sendFile(__dirname + '/public/chatguessgames.html');
