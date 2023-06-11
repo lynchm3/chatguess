@@ -99,6 +99,9 @@ export class Redemption {
 			} else {
 				tokenRefresh()
 			}		
+		} else {
+			console.log("poll redemption error")
+			console.log(redemptionResponse)			
 		}
 
 		setTimeout(this.pollForRedemptions, 5 * 1000)

@@ -11,10 +11,14 @@ const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
 const ENDPOINT_GAMES = "/games"
 const MIN_FOLLOWERS = 45
-const GAMES_WITH_50_RATING = 897
-const MAX_OFFSET = GAMES_WITH_50_RATING
+// const GAMES_WITH_50_RATING = 897
 const RESULT_COUNT = 1
-const FIELDS = `name, follows, hypes, aggregated_rating, alternative_names.name, artworks.*, cover.*,
+// & follows >= ${MIN_FOLLOWERS} 
+const WHERE_CLAUSE = `version_parent = null 
+& parent_game = null 
+& (aggregated_rating_count > 10 | follows >= ${MIN_FOLLOWERS})
+& themes != (42); `
+const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
   storyline, summary, themes.name, videos.*, websites.*,
   collection.name, 
@@ -40,18 +44,37 @@ export class ChannelStatus {
 
     getGame = async (igdbAccessToken) => {
 
+        //TODO
+        //I think the offset might need to count form 1 not 0.
+        //1. check if this is tru
+        //2. alter randomiser results to never be 0 (I think there may be a small chance)
+        
+        // const countResponse = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}/count`, {
+        //     method: 'POST',
+        //     body: `where ${WHERE_CLAUSE}`,
+        //     headers: {
+        //         "Client-ID": `${TWITCH_CLIENT_ID}`,
+        //         "Authorization": `Bearer ${this.igdbAccessToken}`,
+        //         "Accept": "application/json"
+        //     }
+        // });
+        // const countResponseJson = await countResponse.json();
+        // console.log("countResponseJson")
+        // console.log(countResponseJson)        
+
         this.chatbot.chat(`lynchm1Youwhat Starting a new round of WHAT'S THE GAME! lynchm1Youwhat`)
 
         var search = ""
         if (SEARCH_TERM.length > 0)
             search = `search "${SEARCH_TERM}";`
 
+        const MAX_OFFSET = 1397
         const response = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}`, {
             method: 'POST',
             body: `fields ${FIELDS}; 
           limit ${RESULT_COUNT};
           offset ${getRandomInt(MAX_OFFSET)};
-          where version_parent = null & parent_game = null & follows >= ${MIN_FOLLOWERS} & themes != (42);   
+          where ${WHERE_CLAUSE} 
           ${search}`,
             headers: {
                 "Client-ID": `${TWITCH_CLIENT_ID}`,
@@ -61,6 +84,9 @@ export class ChannelStatus {
         });
 
         const responseJson = await response.json();
+
+        console.log("aggregated_rating_count")
+        console.log(responseJson[0].aggregated_rating_count)
 
         this.game = new Game(
           /* id = */ responseJson[0].id,
