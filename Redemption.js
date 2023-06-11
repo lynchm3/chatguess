@@ -1,5 +1,3 @@
-import { RefreshingAuthProvider } from '@twurple/auth';
-import { Bot, createBotCommand } from '@twurple/easy-bot';
 import { promises as fs } from 'fs';
 import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
 import fetch from 'node-fetch';
@@ -8,27 +6,27 @@ import fetch from 'node-fetch';
 
 export class Redemption {
 
-	constructor(callback, broadcasterId) {
+	constructor(callback, broadcasterId, authToken, refreshToken) {
 		this.callback = callback
 		this.CHAT_GUESS_GAMES_REWARD_ID = "ab562539-eea4-4a49-b570-cb9c4a57b704"
 		this.broadcasterId = broadcasterId
-
-		this.auth()
+		this.authToken = authToken
+		this.refreshToken = refreshToken
 
 		setTimeout(this.pollForRedemptions, 5 * 1000)
 	}
 
-	async auth(){
-		this.tokenData = JSON.parse(await fs.readFile(`./tokens.${this.broadcasterId}.json`, 'UTF-8'));
-		this.authProvider = new RefreshingAuthProvider(
-			{
-				clientId,
-				clientSecret,
-				onRefresh: async (userId, newTokenData) => await fs.writeFile(`./tokens.${userId}.json`, JSON.stringify(newTokenData, null, 4), 'UTF-8')
-			}
-		);
-		await this.authProvider.addUserForToken(this.tokenData, ['chat', 'redemptions']);
-	}
+	// async auth(){
+	// 	this.tokenData = JSON.parse(await fs.readFile(`./tokens.${this.broadcasterId}.json`, 'UTF-8'));
+	// 	this.authProvider = new RefreshingAuthProvider(
+	// 		{
+	// 			clientId,
+	// 			clientSecret,
+	// 			onRefresh: async (userId, newTokenData) => await fs.writeFile(`./tokens.${userId}.json`, JSON.stringify(newTokenData, null, 4), 'UTF-8')
+	// 		}
+	// 	);
+	// 	await this.authProvider.addUserForToken(this.tokenData, ['chat', 'redemptions']);
+	// }
 
 	createReward = async () => {
 
@@ -36,7 +34,7 @@ export class Redemption {
 			method: 'POST',
 			headers: {
 				"Client-ID": `${clientId}`,
-				"Authorization": `Bearer ${this.tokenData.accessToken}`,
+				"Authorization": `Bearer ${this.authToken}`,
 				"Accept": "application/json",
 				"Content-Type": "application/json"
 			},
@@ -51,7 +49,6 @@ export class Redemption {
 
 	// createRedemption()
 
-
 	getRewards = async () => {
 
 		console.log("getRewards")
@@ -60,7 +57,7 @@ export class Redemption {
 			method: 'GET',
 			headers: {
 				"Client-ID": `${clientId}`,
-				"Authorization": `Bearer ${this.tokenData.accessToken}`,
+				"Authorization": `Bearer ${this.authToken}`,
 				"Accept": "application/json"
 			}
 		});
@@ -76,7 +73,7 @@ export class Redemption {
 			method: 'GET',
 			headers: {
 				"Client-ID": `${clientId}`,
-				"Authorization": `Bearer ${this.tokenData.accessToken}`,
+				"Authorization": `Bearer ${this.authToken}`,
 				"Accept": "application/json"
 			}
 		});
@@ -113,7 +110,7 @@ export class Redemption {
 			method: 'PATCH',
 			headers: {
 				"Client-ID": `${clientId}`,
-				"Authorization": `Bearer ${this.tokenData.accessToken}`,
+				"Authorization": `Bearer ${this.authToken}`,
 				"Accept": "application/json",
 				"Content-Type": "application/json"
 			},
@@ -121,5 +118,8 @@ export class Redemption {
 		});
 
 		const fulfillRedemptionResponseJson = await fulfillRedemptionResponse.json();
+		
+		console.log("fulfillRedemptionResponse")
+		console.log(fulfillRedemptionResponse)	
 	}
 }

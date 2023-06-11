@@ -41,7 +41,7 @@ var channelMap = new Map();
 
 
 
-var igdbAccessToken = null
+export var igdbAccessToken = null
 export const getIgdbAccessToken = async () => {
     const response = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${TWITCH_CLIENT_ID}&client_secret=${TWITCH_CLIENT_SECRET}&grant_type=client_credentials&scope=channel%3Amanage%3Aredemptions`, {
         method: 'POST'
@@ -59,8 +59,8 @@ export const getIgdbAccessToken = async () => {
 }
 getIgdbAccessToken()
 
-export function createChannel(channelName, channelId) {
-    let channel = new Channel(channelName, channelId, igdbAccessToken)
+export function createChannel(channelName, channelId, authToken, refreshToken) {
+    let channel = new Channel(channelName, channelId, authToken, refreshToken)
     channelMap.set(channelName, channel)
 }
 

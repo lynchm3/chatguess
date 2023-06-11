@@ -6,6 +6,7 @@ import { Chatbot } from './chatbot/chatbot.js'; import { CorrectAnswer, Scoreboa
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import { Redemption } from './Redemption.js';
 import { showImage, showCoverImage, showTitle } from './htmlController.js';
+import {igdbAccessToken} from './app.js'
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
@@ -30,16 +31,18 @@ const THUMB_URL = `//images.igdb.com/igdb/image/upload/t_thumb/`
 const SEARCH_TERM = ""
 
 export class Channel {
-    constructor(channel, broadcasterId, igdbAccessToken) {
-        this.igdbAccessToken = igdbAccessToken
+    constructor(channel, broadcasterId, authToken, refreshToken) {
         this.channel = channel
+        this.broadcasterId = broadcasterId
+        this.authToken = authToken
+        this.refreshToken = refreshToken
         this.game = null
         this.queue = 0
         this.hintProvider = null
         this.guessChecker = null
         this.autoplay = false
         this.chatbot = new Chatbot(this)
-        this.redemption = new Redemption(this, broadcasterId)
+        this.redemption = new Redemption(this, broadcasterId, authToken, refreshToken)
     }
 
     getGame = async (igdbAccessToken) => {
@@ -54,7 +57,7 @@ export class Channel {
         //     body: `where ${WHERE_CLAUSE}`,
         //     headers: {
         //         "Client-ID": `${TWITCH_CLIENT_ID}`,
-        //         "Authorization": `Bearer ${this.igdbAccessToken}`,
+        //         "Authorization": `Bearer ${igdbAccessToken}`,
         //         "Accept": "application/json"
         //     }
         // });
@@ -62,7 +65,7 @@ export class Channel {
         // console.log("countResponseJson")
         // console.log(countResponseJson)        
 
-        this.chatbot.chat(`lynchm1Youwhat Starting a new round of WHAT'S THE GAME! lynchm1Youwhat`)
+        this.chatbot.chat(`New round of Chat Guess Games!`)
 
         var search = ""
         if (SEARCH_TERM.length > 0)
@@ -78,12 +81,18 @@ export class Channel {
           ${search}`,
             headers: {
                 "Client-ID": `${TWITCH_CLIENT_ID}`,
-                "Authorization": `Bearer ${this.igdbAccessToken}`,
+                "Authorization": `Bearer ${igdbAccessToken}`,
                 "Accept": "application/json"
             }
         });
 
         const responseJson = await response.json();
+
+        // console.log("responseJson")
+        // console.log(responseJson)
+
+        // console.log("responseJson")
+        // console.log(responseJson[0])
 
         console.log("aggregated_rating_count")
         console.log(responseJson[0].aggregated_rating_count)
@@ -131,7 +140,7 @@ export class Channel {
             //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
             // }
 
-            new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, this.igdbAccessToken)
+            new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, igdbAccessToken)
 
             // if (userId != null)
             //     getProfileImage(userId, igdbAccessToken)
@@ -172,7 +181,7 @@ export class Channel {
         if (this.queue > 0 && this.game == null) {
             this.queue--
             console.log("calling get game")
-            this.getGame(this.igdbAccessToken)
+            this.getGame(igdbAccessToken)
             showTitle(this.channel)
         } else {
             this.chatbot.chat(`There's a game running right now, but yours has been queued up ${username}!`)
@@ -194,7 +203,7 @@ export class Channel {
     setAutoPlay(a) {
         this.autoplay = a
         if (this.game == null) {
-            this.getGame(this.igdbAccessToken)
+            this.getGame(igdbAccessToken)
             showTitle(this.channel)
         }
     }
@@ -208,7 +217,7 @@ export class Channel {
     }
 
     scoreboard(channelId) {
-        new Scoreboard().getScoreboard(this.igdbAccessToken, this.chatbot, channelId)
+        new Scoreboard().getScoreboard(igdbAccessToken, this.chatbot, channelId)
     }
 
     roundEnded() {
@@ -216,10 +225,10 @@ export class Channel {
         console.log("this.autoplay")
         console.log(this.autoplay)
         if (this.autoplay) {
-            this.getGame(this.igdbAccessToken)
+            this.getGame(igdbAccessToken)
             showTitle(this.channel)
         } else if (this.queue > 0) {
-            this.getGame(this.igdbAccessToken)
+            this.getGame(igdbAccessToken)
             showTitle(this.channel)
             this.queue--
         } else {

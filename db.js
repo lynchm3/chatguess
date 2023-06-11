@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
+import { createChannel } from './app.js';
 
 const databaseName = "chatguess.db"
 var db = null
@@ -11,6 +12,8 @@ function init() {
             createDatabase();
         } else if (err) {
             console.log("Getting error " + err);
+        } else {
+            Auth.loadUsers()
         }
     });
 }
@@ -377,6 +380,31 @@ export class Auth {
                             auth.userID = result[0].userID
                             auth.accessToken = result[0].accessToken
                             auth.refreshToken = result[0].refreshToken
+                        }
+                    }
+                    resolve()
+                });
+        });
+    }
+
+    static loadUsers() {
+        return new Promise(function (resolve, reject) {
+            db.all(`SELECT * FROM auth;`,
+                (err, result) => {
+                    if (err) {
+                        console.log("auth select err ");
+                        console.log(err);
+                    } else {
+                        console.log("auth select success");
+                        console.log(result);
+                        if (result.length == 0) {
+                        } else {
+                            for(let r of result)
+                                createChannel(
+                                    r.broadcaster,
+                                    r.userID,
+                                    r.accessToken,
+                                    r.refreshToken)
                         }
                     }
                     resolve()

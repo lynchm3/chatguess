@@ -253,7 +253,7 @@ const auth2 = async (authorizationCode, res) => {
   console.log(login)
 
   new Auth(login, userId, accessToken, refreshToken).insertOrUpdateAuth()
-  createChannel(login, userId)
+  createChannel(login, userId, accessToken, refreshToken)
 
   let channelName = login
   // res.sendFile(__dirname + '/public/chatguessgames.html');
