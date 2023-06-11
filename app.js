@@ -59,8 +59,8 @@ export const getIgdbAccessToken = async () => {
 }
 getIgdbAccessToken()
 
-export function createChannel(channelName, channelId, authToken, refreshToken) {
-    let channel = new Channel(channelName, channelId, authToken, refreshToken)
+export function createChannel(channelName, channelId, authToken, refreshToken, rewardID) {
+    let channel = new Channel(channelName, channelId, authToken, refreshToken, rewardID)
     channelMap.set(channelName, channel)
 }
 

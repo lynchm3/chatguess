@@ -175,7 +175,7 @@ httpServer.listen(port, () => {
 async function userRegisteredCheck(channelName, res) {
 
   var auth = new Auth(channelName, null, null, null)
-  await auth.selectAuth(res)
+  await auth.selectAuthByBroadcasterName(res)
 
   console.log("auth")
   console.log(auth)
@@ -260,3 +260,4 @@ const auth2 = async (authorizationCode, res) => {
   res.redirect("/" + channelName)
   // req.redi.red
 }
+

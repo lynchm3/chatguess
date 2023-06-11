@@ -31,7 +31,7 @@ const THUMB_URL = `//images.igdb.com/igdb/image/upload/t_thumb/`
 const SEARCH_TERM = ""
 
 export class Channel {
-    constructor(channel, broadcasterId, authToken, refreshToken) {
+    constructor(channel, broadcasterId, authToken, refreshToken, rewardID) {
         this.channel = channel
         this.broadcasterId = broadcasterId
         this.authToken = authToken
@@ -42,7 +42,7 @@ export class Channel {
         this.guessChecker = null
         this.autoplay = false
         this.chatbot = new Chatbot(this)
-        this.redemption = new Redemption(this, broadcasterId, authToken, refreshToken)
+        this.redemption = new Redemption(this, channel, broadcasterId, authToken, refreshToken, rewardID)
     }
 
     getGame = async (igdbAccessToken) => {

@@ -53,7 +53,8 @@ function createAuthTable() {
         broadcaster text not null,
         userID text not null,
         accessToken text not null,
-        refreshToken text not null
+        refreshToken text not null,
+        rewardID text not null
     );`, (err) => {
         if (err) {
             console.log("create table auth err ");
@@ -308,21 +309,22 @@ export class Scoreboard {
 
 export class Auth {
 
-    constructor(broadcaster, userID, accessToken, refreshToken) {
+    constructor(broadcaster, userID, accessToken, refreshToken, rewardID) {
         this.broadcaster = broadcaster
         this.userID = userID
         this.accessToken = accessToken
         this.refreshToken = refreshToken
+        this.rewardID = rewardID
     }
 
     insertOrUpdateAuth() {
         db.all(`SELECT * FROM auth WHERE userID = '${this.userID}';`,
             (err, result) => {
                 if (err) {
-                    console.log("auth select err ");
+                    console.log("insertOrUpdateAuth err ");
                     console.log(err);
                 } else {
-                    console.log("authselect success");
+                    console.log("insertOrUpdateAuth success");
                     console.log(result);
                     if (result.length == 0) {
                         this.insertAuth()
@@ -334,8 +336,8 @@ export class Auth {
     }
 
     insertAuth() {
-        db.exec(`INSERT INTO auth (broadcaster, userID, accessToken, refreshToken) 
-        values ('${this.broadcaster}', ${this.userID}, '${this.accessToken}', '${this.refreshToken}'); `,
+        db.exec(`INSERT INTO auth (broadcaster, userID, accessToken, refreshToken, rewardID) 
+        values ('${this.broadcaster}', ${this.userID}, '${this.accessToken}', '${this.refreshToken}', 'null'); `,
             (err) => {
                 if (err) {
                     console.log("auth insert err ");
@@ -364,22 +366,23 @@ export class Auth {
 
     }
 
-    async selectAuth() {
+    async selectAuthByBroadcasterName() {
         var auth = this
         return new Promise(function (resolve, reject) {
             db.all(`SELECT * FROM auth WHERE broadcaster = '${auth.broadcaster}';`,
                 (err, result) => {
                     if (err) {
-                        console.log("auth select err ");
+                        console.log("selectAuthByBroadcasterName err ");
                         console.log(err);
                     } else {
-                        console.log("auth select success");
+                        console.log("selectAuthByBroadcasterName success");
                         console.log(result);
                         if (result.length == 0) {
                         } else {
                             auth.userID = result[0].userID
                             auth.accessToken = result[0].accessToken
                             auth.refreshToken = result[0].refreshToken
+                            auth.rewardID = result[0].rewardID
                         }
                     }
                     resolve()
@@ -387,15 +390,29 @@ export class Auth {
         });
     }
 
+    saveRewardId(){        
+        db.exec(`UPDATE auth 
+        SET rewardID = '${this.rewardID}'
+        WHERE broadcaster = '${this.broadcaster}'`,
+            (err) => {
+                if (err) {
+                    console.log("saveRewardId update err ");
+                    console.log(err);
+                } else {
+                    console.log("saveRewardId update success ");
+                }
+            });
+    }
+
     static loadUsers() {
         return new Promise(function (resolve, reject) {
             db.all(`SELECT * FROM auth;`,
                 (err, result) => {
                     if (err) {
-                        console.log("auth select err ");
+                        console.log("loadUsers err ");
                         console.log(err);
                     } else {
-                        console.log("auth select success");
+                        console.log("loadUsers success");
                         console.log(result);
                         if (result.length == 0) {
                         } else {
@@ -404,11 +421,15 @@ export class Auth {
                                     r.broadcaster,
                                     r.userID,
                                     r.accessToken,
-                                    r.refreshToken)
+                                    r.refreshToken, 
+                                    r.rewardID)
                         }
                     }
                     resolve()
                 });
         });
     }
+
+
+    
 }
