@@ -1,7 +1,7 @@
 //NEW HTTP WITH EXPRESS
 // import { express } from 'express';
 import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
-import { createHomeGame } from './app.js'
+import { createHomeGame, createChannel } from './app.js'
 import express from 'express';
 // const { express } = pkg;
 const expressApp = express();
@@ -44,6 +44,11 @@ const port = 8080;
 //   // console.log('listening on *:3000');
 // });
 //////// use 8080 ///////////////
+
+var callback = null
+export function setCallback(c) {
+  callback = c
+}
 
 //Socket emits
 export function showText(text) { io.emit('showText', text); }
@@ -169,7 +174,7 @@ httpServer.listen(port, () => {
 
 async function userRegisteredCheck(channelName, res) {
 
-  var auth = new Auth(channelName, null, null)
+  var auth = new Auth(channelName, null, null, null)
   await auth.selectAuth(res)
 
   console.log("auth")
@@ -237,15 +242,18 @@ const auth2 = async (authorizationCode, res) => {
 
   const usersResponseJSON = await usersResponse.json();
 
-  var userId = usersResponseJSON.data[0].userId
+  var userId = usersResponseJSON.data[0].id
   var login = usersResponseJSON.data[0].login
 
   console.log("usersResponseJSON")
   console.log(usersResponseJSON)
+  console.log("userId")
+  console.log(userId)
   console.log("login")
   console.log(login)
 
-  new Auth(login, accessToken, refreshToken).insertOrUpdateAuth()
+  new Auth(login, userId, accessToken, refreshToken).insertOrUpdateAuth()
+  createChannel(login, userId)
 
   let channelName = login
   // res.sendFile(__dirname + '/public/chatguessgames.html');

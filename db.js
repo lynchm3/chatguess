@@ -48,6 +48,7 @@ function createAuthTable() {
     db.exec(`
     create table auth (
         broadcaster text not null,
+        userID text not null,
         accessToken text not null,
         refreshToken text not null
     );`, (err) => {
@@ -304,14 +305,15 @@ export class Scoreboard {
 
 export class Auth {
 
-    constructor(broadcaster, accessToken, refreshToken) {
+    constructor(broadcaster, userID, accessToken, refreshToken) {
         this.broadcaster = broadcaster
+        this.userID = userID
         this.accessToken = accessToken
         this.refreshToken = refreshToken
     }
 
     insertOrUpdateAuth() {
-        db.all(`SELECT * FROM auth WHERE broadcaster = '${this.broadcaster}';`,
+        db.all(`SELECT * FROM auth WHERE userID = '${this.userID}';`,
             (err, result) => {
                 if (err) {
                     console.log("auth select err ");
@@ -329,8 +331,8 @@ export class Auth {
     }
 
     insertAuth() {
-        db.exec(`INSERT INTO auth (broadcaster, accessToken, refreshToken) 
-        values ('${this.broadcaster}', '${this.accessToken}', '${this.refreshToken}'); `,
+        db.exec(`INSERT INTO auth (broadcaster, userID, accessToken, refreshToken) 
+        values ('${this.broadcaster}', ${this.userID}, '${this.accessToken}', '${this.refreshToken}'); `,
             (err) => {
                 if (err) {
                     console.log("auth insert err ");
@@ -343,8 +345,8 @@ export class Auth {
 
     updateAuth() {
         db.exec(`UPDATE auth 
-        SET accessToken = '${this.accessToken}', refreshToken = '${this.refreshToken}'
-        WHERE broadcaster = '${this.broadcaster}'`,
+        SET broadcaster = '${this.broadcaster}',  accessToken = '${this.accessToken}', refreshToken = '${this.refreshToken}'
+        WHERE userID = '${this.userID}'`,
             (err) => {
                 if (err) {
                     console.log("auth update err ");
@@ -372,6 +374,7 @@ export class Auth {
                         console.log(result);
                         if (result.length == 0) {
                         } else {
+                            auth.userID = result[0].userID
                             auth.accessToken = result[0].accessToken
                             auth.refreshToken = result[0].refreshToken
                         }

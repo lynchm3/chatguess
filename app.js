@@ -17,14 +17,13 @@
 // Logs
 // https://console.cloud.google.com/logs/query?project=chatguess
 
-import {ChannelStatus} from './ChannelStatus.js'
+import {Channel} from './Channel.js'
 import {Home} from './Home.js'
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
 
 //Not sure whether to do map or array here
-var ChannelStatusMap = {}
-var ChannelStatuses = []
+var channelMap = new Map();
 
 // const getProfileImage = async (userID, accessToken) => {
 
@@ -55,10 +54,15 @@ export const getIgdbAccessToken = async () => {
 
     const responseJson = await response.json();
     igdbAccessToken = responseJson.access_token
-    new ChannelStatus("lynchml", "57016188", igdbAccessToken)
+    // new Channel("lynchml", "57016188", igdbAccessToken)
     // new Home("lynchml", igdbAccessToken)
 }
 getIgdbAccessToken()
+
+export function createChannel(channelName, channelId) {
+    let channel = new Channel(channelName, channelId, igdbAccessToken)
+    channelMap.set(channelName, channel)
+}
 
 export function createHomeGame(socket) {
     let home = new Home(socket, igdbAccessToken)

@@ -29,7 +29,7 @@ const IMAGE_720_URL = `https://images.igdb.com/igdb/image/upload/t_720p/`
 const THUMB_URL = `//images.igdb.com/igdb/image/upload/t_thumb/`
 const SEARCH_TERM = ""
 
-export class ChannelStatus {
+export class Channel {
     constructor(channel, broadcasterId, igdbAccessToken) {
         this.igdbAccessToken = igdbAccessToken
         this.channel = channel
