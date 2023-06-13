@@ -17,7 +17,7 @@ const RESULT_COUNT = 1
 // & follows >= ${MIN_FOLLOWERS} 
 const WHERE_CLAUSE = `version_parent = null 
 & parent_game = null 
-& (aggregated_rating_count > 10 | follows >= ${MIN_FOLLOWERS})
+& (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS})
 & themes != (42); `
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
