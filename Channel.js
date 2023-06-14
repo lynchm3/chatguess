@@ -16,27 +16,60 @@ const MIN_FOLLOWERS = 45
 const RESULT_COUNT = 1
 // & follows >= ${MIN_FOLLOWERS} 
 
+const KEY_FIRST_RELEASE_DATE = "first_release_date"
+
+const TIMESTAMP_1970 = -3600
+const TIMESTAMP_1980 = 315532800
+const TIMESTAMP_1990 = 631152000
+const TIMESTAMP_2000 = 946684800
+const TIMESTAMP_2010 = 1262304000
+const TIMESTAMP_2020 = 1577836800
+const TIMESTAMP_2030 = 1893456000
+
+const RANGE_70s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_1970}
+& ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_1980}`
+const RANGE_80s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_1980}
+& ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_1990}`
+const RANGE_90s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_1990}
+& ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_2000}`
+const RANGE_00s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_2000}
+& ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_2010}`
+const RANGE_10s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_2010}
+& ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_2020}`
+const RANGE_20s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_2020}
+& ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_2030}`
+
 const BASE_WHERE_CLAUSE = `version_parent = null 
 & parent_game = null 
 & themes != (42)  
 & cover != null
 & (artworks != null | screenshots != null) `
 
-const HARDCORE_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
-& first_release_date >= 631152000 
-& first_release_date < 946684800;`
-
-const EASY_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
-& first_release_date >= 631152000 
-& first_release_date < 946684800
-& (aggregated_rating_count >= 1);`// | follows >= ${MIN_FOLLOWERS});`
+const HARDCORE_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s};`
+// const NORMAL_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s} 
+// & (aggregated_rating_count >= 1);`
+const HARDCORE_EIGHTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_80s};`
+// const NORMAL_EIGHTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_80s} 
+// & (aggregated_rating_count >= 1);`
+const HARDCORE_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_90s};`
+const NORMAL_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_90s} 
+& (aggregated_rating_count >= 1);`
+const HARDCORE_AUGHTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_00s};`
+const NORMAL_AUGHTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_00s} 
+& (aggregated_rating_count >= 4);`
+const HARDCORE_TENS_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_10s};`
+const NORMAL_TENS_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_10s} 
+& (aggregated_rating_count >= 10);`
+const HARDCORE_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s};`
+const NORMAL_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s} 
+& (aggregated_rating_count >= 3);`
 
 // const RPG_WHERE_CLAUSE
 
 const DEFAULT_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
 & (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS}); `
 
-const WHERE_CLAUSE = EASY_NINTIES_WHERE_CLAUSE
+const WHERE_CLAUSE = NORMAL_TENS_WHERE_CLAUSE
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
