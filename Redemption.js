@@ -162,7 +162,7 @@ export class Redemption {
 
 		const fulfillRedemptionResponseJson = await fulfillRedemptionResponse.json();
 
-		console.log("fulfillRedemptionResponse")
-		console.log(fulfillRedemptionResponse)
+		// console.log("fulfillRedemptionResponse")
+		// console.log(fulfillRedemptionResponse)
 	}
 }

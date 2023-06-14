@@ -15,10 +15,22 @@ const MIN_FOLLOWERS = 45
 // const GAMES_WITH_50_RATING = 897
 const RESULT_COUNT = 1
 // & follows >= ${MIN_FOLLOWERS} 
-const WHERE_CLAUSE = `version_parent = null 
+
+const BASE_WHERE_CLAUSE = `version_parent = null 
 & parent_game = null 
-& (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS})
-& themes != (42); `
+& themes != (42) `
+
+const NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
+& first_release_date >= 631152000 
+& first_release_date < 946684800;`
+
+// const RPG_WHERE_CLAUSE
+
+const DEFAULT_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
+& (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS}); `
+
+const WHERE_CLAUSE = NINTIES_WHERE_CLAUSE
+
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
   storyline, summary, themes.name, videos.*, websites.*,
@@ -52,18 +64,19 @@ export class Channel {
         //1. check if this is tru
         //2. alter randomiser results to never be 0 (I think there may be a small chance)
         
-        // const countResponse = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}/count`, {
-        //     method: 'POST',
-        //     body: `where ${WHERE_CLAUSE}`,
-        //     headers: {
-        //         "Client-ID": `${TWITCH_CLIENT_ID}`,
-        //         "Authorization": `Bearer ${igdbAccessToken}`,
-        //         "Accept": "application/json"
-        //     }
-        // });
-        // const countResponseJson = await countResponse.json();
-        // console.log("countResponseJson")
-        // console.log(countResponseJson)        
+        const countResponse = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}/count`, {
+            method: 'POST',
+            body: `where ${WHERE_CLAUSE}`,
+            headers: {
+                "Client-ID": `${TWITCH_CLIENT_ID}`,
+                "Authorization": `Bearer ${igdbAccessToken}`,
+                "Accept": "application/json"
+            }
+        });
+        const countResponseJson = await countResponse.json();
+        console.log("countResponseJson")
+        console.log(countResponseJson)    
+        let count = countResponseJson.count    
 
         this.chatbot.chat(`New round of Chat Guess Games!`)
 
@@ -71,7 +84,7 @@ export class Channel {
         if (SEARCH_TERM.length > 0)
             search = `search "${SEARCH_TERM}";`
 
-        const MAX_OFFSET = 1397
+        const MAX_OFFSET = count
         const response = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}`, {
             method: 'POST',
             body: `fields ${FIELDS}; 
