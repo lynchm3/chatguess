@@ -6,7 +6,7 @@ import { Chatbot } from './chatbot/chatbot.js'; import { CorrectAnswer, Scoreboa
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import { Redemption } from './Redemption.js';
 import { showImage, showCoverImage, showTitle } from './htmlController.js';
-import {igdbAccessToken} from './app.js'
+import { igdbAccessToken } from './app.js'
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
@@ -18,9 +18,11 @@ const RESULT_COUNT = 1
 
 const BASE_WHERE_CLAUSE = `version_parent = null 
 & parent_game = null 
-& themes != (42) `
+& themes != (42)  
+& cover != null
+& (artworks != null | screenshots != null) `
 
-const NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
+const HARDCORE_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
 & first_release_date >= 631152000 
 & first_release_date < 946684800;`
 
@@ -29,7 +31,7 @@ const NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE}
 const DEFAULT_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
 & (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS}); `
 
-const WHERE_CLAUSE = NINTIES_WHERE_CLAUSE
+const WHERE_CLAUSE = HARDCORE_NINTIES_WHERE_CLAUSE
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
@@ -63,7 +65,7 @@ export class Channel {
         //I think the offset might need to count form 1 not 0.
         //1. check if this is tru
         //2. alter randomiser results to never be 0 (I think there may be a small chance)
-        
+
         const countResponse = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}/count`, {
             method: 'POST',
             body: `where ${WHERE_CLAUSE}`,
@@ -75,8 +77,9 @@ export class Channel {
         });
         const countResponseJson = await countResponse.json();
         console.log("countResponseJson")
-        console.log(countResponseJson)    
-        let count = countResponseJson.count    
+        console.log(countResponseJson)
+        let count = countResponseJson.count
+        console.log(`There are ${count} games in this filter`)
 
         this.chatbot.chat(`New round of Chat Guess Games!`)
 
@@ -85,6 +88,7 @@ export class Channel {
             search = `search "${SEARCH_TERM}";`
 
         const MAX_OFFSET = count
+
         const response = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}`, {
             method: 'POST',
             body: `fields ${FIELDS}; 

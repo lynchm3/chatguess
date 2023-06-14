@@ -17,6 +17,8 @@ const MAX_HINT_LENGTH = 400
 
 const TEXT_HINT_INTERVAL_MS = 30_000
 
+const lynchm1Redacted2 = "lynchm1Redacted2"
+
 export class HintProvider {
 
     constructor(game, callback, imageHintIntervalMS) {
@@ -79,32 +81,26 @@ export class HintProvider {
         }
 
         if (game.summary != undefined) {
-            let cleanedSummary = game.summary.split(game.name).join(" lynchm1Redacted2 ")
+            let cleanedSummary = replaceAll(game.summary, game.name, lynchm1Redacted2)
             for (let i = 0; i < game.alternativeNames?.length; i++) {
-                cleanedSummary = cleanedSummary.split(game.alternativeNames[i]).join(" lynchm1Redacted2 ")
+                cleanedSummary = replaceAll(cleanedSummary, game.alternativeNames[i], lynchm1Redacted2)
             }
-            cleanedSummary = cleanedSummary.split(game.collection).join(" lynchm1Redacted2 ")
-            for (let i = 0; i < game.involvedCompanies?.length; i++) {
-                cleanedSummary = cleanedSummary.split(game.involvedCompanies[i]).join(" lynchm1Redacted2 ")
-            }
+            cleanedSummary = replaceAll(cleanedSummary, game.collection, lynchm1Redacted2)
             for (let i = 0; i < game.similarGames?.length; i++) {
-                cleanedSummary = cleanedSummary.split(game.similarGames[i]).join(" lynchm1Redacted2 ")
+                cleanedSummary = replaceAll(cleanedSummary, game.similarGames[i], lynchm1Redacted2)
             }
             this.summaryHint = new CrawlingTextHint(HINT_NAME_SUMMARY, cleanedSummary)
             this.textHints.push(this.summaryHint)
         }
 
         if (game.storyline != undefined) {
-            let cleanedStoryline = game.storyline.split(game.name).join(" lynchm1Redacted2 ")
+            let cleanedStoryline = replaceAll(game.storyline,game.name,lynchm1Redacted2)
             for (let i = 0; i < game.alternativeNames?.length; i++) {
-                cleanedStoryline = cleanedStoryline.split(game.alternativeNames[i]).join(" lynchm1Redacted2 ")
+                cleanedStoryline = replaceAll(cleanedStoryline,game.alternativeNames[i],lynchm1Redacted2)
             }
-            cleanedStoryline = cleanedStoryline.split(game.collection).join(" lynchm1Redacted2 ")
-            for (let i = 0; i < game.involvedCompanies?.length; i++) {
-                cleanedStoryline = cleanedStoryline.split(game.involvedCompanies[i]).join(" lynchm1Redacted2 ")
-            }
+            cleanedStoryline = replaceAll(cleanedStoryline,game.collection,lynchm1Redacted2)
             for (let i = 0; i < game.similarGames?.length; i++) {
-                cleanedStoryline = cleanedStoryline.split(game.similarGames[i]).join(" lynchm1Redacted2 ")
+                cleanedStoryline = replaceAll(cleanedStoryline,game.similarGames[i],lynchm1Redacted2)
             }
             this.storylineHint = new CrawlingTextHint(HINT_NAME_STORYLINE, cleanedStoryline)
             this.textHints.push(this.storylineHint)
@@ -205,3 +201,8 @@ class ImageHint extends Hint {
         return this.hintName + ": " + this.gameImage.url
     }
 }
+
+function replaceAll(text, wordToReplace, replacement) {
+    const regex = new RegExp(wordToReplace, 'gi');
+    return text.replace(regex, replacement);
+  }
