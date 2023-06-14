@@ -10,6 +10,9 @@ import { Auth } from './db.js';
 export class Redemption {
 
 	constructor(callback, channelName, broadcasterId, authToken, refreshToken, rewardId) {
+
+		console.log("Redemption constructor")
+
 		this.callback = callback
 		this.channelName = channelName
 		this.rewardId = rewardId
@@ -23,21 +26,25 @@ export class Redemption {
 	}
 
 	async startPolling() {
+		console.log("Redemption startPolling")
 		setTimeout(this.pollForRedemptions, 5 * 1000)
 	}
 
 	async checkRewardID() {
+		console.log("Redemption checkRewardID")
 		var auth = new Auth(this.channelName, null, null, null, null)
 		await auth.selectAuthByBroadcasterName()
 		console.log("auth.rewardID")
 		console.log(auth.rewardID)
-		if (auth.rewardID != 'null' 
-		&& auth.rewardID != 'undefined' 
-		&& auth.rewardID != null 
-		&& this.rewardId != undefined) {
+		if (auth.rewardID != 'null'
+			&& auth.rewardID != 'undefined'
+			&& auth.rewardID != null
+			&& auth.rewardID != undefined) {
+			console.log("Redemption checkRewardID branch A")
 			this.rewardId = auth.rewardID
 			this.startPolling()
 		} else {
+			console.log("Redemption checkRewardID branch B")
 			await this.createReward()
 			this.startPolling()
 		}
@@ -64,6 +71,8 @@ export class Redemption {
 
 	createReward = async () => {
 
+		console.log("Redemption createReward")
+
 		const createRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${this.broadcasterId}`, {
 			method: 'POST',
 			headers: {
@@ -73,25 +82,33 @@ export class Redemption {
 				"Content-Type": "application/json"
 			},
 			body: `{
-			"title": "Chat Guess Games abc 123 xyz",
-			"cost": 300
+			"title": "Chat Guess Games",
+			"cost": 300,
+			"prompt": "Play a round of Chat Guess Games on stream",
+			"background_color": "#222222"	
 		}`
 		});
 
-		const createRewardJson = await createRedemptionResponse.json();
-		console.log("createRewardJson")
-		console.log(createRewardJson)
-		let rewardId = createRewardJson.data[0].id
-		let auth = new Auth(this.channelName, null, null, null, rewardId)
-		auth.saveRewardId()
-		this.rewardId = rewardId
+		if (createRedemptionResponse.status == 200) {
+			const createRewardJson = await createRedemptionResponse.json();
+			console.log("createRewardJson")
+			console.log(createRewardJson)
+			let rewardId = createRewardJson.data[0].id
+			let auth = new Auth(this.channelName, null, null, null, rewardId)
+			auth.saveRewardId()
+			this.rewardId = rewardId
+		} else {
+			console.log("createRedemptionResponse error")
+			console.log(createRedemptionResponse)
+		}
 	}
 
 	// createRedemption()
 
 	// getRewards()
 	pollForRedemptions = async () => {
-		// console.log("pollForRedemptions")
+
+		// console.log("Redemption pollForRedemptions")
 
 		const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${this.rewardId}&status=UNFULFILLED`, {
 			method: 'GET',
@@ -102,13 +119,13 @@ export class Redemption {
 			}
 		});
 
-		// console.log("redemptionResponse.status")
-		// console.log(redemptionResponse.status)
+		// console.log("pollForRedemptions response")
+		// console.log(redemptionResponse)
 
 		if (redemptionResponse.status == 200) {
 			const redemptionResponseJson = await redemptionResponse.json();
-			console.log("redemptionResponseJson")
-			console.log(redemptionResponseJson)
+			// console.log("redemptionResponseJson")
+			// console.log(redemptionResponseJson)
 
 			let redemptions = redemptionResponseJson.data
 
@@ -122,6 +139,9 @@ export class Redemption {
 			}
 		} else if (redemptionResponse.status == 404) {
 			this.createReward()
+		} else if (redemptionResponse.status == 401) {
+			console.log("redemptionResponse err")
+			console.log(redemptionResponse)
 		}
 
 		setTimeout(this.pollForRedemptions, 5 * 1000)
