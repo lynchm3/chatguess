@@ -26,12 +26,17 @@ const HARDCORE_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE}
 & first_release_date >= 631152000 
 & first_release_date < 946684800;`
 
+const EASY_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
+& first_release_date >= 631152000 
+& first_release_date < 946684800
+& (aggregated_rating_count >= 1);`// | follows >= ${MIN_FOLLOWERS});`
+
 // const RPG_WHERE_CLAUSE
 
 const DEFAULT_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
 & (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS}); `
 
-const WHERE_CLAUSE = HARDCORE_NINTIES_WHERE_CLAUSE
+const WHERE_CLAUSE = EASY_NINTIES_WHERE_CLAUSE
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
