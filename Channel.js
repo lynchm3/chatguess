@@ -7,6 +7,7 @@ import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import { Redemption } from './Redemption.js';
 import { showImage, showCoverImage, showTitle } from './htmlController.js';
 import { igdbAccessToken } from './app.js'
+import { Namespace } from 'socket.io';
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
@@ -17,6 +18,22 @@ const RESULT_COUNT = 1
 // & follows >= ${MIN_FOLLOWERS} 
 
 const KEY_FIRST_RELEASE_DATE = "first_release_date"
+
+//Category names
+const CATEGORY_NAME_60s_NORMAL = "The 60s"
+const CATEGORY_NAME_60s_HARDCORE = "The 60s, harcore mode"
+const CATEGORY_NAME_70s_NORMAL = "The 70s"
+const CATEGORY_NAME_70s_HARDCORE = "The 70s, harcore mode"
+const CATEGORY_NAME_80s_NORMAL = "The 80s"
+const CATEGORY_NAME_80s_HARDCORE = "The 80s, harcore mode"
+const CATEGORY_NAME_90s_NORMAL = "The 90s"
+const CATEGORY_NAME_90s_HARDCORE = "The 90s, harcore mode"
+const CATEGORY_NAME_00s_NORMAL = "The 00s"
+const CATEGORY_NAME_00s_HARDCORE = "The 00s, harcore mode"
+const CATEGORY_NAME_10s_NORMAL = "The 10s"
+const CATEGORY_NAME_10s_HARDCORE = "The 10s, harcore mode"
+const CATEGORY_NAME_20s_NORMAL = "The 20s"
+const CATEGORY_NAME_20s_HARDCORE = "The 20s, harcore mode"
 
 const TIMESTAMP_1960 = -315619200
 const TIMESTAMP_1970 = -3600
@@ -49,12 +66,13 @@ const BASE_WHERE_CLAUSE = `version_parent = null
 & (artworks != null | screenshots != null) `
 
 const HARDCORE_SIXTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_60s};`
+const NORMAL_SIXTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_60s};`
 const HARDCORE_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s};`
-// const NORMAL_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s} 
-// & (aggregated_rating_count >= 1);`
+const NORMAL_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s} 
+& (aggregated_rating_count >= 1);`
 const HARDCORE_EIGHTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_80s};`
-// const NORMAL_EIGHTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_80s} 
-// & (aggregated_rating_count >= 1);`
+const NORMAL_EIGHTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_80s} 
+& (aggregated_rating_count >= 1);`
 const HARDCORE_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_90s};`
 const NORMAL_NINTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_90s} 
 & (aggregated_rating_count >= 1);`
@@ -73,7 +91,24 @@ const NORMAL_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s}
 const DEFAULT_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
 & (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS}); `
 
-const WHERE_CLAUSE = NORMAL_NINTIES_WHERE_CLAUSE
+const mapWhereClauseToCategoryName = new Map([
+    [HARDCORE_SIXTIES_WHERE_CLAUSE, CATEGORY_NAME_60s_HARDCORE],
+    [NORMAL_SIXTIES_WHERE_CLAUSE, CATEGORY_NAME_60s_NORMAL],
+    [HARDCORE_SEVENTIES_WHERE_CLAUSE, CATEGORY_NAME_70s_HARDCORE],
+    [NORMAL_SEVENTIES_WHERE_CLAUSE, CATEGORY_NAME_70s_NORMAL],
+    [HARDCORE_EIGHTIES_WHERE_CLAUSE, CATEGORY_NAME_80s_HARDCORE],
+    [NORMAL_EIGHTIES_WHERE_CLAUSE, CATEGORY_NAME_80s_NORMAL],
+    [HARDCORE_NINTIES_WHERE_CLAUSE, CATEGORY_NAME_90s_HARDCORE],
+    [NORMAL_NINTIES_WHERE_CLAUSE, CATEGORY_NAME_90s_NORMAL],
+    [HARDCORE_AUGHTIES_WHERE_CLAUSE, CATEGORY_NAME_00s_HARDCORE],
+    [NORMAL_AUGHTIES_WHERE_CLAUSE, CATEGORY_NAME_00s_NORMAL],
+    [HARDCORE_TENS_WHERE_CLAUSE, CATEGORY_NAME_10s_HARDCORE],
+    [NORMAL_TENS_WHERE_CLAUSE, CATEGORY_NAME_10s_NORMAL],
+    [HARDCORE_TWENTIES_WHERE_CLAUSE, CATEGORY_NAME_20s_HARDCORE],
+    [NORMAL_TWENTIES_WHERE_CLAUSE, CATEGORY_NAME_20s_NORMAL]
+]);
+
+const WHERE_CLAUSE = NORMAL_TWENTIES_WHERE_CLAUSE
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
@@ -123,7 +158,7 @@ export class Channel {
         let count = countResponseJson.count
         console.log(`There are ${count} games in this filter`)
 
-        this.chatbot.chat(`New round of Chat Guess Games!`)
+        this.chatbot.chat(`New round of Chat Guess Games! Category: ${mapWhereClauseToCategoryName.get(WHERE_CLAUSE)}.`)
 
         var search = ""
         if (SEARCH_TERM.length > 0)
