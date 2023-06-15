@@ -84,7 +84,7 @@ const NORMAL_TENS_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_10s}
 & (aggregated_rating_count >= 10);`
 const HARDCORE_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s};`
 const NORMAL_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s} 
-& (aggregated_rating_count >= 3);`
+& (aggregated_rating_count >= 6 | follows >= ${MIN_FOLLOWERS});`
 
 // const RPG_WHERE_CLAUSE
 
@@ -138,10 +138,33 @@ export class Channel {
 
     getGame = async (igdbAccessToken) => {
 
-        //TODO
-        //I think the offset might need to count form 1 not 0.
-        //1. check if this is tru
-        //2. alter randomiser results to never be 0 (I think there may be a small chance)
+        // const genresResponse = await fetch(`${BASE_IGDB_URL}/genres`, {
+        //     method: 'POST',
+        //     body: `fields checksum, name;
+        //     limit 500;`,
+        //     headers: {
+        //         "Client-ID": `${TWITCH_CLIENT_ID}`,
+        //         "Authorization": `Bearer ${igdbAccessToken}`,
+        //         "Accept": "application/json"
+        //     }
+        // });
+        // const genresResponseJson = await genresResponse.json();
+        // console.log("genresResponseJson")
+        // console.log(genresResponseJson)
+
+        // const themesResponse = await fetch(`${BASE_IGDB_URL}/themes`, {
+        //     method: 'POST',
+        //     body: `fields checksum, name;
+        //     limit 500;`,
+        //     headers: {
+        //         "Client-ID": `${TWITCH_CLIENT_ID}`,
+        //         "Authorization": `Bearer ${igdbAccessToken}`,
+        //         "Accept": "application/json"
+        //     }
+        // });
+        // const themesResponseJson = await themesResponse.json();
+        // console.log("themesResponseJson")
+        // console.log(themesResponseJson)
 
         const countResponse = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}/count`, {
             method: 'POST',
