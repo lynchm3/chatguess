@@ -18,6 +18,7 @@ const RESULT_COUNT = 1
 
 const KEY_FIRST_RELEASE_DATE = "first_release_date"
 
+const TIMESTAMP_1960 = -315619200
 const TIMESTAMP_1970 = -3600
 const TIMESTAMP_1980 = 315532800
 const TIMESTAMP_1990 = 631152000
@@ -26,6 +27,8 @@ const TIMESTAMP_2010 = 1262304000
 const TIMESTAMP_2020 = 1577836800
 const TIMESTAMP_2030 = 1893456000
 
+const RANGE_60s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_1960}
+& ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_1970}`
 const RANGE_70s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_1970}
 & ${KEY_FIRST_RELEASE_DATE} < ${TIMESTAMP_1980}`
 const RANGE_80s = `${KEY_FIRST_RELEASE_DATE} >= ${TIMESTAMP_1980}
@@ -45,6 +48,7 @@ const BASE_WHERE_CLAUSE = `version_parent = null
 & cover != null
 & (artworks != null | screenshots != null) `
 
+const HARDCORE_SIXTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_60s};`
 const HARDCORE_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s};`
 // const NORMAL_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s} 
 // & (aggregated_rating_count >= 1);`
@@ -69,7 +73,7 @@ const NORMAL_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s}
 const DEFAULT_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
 & (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS}); `
 
-const WHERE_CLAUSE = NORMAL_TENS_WHERE_CLAUSE
+const WHERE_CLAUSE = NORMAL_NINTIES_WHERE_CLAUSE
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,

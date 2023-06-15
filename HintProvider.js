@@ -49,36 +49,6 @@ export class HintProvider {
         //Compile text hints
         this.textHints = []
 
-        if (game.summary != undefined) {
-            let cleanedSummary = replaceAll(game.summary, game.name, lynchm1Redacted2)
-            for (let i = 0; i < game.alternativeNames?.length; i++) {
-                cleanedSummary = replaceAll(cleanedSummary, game.alternativeNames[i], lynchm1Redacted2)
-            }
-            // console.log("game.collection")
-            // console.log(game.collection)
-            if (game.collection != undefined)
-                cleanedSummary = replaceAll(cleanedSummary, game.collection, lynchm1Redacted2)
-            for (let i = 0; i < game.similarGames?.length; i++) {
-                cleanedSummary = replaceAll(cleanedSummary, game.similarGames[i], lynchm1Redacted2)
-            }
-            this.summaryHint = new CrawlingTextHint(HINT_NAME_SUMMARY, cleanedSummary)
-            this.textHints.push(this.summaryHint)
-        }
-
-        if (game.storyline != undefined) {
-            let cleanedStoryline = replaceAll(game.storyline, game.name, lynchm1Redacted2)
-            for (let i = 0; i < game.alternativeNames?.length; i++) {
-                cleanedStoryline = replaceAll(cleanedStoryline, game.alternativeNames[i], lynchm1Redacted2)
-            }
-            if (game.collection != undefined)
-                cleanedStoryline = replaceAll(cleanedStoryline, game.collection, lynchm1Redacted2)
-            for (let i = 0; i < game.similarGames?.length; i++) {
-                cleanedStoryline = replaceAll(cleanedStoryline, game.similarGames[i], lynchm1Redacted2)
-            }
-            this.storylineHint = new CrawlingTextHint(HINT_NAME_STORYLINE, cleanedStoryline)
-            this.textHints.push(this.storylineHint)
-        }
-
         if (game.aggregatedRating != undefined) {
             this.criticsRatingHint = new TextHint(HINT_NAME_CRITICS_RATING, isNaN(game.aggregatedRating) ? 'Not scored' : game.aggregatedRating)
             this.textHints.push(this.criticsRatingHint)
@@ -108,6 +78,36 @@ export class HintProvider {
         if (game.involvedCompanies != undefined) {
             this.involvedCompaniesHint = new TextHint(HINT_NAME_INVOLVED_COMPANIES, game.involvedCompanies?.join(", "))
             this.textHints.push(this.involvedCompaniesHint)
+        }
+
+        if (game.summary != undefined) {
+            let cleanedSummary = replaceAll(game.summary, game.name, lynchm1Redacted2)
+            for (let i = 0; i < game.alternativeNames?.length; i++) {
+                cleanedSummary = replaceAll(cleanedSummary, game.alternativeNames[i], lynchm1Redacted2)
+            }
+            // console.log("game.collection")
+            // console.log(game.collection)
+            if (game.collection != undefined)
+                cleanedSummary = replaceAll(cleanedSummary, game.collection, lynchm1Redacted2)
+            for (let i = 0; i < game.similarGames?.length; i++) {
+                cleanedSummary = replaceAll(cleanedSummary, game.similarGames[i], lynchm1Redacted2)
+            }
+            this.summaryHint = new CrawlingTextHint(HINT_NAME_SUMMARY, cleanedSummary)
+            this.textHints.push(this.summaryHint)
+        }
+
+        if (game.storyline != undefined) {
+            let cleanedStoryline = replaceAll(game.storyline, game.name, lynchm1Redacted2)
+            for (let i = 0; i < game.alternativeNames?.length; i++) {
+                cleanedStoryline = replaceAll(cleanedStoryline, game.alternativeNames[i], lynchm1Redacted2)
+            }
+            if (game.collection != undefined)
+                cleanedStoryline = replaceAll(cleanedStoryline, game.collection, lynchm1Redacted2)
+            for (let i = 0; i < game.similarGames?.length; i++) {
+                cleanedStoryline = replaceAll(cleanedStoryline, game.similarGames[i], lynchm1Redacted2)
+            }
+            this.storylineHint = new CrawlingTextHint(HINT_NAME_STORYLINE, cleanedStoryline)
+            this.textHints.push(this.storylineHint)
         }
 
         this.callback = callback
