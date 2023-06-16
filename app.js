@@ -17,8 +17,8 @@
 // Logs
 // https://console.cloud.google.com/logs/query?project=chatguess
 
-import {Channel} from './Channel.js'
-import {Home} from './Home.js'
+import { Channel } from './Channel.js'
+import { Home } from './Home.js'
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
 
@@ -45,7 +45,7 @@ export const getIgdbAccessToken = async () => {
         method: 'POST'
     });
 
-    if(response.status != 200) {
+    if (response.status != 200) {
         console.log("error getting getIgdbAccessToken")
         return
     }
@@ -58,8 +58,16 @@ export const getIgdbAccessToken = async () => {
 getIgdbAccessToken()
 
 export function createChannel(channelName, channelId, authToken, refreshToken, rewardID) {
-    let channel = new Channel(channelName, channelId, authToken, refreshToken, rewardID)
-    channelMap.set(channelName, channel)
+    const oldChannel = channelMap.get(channelName)
+    console.log("oldChannel")
+    console.log(oldChannel)
+    if (oldChannel == undefined) {
+        let channel = new Channel(channelName, channelId, authToken, refreshToken, rewardID)
+        channelMap.set(channelName, channel)
+    } else {
+        oldChannel.authToken = authToken
+        oldChannel.refreshToken = refreshToken
+    }
 }
 
 export function createHomeGame(socket) {

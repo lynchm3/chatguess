@@ -2,6 +2,7 @@ import { copyFileSync, promises as fs } from 'fs';
 import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
 import fetch from 'node-fetch';
 import { Auth } from './db.js';
+import { refreshToken } from './network/auth.js';
 
 //Twitch docs - https://dev.twitch.tv/docs/api/reference/#create-custom-rewards
 
@@ -9,20 +10,12 @@ import { Auth } from './db.js';
 
 export class Redemption {
 
-	constructor(callback, channelName, broadcasterId, authToken, refreshToken, rewardId) {
-
+	constructor(channel) {
 		console.log("Redemption constructor")
-
-		this.callback = callback
-		this.channelName = channelName
-		this.rewardId = rewardId
-		this.broadcasterId = broadcasterId
-		this.authToken = authToken
-		this.refreshToken = refreshToken
-		// this.CHAT_GUESS_GAMES_REWARD_ID = "ab562539-eea4-4a49-b570-cb9c4a57b704"
-
+		this.channel = channel
+		console.log("this.channel.channelName")
+		console.log("this.channel.channelName")
 		this.checkRewardID()
-		// this.startPolling()
 	}
 
 	async startPolling() {
@@ -32,7 +25,9 @@ export class Redemption {
 
 	async checkRewardID() {
 		console.log("Redemption checkRewardID")
-		var auth = new Auth(this.channelName, null, null, null, null)
+		console.log("this.channel.channelName")
+		console.log(this.channel.channelName)
+		var auth = new Auth(this.channel.channelName, null, null, null, null)
 		await auth.selectAuthByBroadcasterName()
 		console.log("auth.rewardID")
 		console.log(auth.rewardID)
@@ -41,7 +36,7 @@ export class Redemption {
 			&& auth.rewardID != null
 			&& auth.rewardID != undefined) {
 			console.log("Redemption checkRewardID branch A")
-			this.rewardId = auth.rewardID
+			this.channel.rewardId = auth.rewardID
 			this.startPolling()
 		} else {
 			console.log("Redemption checkRewardID branch B")
@@ -58,7 +53,7 @@ export class Redemption {
 	// 		method: 'GET',
 	// 		headers: {
 	// 			"Client-ID": `${clientId}`,
-	// 			"Authorization": `Bearer ${this.authToken}`,
+	// 			"Authorization": `Bearer ${this.channel.authToken}`,
 	// 			"Accept": "application/json"
 	// 		}
 	// 	});
@@ -73,11 +68,11 @@ export class Redemption {
 
 		console.log("Redemption createReward")
 
-		const createRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${this.broadcasterId}`, {
+		const createRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${this.channel.broadcasterId}`, {
 			method: 'POST',
 			headers: {
-				"Client-ID": `${clientId}`,
-				"Authorization": `Bearer ${this.authToken}`,
+				"Client-ID": `${this.channel.clientId}`,
+				"Authorization": `Bearer ${this.channel.authToken}`,
 				"Accept": "application/json",
 				"Content-Type": "application/json"
 			},
@@ -94,12 +89,12 @@ export class Redemption {
 			console.log("createRewardJson")
 			console.log(createRewardJson)
 			let rewardId = createRewardJson.data[0].id
-			let auth = new Auth(this.channelName, null, null, null, rewardId)
+			let auth = new Auth(this.channel.channelName, null, null, null, rewardId)
 			auth.saveRewardId()
-			this.rewardId = rewardId
+			this.channel.rewardId = rewardId
 		} else {
 			console.log("createRedemptionResponse error")
-			console.log(createRedemptionResponse)
+			console.log(createRedemptionResponse.status)
 		}
 	}
 
@@ -110,11 +105,11 @@ export class Redemption {
 
 		// console.log("Redemption pollForRedemptions")
 
-		const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${this.rewardId}&status=UNFULFILLED`, {
+		const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${this.channel.rewardId}&status=UNFULFILLED`, {
 			method: 'GET',
 			headers: {
 				"Client-ID": `${clientId}`,
-				"Authorization": `Bearer ${this.authToken}`,
+				"Authorization": `Bearer ${this.channel.authToken}`,
 				"Accept": "application/json"
 			}
 		});
@@ -129,9 +124,9 @@ export class Redemption {
 
 			let redemptions = redemptionResponseJson.data
 
-			if (this.callback != null) {
+			if (this.channel != null) {
 				for (let redemption of redemptions) {
-					this.callback.addGamesToQueue(1, redemption.user_name)
+					this.channel.addGamesToQueue(1, redemption.user_name)
 					this.fulfillRedemption(redemption.id)
 				}
 			} else {
@@ -142,6 +137,7 @@ export class Redemption {
 		} else if (redemptionResponse.status == 401) {
 			console.log("redemptionResponse err")
 			console.log(redemptionResponse)
+			refreshToken(this.channel)
 		}
 
 		setTimeout(this.pollForRedemptions, 5 * 1000)
@@ -149,11 +145,11 @@ export class Redemption {
 
 	fulfillRedemption = async (redemptionId) => {
 
-		const fulfillRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${this.rewardId}&id=${redemptionId}`, {
+		const fulfillRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${this.channel.rewardId}&id=${redemptionId}`, {
 			method: 'PATCH',
 			headers: {
 				"Client-ID": `${clientId}`,
-				"Authorization": `Bearer ${this.authToken}`,
+				"Authorization": `Bearer ${this.channel.authToken}`,
 				"Accept": "application/json",
 				"Content-Type": "application/json"
 			},

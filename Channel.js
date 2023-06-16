@@ -122,18 +122,19 @@ const THUMB_URL = `//images.igdb.com/igdb/image/upload/t_thumb/`
 const SEARCH_TERM = ""
 
 export class Channel {
-    constructor(channel, broadcasterId, authToken, refreshToken, rewardID) {
-        this.channel = channel
+    constructor(channelName, broadcasterId, authToken, refreshToken, rewardId) {
+        this.channelName = channelName
         this.broadcasterId = broadcasterId
         this.authToken = authToken
         this.refreshToken = refreshToken
+        this.rewardId = rewardId
         this.game = null
         this.queue = 0
         this.hintProvider = null
         this.guessChecker = null
         this.autoplay = false
         this.chatbot = new Chatbot(this)
-        this.redemption = new Redemption(this, channel, broadcasterId, authToken, refreshToken, rewardID)
+        this.redemption = new Redemption(this)
     }
 
     getGame = async (igdbAccessToken) => {
@@ -261,7 +262,7 @@ export class Channel {
 
             // if (userId != null)
             //     getProfileImage(userId, igdbAccessToken)
-            showCoverImage(this.game.coverArt, username, this.channel)
+            showCoverImage(this.game.coverArt, username, this.channelName)
             this.guessChecker = null
             this.hintProvider.stop()
             this.hintProvider = null
@@ -277,7 +278,7 @@ export class Channel {
         // if (game.steamURL != null) {
         //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
         // }
-        showCoverImage(this.game.coverArt, "No one", this.channel)
+        showCoverImage(this.game.coverArt, "No one", this.channelName)
         this.guessChecker = null
         this.hintProvider.stop()
         this.hintProvider = null
@@ -299,7 +300,7 @@ export class Channel {
             this.queue--
             console.log("calling get game")
             this.getGame(igdbAccessToken)
-            showTitle(this.channel)
+            showTitle(this.channelName)
         } else {
             this.chatbot.chat(`There's a game running right now, but yours has been queued up ${username}!`)
         }
@@ -314,14 +315,14 @@ export class Channel {
     }
 
     giveImageHint(hint, hintCount) {
-        showImage(hint.gameImage, 100 + 25 * hintCount, this.channel)
+        showImage(hint.gameImage, 100 + 25 * hintCount, this.channelName)
     }
 
     setAutoPlay(a) {
         this.autoplay = a
         if (this.game == null) {
             this.getGame(igdbAccessToken)
-            showTitle(this.channel)
+            showTitle(this.channelName)
         }
     }
 
@@ -343,10 +344,10 @@ export class Channel {
         console.log(this.autoplay)
         if (this.autoplay) {
             this.getGame(igdbAccessToken)
-            showTitle(this.channel)
+            showTitle(this.channelName)
         } else if (this.queue > 0) {
             this.getGame(igdbAccessToken)
-            showTitle(this.channel)
+            showTitle(this.channelName)
             this.queue--
         } else {
             this.game = null
