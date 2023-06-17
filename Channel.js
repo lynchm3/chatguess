@@ -65,6 +65,7 @@ const BASE_WHERE_CLAUSE = `version_parent = null
 & cover != null
 & (artworks != null | screenshots != null) `
 
+//DECADES CATEGORIES
 const HARDCORE_SIXTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_60s};`
 const NORMAL_SIXTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_60s};`
 const HARDCORE_SEVENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_70s};`
@@ -86,7 +87,16 @@ const HARDCORE_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s};`
 const NORMAL_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s} 
 & (aggregated_rating_count >= 6 | follows >= ${MIN_FOLLOWERS});`
 
-// const RPG_WHERE_CLAUSE
+// PUBLISHER CATEGORIES
+const WHERE_CLAUSE_PUBLISHER_NINTENDO = `${BASE_WHERE_CLAUSE} & involved_companies.company = (70);`
+// const WHERE_CLAUSE_PUBLISHER_NINTENDO = `${BASE_WHERE_CLAUSE} & platforms = (48);`
+
+// SPECIAL CATEGORY - UNRELEASED GAMES
+// SPECIAL CATEGORY - FUTURE GAMES
+// SPECIAL CATEGORY - ANNOUNCED GAMES
+// SPECIAL CATEGORY - INDIE GAMES (Maybe can match on theme or genres)
+// SPECIAL CATEGORY - MARIO GAME SERIES
+// THERES TAGS ON GAME OBJECTS?
 
 const DEFAULT_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} 
 & (aggregated_rating_count > 9 | follows >= ${MIN_FOLLOWERS}); `
@@ -108,7 +118,7 @@ const mapWhereClauseToCategoryName = new Map([
     [NORMAL_TWENTIES_WHERE_CLAUSE, CATEGORY_NAME_20s_NORMAL]
 ]);
 
-const WHERE_CLAUSE = `${DEFAULT_WHERE_CLAUSE};`
+const WHERE_CLAUSE = `${WHERE_CLAUSE_PUBLISHER_NINTENDO};`
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
@@ -140,9 +150,10 @@ export class Channel {
 
     getGame = async (igdbAccessToken) => {
 
+        //GENRES
         // const genresResponse = await fetch(`${BASE_IGDB_URL}/genres`, {
         //     method: 'POST',
-        //     body: `fields checksum, name;
+        //     body: `fields name;
         //     limit 500;`,
         //     headers: {
         //         "Client-ID": `${TWITCH_CLIENT_ID}`,
@@ -154,9 +165,10 @@ export class Channel {
         // console.log("genresResponseJson")
         // console.log(genresResponseJson)
 
+        //THEMES
         // const themesResponse = await fetch(`${BASE_IGDB_URL}/themes`, {
         //     method: 'POST',
-        //     body: `fields checksum, name;
+        //     body: `fields name;
         //     limit 500;`,
         //     headers: {
         //         "Client-ID": `${TWITCH_CLIENT_ID}`,
@@ -167,6 +179,22 @@ export class Channel {
         // const themesResponseJson = await themesResponse.json();
         // console.log("themesResponseJson")
         // console.log(themesResponseJson)
+
+        //COMPANY ID
+        // const companiesResponse = await fetch(`${BASE_IGDB_URL}/games`, {
+        //     method: 'POST',
+        //     body: `fields name, involved_companies.company.id, involved_companies.company.name; 
+        //     limit 500; 
+        //     search "breath of the wild";`,
+        //     headers: {
+        //         "Client-ID": `${TWITCH_CLIENT_ID}`,
+        //         "Authorization": `Bearer ${igdbAccessToken}`,
+        //         "Accept": "application/json"
+        //     }
+        // });
+        // const companiesResponseJson = await companiesResponse.json();
+        // console.log("companiesResponseJson")
+        // console.log(JSON.stringify(companiesResponseJson))
         
         var search = ""
         if (SEARCH_TERM.length > 0)
@@ -190,7 +218,7 @@ export class Channel {
 
         // this.chatbot.chat(`New round of Chat Guess Games! Category: ${mapWhereClauseToCategoryName.get(WHERE_CLAUSE)}.`)
         // this.chatbot.chat(`New round of Chat Guess Games! Category: 2010s`)
-        this.chatbot.chat(`New round of Chat Guess Games!`)
+        this.chatbot.chat(`New round of Chat Guess Games! Category: Nintendo`)
 
         const MAX_OFFSET = count
 
