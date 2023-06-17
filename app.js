@@ -59,8 +59,6 @@ getIgdbAccessToken()
 
 export function createChannel(channelName, channelId, authToken, refreshToken, rewardID) {
     const oldChannel = channelMap.get(channelName)
-    console.log("oldChannel")
-    console.log(oldChannel)
     if (oldChannel == undefined) {
         let channel = new Channel(channelName, channelId, authToken, refreshToken, rewardID)
         channelMap.set(channelName, channel)

@@ -18,6 +18,7 @@ const WebsiteCategories = {
     discord: 18
 }
 
+//data class
 export class Game {
     constructor(
         id,
@@ -76,6 +77,7 @@ export class Game {
     }
 }
 
+//data class
 export class GameImage {
     constructor(url, width, height) {
         this.url = url

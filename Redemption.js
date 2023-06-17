@@ -13,8 +13,6 @@ export class Redemption {
 	constructor(channel) {
 		console.log("Redemption constructor")
 		this.channel = channel
-		console.log("this.channel.channelName")
-		console.log("this.channel.channelName")
 		this.checkRewardID()
 	}
 
@@ -126,11 +124,9 @@ export class Redemption {
 
 			if (this.channel != null) {
 				for (let redemption of redemptions) {
-					this.channel.addGamesToQueue(1, redemption.user_name)
+					this.channel.addGameToQueue(redemption.user_name)
 					this.fulfillRedemption(redemption.id)
 				}
-			} else {
-				tokenRefresh()
 			}
 		} else if (redemptionResponse.status == 404) {
 			this.createReward()

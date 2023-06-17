@@ -60,9 +60,8 @@ export class Home {
         this.hintProvider = new HintProvider(this.game, this, 2_000)
     }
 
-    addGamesToQueue(gc, username) {
-        console.log("addGamesToQueue gc")
-        console.log(gc)
+    addGameToQueue(username) {
+        console.log("addGameToQueue gc")
         console.log("this.queue")
         console.log(this.queue)
         // console.log("this.game")

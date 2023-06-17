@@ -15,9 +15,12 @@ const HINT_TYPE_IMAGE = "HINT_TYPE_IMAGE"
 
 const MAX_HINT_LENGTH = 400
 
-const TEXT_HINT_INTERVAL_MS = 30_000
+const TEXT_HINT_INTERVAL_MS = 15_000
 
-const lynchm1Redacted2 = "lynchm1Redacted2"
+const lynchm1Redacted2 = " lynchm1Redacted2 "
+
+const TIME_LIMIT_MS = 2 * 60 * 1_000
+// const TIME_LIMIT_MS = 5 * 1_000
 
 export class HintProvider {
 
@@ -117,6 +120,23 @@ export class HintProvider {
         this.textHintIndex = 0
         this.giveImageHint()
         this.giveTextHint()
+
+        // let startTime = Date.now()
+        // let endTime = startTime+TIME_LIMIT_MS
+        this.timeoutID = setTimeout(this.timeout, TIME_LIMIT_MS, callback);
+        // this.cancelTimeout()
+    }
+
+    cancelTimeout() {
+        clearTimeout(this.timeoutID)
+    }
+
+    timeout(callback) {
+        if (this.stopped) {
+            //Do nothing
+        } else {
+            callback.timeout()
+        }
     }
 
     giveImageHint() {
@@ -156,6 +176,7 @@ export class HintProvider {
     }
 
     stop() {
+        clearTimeout(this.timeoutID)
         this.stopped = true
     }
 }

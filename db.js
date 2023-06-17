@@ -362,10 +362,6 @@ export class Auth {
             });
     }
 
-    tokenRefresh(channel) {
-
-    }
-
     async selectAuthByBroadcasterName() {
         var auth = this
         return new Promise(function (resolve, reject) {

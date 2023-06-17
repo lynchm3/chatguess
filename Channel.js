@@ -108,7 +108,7 @@ const mapWhereClauseToCategoryName = new Map([
     [NORMAL_TWENTIES_WHERE_CLAUSE, CATEGORY_NAME_20s_NORMAL]
 ]);
 
-const WHERE_CLAUSE = NORMAL_TWENTIES_WHERE_CLAUSE
+const WHERE_CLAUSE = `${DEFAULT_WHERE_CLAUSE};`
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
@@ -129,6 +129,7 @@ export class Channel {
         this.refreshToken = refreshToken
         this.rewardId = rewardId
         this.game = null
+        this.gameInProgress = false
         this.queue = 0
         this.hintProvider = null
         this.guessChecker = null
@@ -166,10 +167,15 @@ export class Channel {
         // const themesResponseJson = await themesResponse.json();
         // console.log("themesResponseJson")
         // console.log(themesResponseJson)
+        
+        var search = ""
+        if (SEARCH_TERM.length > 0)
+            search = `search "${SEARCH_TERM}";`
 
         const countResponse = await fetch(`${BASE_IGDB_URL}${ENDPOINT_GAMES}/count`, {
             method: 'POST',
-            body: `where ${WHERE_CLAUSE}`,
+            body: `where ${WHERE_CLAUSE} 
+            ${search}`,
             headers: {
                 "Client-ID": `${TWITCH_CLIENT_ID}`,
                 "Authorization": `Bearer ${igdbAccessToken}`,
@@ -182,11 +188,9 @@ export class Channel {
         let count = countResponseJson.count
         console.log(`There are ${count} games in this filter`)
 
-        this.chatbot.chat(`New round of Chat Guess Games! Category: ${mapWhereClauseToCategoryName.get(WHERE_CLAUSE)}.`)
-
-        var search = ""
-        if (SEARCH_TERM.length > 0)
-            search = `search "${SEARCH_TERM}";`
+        // this.chatbot.chat(`New round of Chat Guess Games! Category: ${mapWhereClauseToCategoryName.get(WHERE_CLAUSE)}.`)
+        // this.chatbot.chat(`New round of Chat Guess Games! Category: 2010s`)
+        this.chatbot.chat(`New round of Chat Guess Games!`)
 
         const MAX_OFFSET = count
 
@@ -273,8 +277,22 @@ export class Channel {
         }
     }
 
-    giveUp() {
-        this.chatbot.chat(`lynchm1Youwhat No one guessed correctly! The game was ${this.game.name}! lynchm1Youwhat`)
+    getGiveupString() {
+        let index = getRandomInt(2)
+        if (index == 0) {
+            return `Unfortunately, nobody got it right this time! The game in question was ${this.game.name}!`
+        } else if (index == 1) {
+            return `We didn't have a winner this round! The game selected was ${this.game.name}!`
+        } else {
+            return `No one got it! The game was ${this.game.name}!`
+        }
+    }
+
+    giveUp(timedout) {
+        if (timedout)
+            this.chatbot.chat(`Time's up! The game was ${this.game.name}! lynchm1Youwhat`)
+        else
+            this.chatbot.chat(this.getGiveupString())
         // if (game.steamURL != null) {
         //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
         // }
@@ -288,17 +306,16 @@ export class Channel {
         }, 11_000);
     }
 
-    addGamesToQueue(gc, username) {
-        console.log("addGamesToQueue gc")
-        console.log(gc)
+    addGameToQueue(username) {
         console.log("this.queue")
         console.log(this.queue)
         // console.log("this.game")
         // console.log(this.game)
-        this.queue += gc
-        if (this.queue > 0 && this.game == null) {
+        this.queue ++
+        if (this.queue > 0 && this.gameInProgress == false) {
             this.queue--
             console.log("calling get game")
+            this.gameInProgress = true
             this.getGame(igdbAccessToken)
             showTitle(this.channelName)
         } else {
@@ -318,9 +335,14 @@ export class Channel {
         showImage(hint.gameImage, 100 + 25 * hintCount, this.channelName)
     }
 
-    setAutoPlay(a) {
-        this.autoplay = a
-        if (this.game == null) {
+    timeout() {
+        this.giveUp(true)
+    }
+
+    setAutoPlay(autoplay) {
+        this.autoplay = autoplay
+        if (this.gameInProgress == false) {
+            this.gameInProgress = true
             this.getGame(igdbAccessToken)
             showTitle(this.channelName)
         }
@@ -342,6 +364,7 @@ export class Channel {
         console.log("roundEnded()")
         console.log("this.autoplay")
         console.log(this.autoplay)
+        this.game = null
         if (this.autoplay) {
             this.getGame(igdbAccessToken)
             showTitle(this.channelName)
@@ -350,7 +373,7 @@ export class Channel {
             showTitle(this.channelName)
             this.queue--
         } else {
-            this.game = null
+            this.gameInProgress = false
         }
     }
 }
