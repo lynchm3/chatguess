@@ -9,6 +9,11 @@ import { showImage, showCoverImage, showTitle } from './htmlController.js';
 import { igdbAccessToken } from './app.js'
 import { Namespace } from 'socket.io';
 
+const HUMBLE_URL = "https://www.humblebundle.com/store/"
+const HUMBLE_SUFFIX = "?partner=chatguess"
+// GOG Affiliate programme:
+// https://support.gog.com/hc/en-us/articles/4405004689297-How-to-join-the-GOG-Affiliate-Program?product=gog
+
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
 const ENDPOINT_GAMES = "/games"
@@ -91,6 +96,11 @@ const NORMAL_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s}
 const WHERE_CLAUSE_PUBLISHER_NINTENDO = `${BASE_WHERE_CLAUSE} & involved_companies.company = (70);`
 // const WHERE_CLAUSE_PUBLISHER_NINTENDO = `${BASE_WHERE_CLAUSE} & platforms = (48);`
 
+// THEME CATEGORIES
+const WHERE_CLAUSE_THEME_HORROR = `${BASE_WHERE_CLAUSE} & themes = 19 
+& (aggregated_rating_count > 1 | follows >= 1);`
+//
+
 // SPECIAL CATEGORY - UNRELEASED GAMES
 // SPECIAL CATEGORY - FUTURE GAMES
 // SPECIAL CATEGORY - ANNOUNCED GAMES
@@ -118,7 +128,8 @@ const mapWhereClauseToCategoryName = new Map([
     [NORMAL_TWENTIES_WHERE_CLAUSE, CATEGORY_NAME_20s_NORMAL]
 ]);
 
-const WHERE_CLAUSE = `${WHERE_CLAUSE_PUBLISHER_NINTENDO};`
+const WHERE_CLAUSE = `${DEFAULT_WHERE_CLAUSE};`
+const CATEGORY = "Popular Games"
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
@@ -218,7 +229,7 @@ export class Channel {
 
         // this.chatbot.chat(`New round of Chat Guess Games! Category: ${mapWhereClauseToCategoryName.get(WHERE_CLAUSE)}.`)
         // this.chatbot.chat(`New round of Chat Guess Games! Category: 2010s`)
-        this.chatbot.chat(`New round of Chat Guess Games! Category: Nintendo`)
+        this.chatbot.chat(`New round of Chat Guess Games! Category: ${CATEGORY}`)
 
         const MAX_OFFSET = count
 
@@ -287,6 +298,7 @@ export class Channel {
             correctAnswer.insertCorrectAnswer()
 
             this.chatbot.chat(`lynchm1Youwhat ${username} guessed correctly! The game was ${this.game.name}! lynchm1Youwhat`)
+            this.generatHumbleURL()
             // if (game.steamURL != null) {
             //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
             // }
@@ -307,21 +319,34 @@ export class Channel {
     }
 
     getGiveupString() {
-        let index = getRandomInt(2)
-        if (index == 0) {
-            return `Unfortunately, nobody got it right this time! The game in question was ${this.game.name}!`
-        } else if (index == 1) {
-            return `We didn't have a winner this round! The game selected was ${this.game.name}!`
-        } else {
-            return `No one got it! The game was ${this.game.name}!`
-        }
+        // let index = getRandomInt(2)
+        // if (index == 0) {
+        //     return `Unfortunately, nobody got it right this time! The game in question was ${this.game.name}!`
+        // } else if (index == 1) {
+        //     return `We didn't have a winner this round! The game selected was ${this.game.name}!`
+        // } else {
+        //     return `No one got it! The game was ${this.game.name}!`
+        // }
+        return `No one got it! The game was ${this.game.name}!`
+    }
+
+    generatHumbleURL() {
+        let cleanedUpGameName = this.game.name.toLowerCase()
+        cleanedUpGameName = cleanedUpGameName.replace(/[^a-z0-9]/gm, "-")
+        cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
+        cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
+        cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
+        this.chatbot.chat(`${this.game.name} is available on Humble! ${HUMBLE_URL + cleanedUpGameName + HUMBLE_SUFFIX}`)
     }
 
     giveUp(timedout) {
-        if (timedout)
+        if (timedout) {
             this.chatbot.chat(`Time's up! The game was ${this.game.name}! lynchm1Youwhat`)
-        else
+            this.generatHumbleURL()
+        } else {
             this.chatbot.chat(this.getGiveupString())
+            this.generatHumbleURL()
+        }
         // if (game.steamURL != null) {
         //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
         // }

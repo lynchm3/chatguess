@@ -122,7 +122,7 @@ export class HintProvider {
         this.giveTextHint()
 
         let startTime = Date.now()
-        this.endTimestamp = startTime+TIME_LIMIT_MS
+        this.endTimestamp = startTime + TIME_LIMIT_MS
         this.timeoutID = setTimeout(this.timeout, TIME_LIMIT_MS, callback);
         // this.cancelTimeout()
     }
@@ -135,7 +135,11 @@ export class HintProvider {
         if (this.stopped) {
             //Do nothing
         } else {
-            callback.timeout()
+            try {
+                callback.timeout()
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
 

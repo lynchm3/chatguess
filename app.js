@@ -35,7 +35,6 @@ var channelMap = new Map();
 //       "Accept": "application/json"
 //     }
 //   });
-
 //   const twitchUserResponseJson = await twitchUserResponse.json();
 // }
 
