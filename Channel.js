@@ -246,6 +246,7 @@ export class Channel {
 
         this.hintProvider = new HintProvider(this.game, this, 7_000)
         this.guessChecker = new GuessChecker(this.game)
+        showTitle(this.channelName, this.hintProvider.endTimestamp)
     }
 
     checkGuess(message, username, userId, channelId) {
@@ -317,7 +318,6 @@ export class Channel {
             console.log("calling get game")
             this.gameInProgress = true
             this.getGame(igdbAccessToken)
-            showTitle(this.channelName)
         } else {
             this.chatbot.chat(`There's a game running right now, but yours has been queued up ${username}!`)
         }
@@ -344,7 +344,6 @@ export class Channel {
         if (this.gameInProgress == false) {
             this.gameInProgress = true
             this.getGame(igdbAccessToken)
-            showTitle(this.channelName)
         }
     }
 
@@ -367,10 +366,8 @@ export class Channel {
         this.game = null
         if (this.autoplay) {
             this.getGame(igdbAccessToken)
-            showTitle(this.channelName)
         } else if (this.queue > 0) {
             this.getGame(igdbAccessToken)
-            showTitle(this.channelName)
             this.queue--
         } else {
             this.gameInProgress = false

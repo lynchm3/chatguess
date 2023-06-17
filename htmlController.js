@@ -55,10 +55,11 @@ export function showText(text) { io.emit('showText', text); }
 
 export function showVideo(video) { io.emit('showVideo', video); }
 
-export function showTitle(broadcasterUsername) {
-  var socketsForChannel = sockets[broadcasterUsername]
+export function showTitle(broadcasterUsername, endTimestamp) {
+  var socketsForChannel = sockets[broadcasterUsername]  
+  // var endTimestamp = new Date("June 17, 2023 17:00:00").getTime()
   for (let i in socketsForChannel) {
-    socketsForChannel[i].emit('showTitle');
+    socketsForChannel[i].emit('showTitle', endTimestamp);
   }
 }
 

@@ -13,6 +13,8 @@
 
 <body>
 
+  <div id="countdown" style="display:inline; white-space:nowrap;" class="countDown"></div>
+
   <!-- <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg"> -->
   <div class="gameBackground" id="gameBackground"></div>
   <div class="logo" id="logo">
@@ -25,12 +27,43 @@
   <div id="box"></div>
   <canvas class="canvas" id="canvas"></canvas>
 
-  <img class="controller" id="controller" src="images/home-logo-long.png" />
+  <img class="controller" id="controller" src="images/home-logo-long-subtitle.png" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
+
+    var timerImterval = null
+
+    function showCountdown(endTimestamp) {
+      timerImterval = setInterval(function () {
+        var now = new Date().getTime();
+        var distance = endTimestamp - now;
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById("countdown").innerHTML =
+          hours.toLocaleString('en-US', {
+            minimumIntegerDigits: 2,
+            useGrouping: false
+          }) + ":" +
+          minutes.toLocaleString('en-US', {
+            minimumIntegerDigits: 2,
+            useGrouping: false
+          }) + ":" +
+          seconds.toLocaleString('en-US', {
+            minimumIntegerDigits: 2,
+            useGrouping: false
+          })
+
+        if (distance < 0) {
+          clearInterval(timerImterval);
+          document.getElementById("countdown").innerHTML = "00:00:00";
+        }
+      }, 1000);
+    }
 
     var div_gifs = document.getElementById('div-gifs');
     var gameBackground = document.getElementById('gameBackground');
@@ -216,7 +249,7 @@
       });
     }
 
-    const hintAnimations = ["fromTop","fromBottom","fromLeft","fromRight"]
+    const hintAnimations = ["fromTop", "fromBottom", "fromLeft", "fromRight"]
 
 
     //showImage  
@@ -398,7 +431,7 @@
     });
 
     // show title
-    socket.on('showTitle', function () {
+    socket.on('showTitle', function (endTimestamp) {
 
       gameImages = []
       imgElementList = []
@@ -411,6 +444,9 @@
       controller.style.animationName = "controller-animation";
       // controller.style.animationPlayState = "running";
 
+      //show timer     
+      showCountdown(endTimestamp)
+
       //audio cue
       const audio = new Audio("chatguessgames.mp3");
       audio.play();
@@ -418,7 +454,9 @@
 
     // Show Cover Image
     socket.on('showCoverImage', function (gameImage, username) {
-      controller.style.animationName = "controller-animation-reverse";
+      controller.style.animationName = "controller-animation-reverse";   
+      clearInterval(timerImterval);   
+      document.getElementById("countdown").innerHTML= "";
 
       entities.boxes.forEach(function (box) {
         Matter.Composite.remove(engine.world, box)

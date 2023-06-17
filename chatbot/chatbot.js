@@ -37,7 +37,7 @@ export class Chatbot {
 			} else if (message == "!unbrb" && username == "lynchml")
 				callback.setAutoPlay(false)
 			else if (message == "!cgg" && username == "lynchml")
-				callback.addGameToQueue(1, displayName)
+				callback.addGameToQueue(displayName)
 			else if (message == "!giveup" && username == "lynchml")
 				callback.giveUp(false)
 			else if (message == "!points" || message == "!score")

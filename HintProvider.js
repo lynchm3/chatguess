@@ -121,8 +121,8 @@ export class HintProvider {
         this.giveImageHint()
         this.giveTextHint()
 
-        // let startTime = Date.now()
-        // let endTime = startTime+TIME_LIMIT_MS
+        let startTime = Date.now()
+        this.endTimestamp = startTime+TIME_LIMIT_MS
         this.timeoutID = setTimeout(this.timeout, TIME_LIMIT_MS, callback);
         // this.cancelTimeout()
     }
