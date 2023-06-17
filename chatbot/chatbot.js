@@ -33,9 +33,9 @@ export class Chatbot {
 			// console.log(userId)
 
 			if (message == "!brb" && username == "lynchml") {
-				callback.setAutoPlay(true)
+				callback.setAutoPlay(true, displayName)
 			} else if (message == "!unbrb" && username == "lynchml")
-				callback.setAutoPlay(false)
+				callback.setAutoPlay(false, displayName)
 			else if (message == "!cgg" && username == "lynchml")
 				callback.addGameToQueue(displayName)
 			else if (message == "!giveup" && username == "lynchml")

@@ -339,8 +339,15 @@ export class Channel {
         this.giveUp(true)
     }
 
-    setAutoPlay(autoplay) {
+    setAutoPlay(autoplay, username) {
         this.autoplay = autoplay
+
+        if(this.autoplay) {
+            this.chatbot.chat("Autoplay mode enabled @" + username)
+        } else {
+            this.chatbot.chat("Autoplay mode disabled @" + username)
+        }
+
         if (this.gameInProgress == false) {
             this.gameInProgress = true
             this.getGame(igdbAccessToken)
