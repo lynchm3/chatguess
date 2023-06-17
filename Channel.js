@@ -206,7 +206,7 @@ export class Channel {
         // const companiesResponseJson = await companiesResponse.json();
         // console.log("companiesResponseJson")
         // console.log(JSON.stringify(companiesResponseJson))
-        
+
         var search = ""
         if (SEARCH_TERM.length > 0)
             search = `search "${SEARCH_TERM}";`
@@ -330,13 +330,24 @@ export class Channel {
         return `No one got it! The game was ${this.game.name}!`
     }
 
-    generatHumbleURL() {
+    async generatHumbleURL() {
         let cleanedUpGameName = this.game.name.toLowerCase()
         cleanedUpGameName = cleanedUpGameName.replace(/[^a-z0-9]/gm, "-")
         cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
         cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
         cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
-        this.chatbot.chat(`${this.game.name} is available on Humble! ${HUMBLE_URL + cleanedUpGameName + HUMBLE_SUFFIX}`)
+
+        let url = HUMBLE_URL + cleanedUpGameName + HUMBLE_SUFFIX
+        console.log("humble url")
+        console.log(url)
+
+        const humbleResponse = await fetch(url, {method: 'HEAD'});
+
+        console.log("humble status")
+        console.log(humbleResponse.status)
+        
+        if (humbleResponse.status == 200)
+            this.chatbot.chat(`${this.game.name} is available on Humble! ${url}`)
     }
 
     giveUp(timedout) {
@@ -365,7 +376,7 @@ export class Channel {
         console.log(this.queue)
         // console.log("this.game")
         // console.log(this.game)
-        this.queue ++
+        this.queue++
         if (this.queue > 0 && this.gameInProgress == false) {
             this.queue--
             console.log("calling get game")
@@ -395,7 +406,7 @@ export class Channel {
     setAutoPlay(autoplay, username) {
         this.autoplay = autoplay
 
-        if(this.autoplay) {
+        if (this.autoplay) {
             this.chatbot.chat("Autoplay mode enabled @" + username)
         } else {
             this.chatbot.chat("Autoplay mode disabled @" + username)
