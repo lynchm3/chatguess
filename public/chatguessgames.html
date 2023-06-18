@@ -7,19 +7,13 @@
 <head>
   <title>ChatGuessGames</title>
   <link rel="stylesheet" href="chatguessgames.css">
-  <link rel="stylesheet" href="infinity-mirror.css">
   <script src="/utils.js"></script>
 </head>
 
 <body>
 
-  <div id="countdown" style="display:inline; white-space:nowrap;" class="countDown"></div>
-
   <!-- <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg"> -->
   <div class="gameBackground" id="gameBackground"></div>
-  <div class="logo" id="logo">
-    <img src="whats_the_game_title_with_subtitle.png" />
-  </div>
 
   <div class="div-physics" id="div-physics"></div>
   <div class="div-gifs" id="div-gifs"></div>
@@ -27,7 +21,11 @@
   <div id="box"></div>
   <canvas class="canvas" id="canvas"></canvas>
 
-  <img class="controller" id="controller" src="images/home-logo-long-subtitle.png" />
+  <div class="logo-wrapper" id="logo-wrapper">
+    <img class="logo" id="logo" src="images/home-logo-long-subtitle.png" />
+    <div id="countdown" style="display:inline; white-space:nowrap;" class="countdown"></div>
+    <!-- <div id="static-countdown" style="display:inline; white-space:nowrap;" class="countdown">01:53</div> -->
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -40,15 +38,11 @@
       timerImterval = setInterval(function () {
         var now = new Date().getTime();
         var distance = endTimestamp - now;
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        // var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        // var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
         document.getElementById("countdown").innerHTML =
-          hours.toLocaleString('en-US', {
-            minimumIntegerDigits: 2,
-            useGrouping: false
-          }) + ":" +
           minutes.toLocaleString('en-US', {
             minimumIntegerDigits: 2,
             useGrouping: false
@@ -68,9 +62,7 @@
     var div_gifs = document.getElementById('div-gifs');
     var gameBackground = document.getElementById('gameBackground');
     gameBackground.style.visibility = 'hidden'
-    var logo = document.getElementById('logo');
-    logo.style.visibility = 'hidden'
-    var controller = document.getElementById('controller');
+    var logo_wrapper = document.getElementById('logo-wrapper');
 
     const frameRate = 1000 / 30;
     const boxSize = 20;
@@ -440,9 +432,8 @@
       gameBackground.style.visibility = 'visible'
 
       //title
-      // logo.style.visibility='visible'
-      controller.style.animationName = "controller-animation";
-      // controller.style.animationPlayState = "running";
+      logo_wrapper.style.animationName = "logo-animation";
+      // logo.style.animationPlayState = "running";
 
       //show timer     
       showCountdown(endTimestamp)
@@ -454,9 +445,9 @@
 
     // Show Cover Image
     socket.on('showCoverImage', function (gameImage, username) {
-      controller.style.animationName = "controller-animation-reverse";   
-      clearInterval(timerImterval);   
-      document.getElementById("countdown").innerHTML= "";
+      logo_wrapper.style.animationName = "logo-animation-reverse";
+      clearInterval(timerImterval);
+      document.getElementById("countdown").innerHTML = "";
 
       entities.boxes.forEach(function (box) {
         Matter.Composite.remove(engine.world, box)
@@ -515,7 +506,6 @@
         setTimeout(function () {
           div_gifs.innerHTML = "";
           gameBackground.style.visibility = 'hidden'
-          logo.style.visibility = 'hidden'
         }, 10_000);
       }
     });

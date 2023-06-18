@@ -138,7 +138,9 @@ expressApp.use((req, res, next) => {
     req.originalUrl.endsWith(".jpeg") ||
     req.originalUrl.endsWith(".js") ||
     req.originalUrl.endsWith(".css") ||
-    req.originalUrl.endsWith(".ico")) {
+    req.originalUrl.endsWith(".ico") ||
+    req.originalUrl.endsWith(".ttf") ||
+    req.originalUrl.endsWith(".woff")) {
     next()
   } else if (req.originalUrl.startsWith("/twitchauthorizationredirect")) {
     auth2(req.query.code, res)

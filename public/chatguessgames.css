@@ -1,3 +1,5 @@
+/* Berlin Sans FB Demi */
+
 body {
     display: flex;
     flex-wrap: wrap;
@@ -10,13 +12,13 @@ body {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
-@font-face {
+/* @font-face {
     font-family: 'hylia_serif_betaregular';
     src: url('hyliaserifbeta-regular-webfont.woff2') format('woff2'),
         url('hyliaserifbeta-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-}
+} */
 
 .canvas {
     float: left;
@@ -24,20 +26,6 @@ body {
     background-color: rgba(0, 0, 0, 0);
     width: 100%;
     height: 100%;
-}
-
-.countDown {
-    float: left;
-    position: fixed;
-    z-index: 111;
-    left: 0;
-    color: #faf7dc;
-    margin-left: 16px;
-    margin-top: 230px;
-    /* font-weight: bold; */
-    font-size: 72px;
-    text-shadow: #227483FF 3px 0 5px;
-    font-family: 'hylia_serif_betaregular';
 }
 
 .guessBox {
@@ -68,14 +56,6 @@ body {
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: -1;
-}
-
-.logo {
-    float: left;
-    position: fixed;
-    margin-top: 60px;
-    margin-left: 0px;
-    z-index: 100;
 }
 
 .winner {
@@ -194,7 +174,7 @@ body {
     font-size: 18pt;
 }
 
-@keyframes controller-animation {
+@keyframes logo-animation {
     from {
         left: -30%;
     }
@@ -204,7 +184,7 @@ body {
     }
 }
 
-@keyframes controller-animation-reverse {
+@keyframes logo-animation-reverse {
     from {
         left: -4%;
     }
@@ -214,16 +194,29 @@ body {
     }
 }
 
-.controller {
+.logo-wrapper {
     float: left;
     position: fixed;
     margin-top: 0px;
     margin-left: 0px;
     z-index: 100;
+    /* left: -4%; */
     left: -30%;
     top: 10%;
     height: 20%;
-    z-index: 1;
+    /* animation-name: logo-animation; */
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    /* animation-play-state:paused; */
+}
+
+.logo {
+    float: left;
+    position: fixed;
+    margin-top: 0px;
+    margin-left: 0px;
+    z-index: 100;
+    height: 20%;
     background-color: #222222FF;
     border-radius: 0px 25px 25px 0px;
     padding-top: 0.5%;
@@ -233,8 +226,34 @@ body {
     border-right: 2px solid #ccc;
     border-bottom: 2px solid #ccc;
     filter: drop-shadow(0px 10px 2px #000000AA);
-    /* animation-name: controller-animation; */
-    animation-duration: 4s;
-    animation-fill-mode: forwards;
-    /* animation-play-state:paused; */
+}
+
+@font-face {
+    font-family: berlinSansFBDemiBold;
+    src: url(Berlin_Sans_FB_Demi_Bold.ttf);
+}
+
+/* left: 0; */
+.countdown {
+    width: 130px;
+    float: left;
+    position: fixed;
+    z-index: 101;
+    color: #ef3826;
+    /* margin-left: 5%; */
+    margin-top: 13%;
+    font-size: 48px;
+    /* filter: drop-shadow(0px 10px 2px #000000AA); */
+    font-family: berlinSansFBDemiBold;
+    
+    background-color: #222222FF;
+    border-radius: 0px 25px 25px 0px;
+    padding-left: 5%;
+    padding-top: 0.5%;
+    padding-right: 0.5%;
+    padding-bottom: 0.5%;
+    border-top: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+    border-bottom: 2px solid #ccc;
+    filter: drop-shadow(0px 10px 2px #000000AA);
 }

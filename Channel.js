@@ -8,11 +8,11 @@ import { Redemption } from './Redemption.js';
 import { showImage, showCoverImage, showTitle } from './htmlController.js';
 import { igdbAccessToken } from './app.js'
 import { Namespace } from 'socket.io';
+// GOG Affiliate programme:
+// https://support.gog.com/hc/en-us/articles/4405004689297-How-to-join-the-GOG-Affiliate-Program?product=gog
 
 const HUMBLE_URL = "https://www.humblebundle.com/store/"
 const HUMBLE_SUFFIX = "?partner=chatguess"
-// GOG Affiliate programme:
-// https://support.gog.com/hc/en-us/articles/4405004689297-How-to-join-the-GOG-Affiliate-Program?product=gog
 
 const BASE_IGDB_URL = "https://api.igdb.com/v4"
 
@@ -330,27 +330,34 @@ export class Channel {
         return `No one got it! The game was ${this.game.name}!`
     }
 
+    
+
+
     async generatHumbleURL() {
+
+        // There's an api
+        // Works in browser
+        // Gives bot and postman 403
+        // const HUMBLE_SEARCH_URL = "https://www.humblebundle.com/store/api/search" +
+        // "?sort=bestselling" +
+        // "&filter=all" +
+        // "&request=1" +
+        // "&search=" + this.game.name.replace(/[^a-zA-Z0-9]/gm, "+").replace(/-{2,}/gm, "-")
+
+        // HTML HEAD CALL
         let cleanedUpGameName = this.game.name.toLowerCase()
         cleanedUpGameName = cleanedUpGameName.replace(/[^a-z0-9]/gm, "-")
-        cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
-        cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
-        cleanedUpGameName = cleanedUpGameName.replace(/--/gm, "-")
-
+        cleanedUpGameName = cleanedUpGameName.replace(/-{2,}/gm, "-")
         let url = HUMBLE_URL + cleanedUpGameName + HUMBLE_SUFFIX
-        console.log("humble url")
-        console.log(url)
-
-        const humbleResponse = await fetch(url, {method: 'HEAD'});
-
-        console.log("humble status")
-        console.log(humbleResponse.status)
-        
+        const humbleResponse = await fetch(url, { method: 'HEAD' });
         if (humbleResponse.status == 200)
             this.chatbot.chat(`${this.game.name} is available on Humble! ${url}`)
     }
 
     giveUp(timedout) {
+        if(this.game == null)
+            return
+
         if (timedout) {
             this.chatbot.chat(`Time's up! The game was ${this.game.name}! lynchm1Youwhat`)
             this.generatHumbleURL()
@@ -372,10 +379,8 @@ export class Channel {
     }
 
     addGameToQueue(username) {
-        console.log("this.queue")
-        console.log(this.queue)
-        // console.log("this.game")
-        // console.log(this.game)
+        // console.log("this.queue")
+        // console.log(this.queue)
         this.queue++
         if (this.queue > 0 && this.gameInProgress == false) {
             this.queue--
@@ -385,10 +390,6 @@ export class Channel {
         } else {
             this.chatbot.chat(`There's a game running right now, but yours has been queued up ${username}!`)
         }
-    }
-
-    guess(message) {
-        checkGuess(message, "You", null, null)
     }
 
     giveTextHint(hint) {
