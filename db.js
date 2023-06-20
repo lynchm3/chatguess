@@ -1,10 +1,29 @@
 import sqlite3 from 'sqlite3';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
+import { Sequelize } from 'sequelize';
 import { createChannel } from './app.js';
+import { chatGuessDBPassword } from './TwurpleSecrets.js'
 
 const databaseName = "chatguess.db"
 var db = null
+
+
+async function mySql() {
+    const sequelize = new Sequelize('chatguess:europe-west1:chatguessdb', 'root', chatGuessDBPassword, {
+        host: '35.195.21.2',
+        dialect: 'mysql'
+    });
+
+    try {
+        await sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+      } catch (error) {
+        console.error('Unable to connect to the database:', error);
+      }      
+}
+
+mySql()
 
 function init() {
     db = new sqlite3.Database(`./${databaseName}`, sqlite3.OPEN_READWRITE, (err) => {
@@ -224,7 +243,7 @@ export class Scoreboard {
     }
 
     //All time
-    getUserScoreAndRival(chatbot, userId, channel, userDisplayName, accessToken) {
+    async getUserScoreAndRival(chatbot, userId, channel, userDisplayName, accessToken, prefix) {
         db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channel}' GROUP BY userID ORDER BY Score DESC;`,
             (err, result) => {
                 if (err) {
@@ -273,13 +292,13 @@ export class Scoreboard {
                                         const rivalScore = rivalRow.score
                                         const pointsBehind = rivalScore - monthScore
                                         const rivalUserID = rivalRow.userID
-                                        this.getRivalName(userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot)
+                                        this.getRivalName(userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot, prefix)
                                     } else {
-                                        chatbot.chat(`${userDisplayName} is in ${this.numberToOrdinal(monthPosition)} 
-                                        with ${monthScore} ${monthScore != 1 ? "points" : "point"}`)
+                                        chatbot.chat(`${prefix} They're in ${this.numberToOrdinal(monthPosition)} 
+                                        with ${monthScore} ${monthScore != 1 ? "points" : "point"}.`)
                                     }
                                 } else {
-                                    chatbot.chat(`${userDisplayName} has not scored this month.`)
+                                    chatbot.chat(`${prefix} ${userDisplayName} has not scored this month.`)
                                 }
                             }
                         });
@@ -287,7 +306,7 @@ export class Scoreboard {
             });
     }
 
-    getRivalName = async (userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot) => {
+    getRivalName = async (userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot, prefix) => {
 
         const twitchUserResponse = await fetch(`https://api.twitch.tv/helix/users?id=${rivalUserID}`, {
             method: 'GET',
@@ -301,8 +320,8 @@ export class Scoreboard {
         const users = await twitchUserResponse.json();
         const rivalDisplayName = users.data[0].display_name
 
-        chatbot.chat(`${userDisplayName} is in ${this.numberToOrdinal(monthPosition)} with ${monthScore} ${monthScore != 1 ? "points" : "point"},
-            ${pointsBehind}  ${pointsBehind != 1 ? "points" : "point"} behind ${rivalDisplayName}`)
+        chatbot.chat(`${prefix} They're in ${this.numberToOrdinal(monthPosition)} with ${monthScore} ${monthScore != 1 ? "points" : "point"},
+            ${pointsBehind} ${pointsBehind != 1 ? "points" : "point"} behind ${rivalDisplayName}.`)
 
     }
 }
@@ -386,7 +405,7 @@ export class Auth {
         });
     }
 
-    saveRewardId(){        
+    saveRewardId() {
         db.exec(`UPDATE auth 
         SET rewardID = '${this.rewardID}'
         WHERE broadcaster = '${this.broadcaster}'`,
@@ -412,12 +431,12 @@ export class Auth {
                         console.log(result);
                         if (result.length == 0) {
                         } else {
-                            for(let r of result)
+                            for (let r of result)
                                 createChannel(
                                     r.broadcaster,
                                     r.userID,
                                     r.accessToken,
-                                    r.refreshToken, 
+                                    r.refreshToken,
                                     r.rewardID)
                         }
                     }
@@ -427,5 +446,5 @@ export class Auth {
     }
 
 
-    
+
 }
