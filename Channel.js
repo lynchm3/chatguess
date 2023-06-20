@@ -94,12 +94,16 @@ const NORMAL_TWENTIES_WHERE_CLAUSE = `${BASE_WHERE_CLAUSE} & ${RANGE_20s}
 
 // PUBLISHER CATEGORIES
 const WHERE_CLAUSE_PUBLISHER_NINTENDO = `${BASE_WHERE_CLAUSE} & involved_companies.company = (70);`
+const WHERE_CLAUSE_PUBLISHER_UBISOFT = `${BASE_WHERE_CLAUSE} & involved_companies.company = (104);`
 // const WHERE_CLAUSE_PUBLISHER_NINTENDO = `${BASE_WHERE_CLAUSE} & platforms = (48);`
 
 // THEME CATEGORIES
 const WHERE_CLAUSE_THEME_HORROR = `${BASE_WHERE_CLAUSE} & themes = 19 
 & (aggregated_rating_count > 1 | follows >= 1);`
-//
+
+// RATING CATEGORIES
+const WHERE_CLAUSE_RATING_90_PLUS = `${BASE_WHERE_CLAUSE} & aggregated_rating > 90;`
+//WHERE_CLAUSE_RATING_UNDER_20
 
 // SPECIAL CATEGORY - UNRELEASED GAMES
 // SPECIAL CATEGORY - FUTURE GAMES
@@ -128,8 +132,12 @@ const mapWhereClauseToCategoryName = new Map([
     [NORMAL_TWENTIES_WHERE_CLAUSE, CATEGORY_NAME_20s_NORMAL]
 ]);
 
-const WHERE_CLAUSE = `${DEFAULT_WHERE_CLAUSE};`
+const SEARCH_TERM_MARIO = "Mario"
+const WHERE_CLAUSE_BAD_MARIO = "${BASE_WHERE_CLAUSE} & aggregated_rating < 70;"
+
+const WHERE_CLAUSE = DEFAULT_WHERE_CLAUSE
 const CATEGORY = "Popular Games"
+const SEARCH_TERM = ""
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,
   first_release_date, franchise.name, franchises.name, genres.name, platforms.name, screenshots.*, similar_games.name,
@@ -140,7 +148,6 @@ const IMAGE_BIG_COVER_URL = `https://images.igdb.com/igdb/image/upload/t_cover_b
 const IMAGE_1080_URL = `https://images.igdb.com/igdb/image/upload/t_1080p/`
 const IMAGE_720_URL = `https://images.igdb.com/igdb/image/upload/t_720p/`
 const THUMB_URL = `//images.igdb.com/igdb/image/upload/t_thumb/`
-const SEARCH_TERM = ""
 
 export class Channel {
     constructor(channelName, broadcasterId, authToken, refreshToken, rewardId) {
@@ -196,7 +203,7 @@ export class Channel {
         //     method: 'POST',
         //     body: `fields name, involved_companies.company.id, involved_companies.company.name; 
         //     limit 500; 
-        //     search "breath of the wild";`,
+        //     search "assassins creed";`,
         //     headers: {
         //         "Client-ID": `${TWITCH_CLIENT_ID}`,
         //         "Authorization": `Bearer ${igdbAccessToken}`,
@@ -255,6 +262,9 @@ export class Channel {
         // console.log("responseJson")
         // console.log(responseJson[0])
 
+        if (responseJson.length == 0)
+            return
+
         console.log("aggregated_rating_count")
         console.log(responseJson[0].aggregated_rating_count)
 
@@ -288,8 +298,13 @@ export class Channel {
         showTitle(this.channelName, this.hintProvider.endTimestamp)
     }
 
-    checkGuess(message, username, userId, channelId) {
+    async checkGuess(message, username, userId, channelId) {
         if (this.guessChecker?.checkGuess(message)) {
+
+            this.guessChecker = null
+            this.hintProvider.stop()
+            this.hintProvider = null
+
             const correctAnswer = new CorrectAnswer(
                 Date.now(),
                 userId,
@@ -297,20 +312,17 @@ export class Channel {
                 this.game.id)
             correctAnswer.insertCorrectAnswer()
 
-            this.chatbot.chat(`${username} got it! ${this.game.name}!`)
+            // this.chatbot.chat()
+            await new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, igdbAccessToken, `${username} got it! ${this.game.name}!`)
             this.generatHumbleURL()
+
             // if (game.steamURL != null) {
             //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
             // }
 
-            new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, igdbAccessToken)
-
             // if (userId != null)
             //     getProfileImage(userId, igdbAccessToken)
             showCoverImage(this.game.coverArt, username, this.channelName)
-            this.guessChecker = null
-            this.hintProvider.stop()
-            this.hintProvider = null
             var that = this
             setTimeout(function () {
                 that.roundEnded();
@@ -327,11 +339,8 @@ export class Channel {
         // } else {
         //     return `No one got it! The game was ${this.game.name}!`
         // }
-        return `No one got it! The game was ${this.game.name}!`
+        return `No one got it! It was ${this.game.name}!`
     }
-
-    
-
 
     async generatHumbleURL() {
 
@@ -344,22 +353,56 @@ export class Channel {
         // "&request=1" +
         // "&search=" + this.game.name.replace(/[^a-zA-Z0-9]/gm, "+").replace(/-{2,}/gm, "-")
 
+        // const HUMBLE_SEARCH_URL = "https://www.humblebundle.com/store/api/lookup?products[]=rimworld&request=1&edit_mode=false"
+
         // HTML HEAD CALL
         let cleanedUpGameName = this.game.name.toLowerCase()
+        // let cleanedUpGameName = "rimworld"        
         cleanedUpGameName = cleanedUpGameName.replace(/[^a-z0-9]/gm, "-")
         cleanedUpGameName = cleanedUpGameName.replace(/-{2,}/gm, "-")
         let url = HUMBLE_URL + cleanedUpGameName + HUMBLE_SUFFIX
-        const humbleResponse = await fetch(url, { method: 'HEAD' });
-        if (humbleResponse.status == 200)
-            this.chatbot.chat(`${this.game.name} is available on Humble! ${url}`)
+
+        // <div class="js-discount-amount discount-amount">
+        // -20%
+        // <span class="off-text">
+
+        const humbleResponse = await fetch(url);
+
+        if (humbleResponse.status == 200) {
+
+            // const humbleResponseText = await humbleResponse.json();
+
+            // console.log("humbleResponseText")
+            // console.log(humbleResponseText)            
+
+            // var matches = humbleResponseText.match(/<div class="js-discount-amount discount-amount">([^<]*)</);
+
+            // console.log("matches")
+            // console.log(matches) 
+
+            // var discount = null
+            // if (matches) {
+            //     console.log("matches[1]")
+            //     console.log(matches[1]) 
+            //     discount = matches[1];
+            // }
+
+            // if(discount != null)
+            //     this.chatbot.chat(`${this.game.name} is on Humble (${discount} OFF)! ${url}`)        
+            // else
+            this.chatbot.chat(`${this.game.name} is on Humble! ${url}`)
+        } else {
+            console.log("humbleResponse.status")
+            console.log(humbleResponse.status)
+        }
     }
 
     giveUp(timedout) {
-        if(this.game == null)
+        if (this.game == null)
             return
 
         if (timedout) {
-            this.chatbot.chat(`Time's up! The game was ${this.game.name}! lynchm1Youwhat`)
+            this.chatbot.chat(`Time's up! It was ${this.game.name}!`)
             this.generatHumbleURL()
         } else {
             this.chatbot.chat(this.getGiveupString())

@@ -22,8 +22,9 @@
   <canvas class="canvas" id="canvas"></canvas>
 
   <div class="logo-wrapper" id="logo-wrapper">
-    <img class="logo" id="logo" src="images/home-logo-long-subtitle.png" />
-    <div id="countdown" style="display:inline; white-space:nowrap;" class="countdown"></div>
+    <img class="logo" id="logo" src="images/home-logo-long.png" />
+    <div id="countdown" style="display:inline; white-space:nowrap;" class="countdown">00:00</div>
+    <div id="subtitle" class="subtitle">Guess in Chat to Win!</div>
     <!-- <div id="static-countdown" style="display:inline; white-space:nowrap;" class="countdown">01:53</div> -->
   </div>
 
@@ -39,6 +40,11 @@
       "This is an easy one!",
       "You'll never get this!"
     ]
+
+    const subtitle = document.getElementById("subtitle")
+
+
+    var roundCounter = 0
 
     var timerInterval = null
 
@@ -432,6 +438,7 @@
 
     // show title
     socket.on('showTitle', function (endTimestamp) {
+      roundCounter++
 
       gameImages = []
       imgElementList = []
@@ -446,6 +453,14 @@
       //show timer     
       showCountdown(endTimestamp)
 
+      //set subtitle
+      let gapBetweenAlternateTexts = 4
+      if(roundCounter%gapBetweenAlternateTexts == 0){
+        subtitle.innerHTML = alternateSubtitles[(roundCounter/gapBetweenAlternateTexts)%alternateSubtitles.length]
+      } else {
+        subtitle.innerHTML = defaultSubtitle
+      }
+
       //audio cue
       const audio = new Audio("chatguessgames.mp3");
       audio.play();
@@ -455,7 +470,7 @@
     socket.on('showCoverImage', function (gameImage, username) {
       logo_wrapper.style.animationName = "logo-animation-reverse";
       clearInterval(timerInterval);
-      document.getElementById("countdown").innerHTML = "";
+      // document.getElementById("countdown").innerHTML = "";
 
       entities.boxes.forEach(function (box) {
         Matter.Composite.remove(engine.world, box)
