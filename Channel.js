@@ -297,7 +297,7 @@ export class Channel {
                 this.game.id)
             correctAnswer.insertCorrectAnswer()
 
-            this.chatbot.chat(`lynchm1Youwhat ${username} guessed correctly! The game was ${this.game.name}! lynchm1Youwhat`)
+            this.chatbot.chat(`${username} got it! ${this.game.name}!`)
             this.generatHumbleURL()
             // if (game.steamURL != null) {
             //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)

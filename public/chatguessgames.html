@@ -32,10 +32,18 @@
 
   <script>
 
-    var timerImterval = null
+    const defaultSubtitle = "Guess in Chat to Win!"
+    const alternateSubtitles = [
+      "We have a Patreon!",
+      "Visit ChatGuess.com!",
+      "This is an easy one!",
+      "You'll never get this!"
+    ]
+
+    var timerInterval = null
 
     function showCountdown(endTimestamp) {
-      timerImterval = setInterval(function () {
+      timerInterval = setInterval(function () {
         var now = new Date().getTime();
         var distance = endTimestamp - now;
         // var days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -53,7 +61,7 @@
           })
 
         if (distance < 0) {
-          clearInterval(timerImterval);
+          clearInterval(timerInterval);
           document.getElementById("countdown").innerHTML = "00:00:00";
         }
       }, 1000);
@@ -446,7 +454,7 @@
     // Show Cover Image
     socket.on('showCoverImage', function (gameImage, username) {
       logo_wrapper.style.animationName = "logo-animation-reverse";
-      clearInterval(timerImterval);
+      clearInterval(timerInterval);
       document.getElementById("countdown").innerHTML = "";
 
       entities.boxes.forEach(function (box) {

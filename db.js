@@ -279,7 +279,7 @@ export class Scoreboard {
                                         with ${monthScore} ${monthScore != 1 ? "points" : "point"}`)
                                     }
                                 } else {
-                                    chatbot.chat(`${userDisplayName} has not points this month.`)
+                                    chatbot.chat(`${userDisplayName} has not scored this month.`)
                                 }
                             }
                         });

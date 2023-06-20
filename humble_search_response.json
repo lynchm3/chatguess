@@ -1,0 +1,59 @@
+{
+    "num_results": 1,
+    "page_index": 0,
+    "request": 1,
+    "search": "RAVENSWATCH",
+    "num_pages": 1,
+    "results": [
+      {
+        "standard_carousel_image": "https://hb.imgix.net/22ab56d29a0a2a1245ee5e549be73585f02c00fd.jpg?auto=compress,format&fit=crop&h=206&w=360&s=8a51bc926da8298f1593134b23a4d2a9",
+        "delivery_methods": [
+          "steam"
+        ],
+        "machine_name": "ravenswatch_storefront",
+        "xray_traits_thumbnail": "https://hb.imgix.net/22ab56d29a0a2a1245ee5e549be73585f02c00fd.jpg?auto=compress,format&fit=crop&h=84&w=135&s=209d9010ab7adfa95109ebb006a18e80",
+        "content_types": [
+          "game"
+        ],
+        "human_url": "ravenswatch",
+        "platforms": [
+          "windows"
+        ],
+        "icon_dict": {
+          "steam": {
+            "available": [
+              "windows"
+            ],
+            "unavailable": [
+              "mac",
+              "linux"
+            ]
+          }
+        },
+        "featured_image_recommendation": "https://hb.imgix.net/22ab56d29a0a2a1245ee5e549be73585f02c00fd.jpg?auto=compress,format&fit=crop&h=154&w=270&s=c3ccc9b0b3e6fc0bdfda1bc3fdaa78fd",
+        "large_capsule": "https://hb.imgix.net/22ab56d29a0a2a1245ee5e549be73585f02c00fd.jpg?auto=compress,format&fit=crop&h=353&w=616&s=000b993991cbcc3c0f94894b065693f7",
+        "human_name": "Ravenswatch",
+        "required_account_links": [
+          "steam"
+        ],
+        "type": "product",
+        "icon": "https://hb.imgix.net/22ab56d29a0a2a1245ee5e549be73585f02c00fd.jpg?auto=compress,format&fit=crop&h=64&w=103&s=a1598d91532a99565ff96b546f1565f0",
+        "non_rewards_charity_split": 0,
+        "rewards_split": 0.1,
+        "empty_tpkds": {},
+        "full_price": {
+          "currency": "EUR",
+          "amount": 19.99
+        },
+        "sale_end": 1687194000,
+        "nonrefundable": false,
+        "current_price": {
+          "currency": "EUR",
+          "amount": 17.99
+        },
+        "cta_badge": "earlyaccess",
+        "rating_for_current_region": "pegi",
+        "sale_type": "normal"
+      }
+    ]
+  }
