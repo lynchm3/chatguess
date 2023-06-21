@@ -6,11 +6,11 @@ import { createChannel } from './app.js';
 import { chatGuessDBPassword } from './TwurpleSecrets.js'
 
 const databaseName = "chatguess.db"
-var db = null
+// var db = null
+var sequelize = null
 
-
-async function mySql() {
-    const sequelize = new Sequelize('chatguess:europe-west1:chatguessdb', 'root', chatGuessDBPassword, {
+async function initMySql() {
+    sequelize = new Sequelize('chatguessdb', 'root', chatGuessDBPassword, {
         host: '35.195.21.2',
         dialect: 'mysql'
     });
@@ -18,71 +18,61 @@ async function mySql() {
     try {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
-      } catch (error) {
+    } catch (error) {
         console.error('Unable to connect to the database:', error);
-      }      
+    }
+
+    Auth.loadUsers()
+
+    //Create tables
+    // try {
+    //     await sequelize.query(`
+    //       create table correct_answer (
+    //       timestamp text not null,
+    //       userID text not null,
+    //       channelID text not null,
+    //       gameID text not null
+    //   );`);
+    // } catch (error) {
+    //     console.error('Unable to create correct_answer table:', error);
+    // }
+
+    // try {
+    //     await sequelize.query(`
+    //     create table auth (
+    //     broadcaster text not null,
+    //     userID text not null,
+    //     accessToken text not null,
+    //     refreshToken text not null,
+    //     rewardID text not null
+    // );`);
+    // } catch (error) {
+    //     console.error('Unable to create auth table:', error);
+    // }    
+
+    //MySQL Select *
+    // try {
+    //     let result = await sequelize.query(`Select * from correct_answer;`);
+    //     console.log("Select * from correct_answer;")
+    //     console.log(result)
+    // } catch (error) {
+    //     console.error('Unable to create auth table:', error);
+    // }
+
+    // try {
+    //     let result = await sequelize.query(`Select * from auth;`);
+    //     console.log("Select * from auth;")
+    //     console.log(result)
+    // } catch (error) {
+    //     console.error('Unable to create auth table:', error);
+    // }
+
+    // sqlite
+    // Select * from correct_answer
+    // Select * from auth
 }
 
-mySql()
-
-function init() {
-    db = new sqlite3.Database(`./${databaseName}`, sqlite3.OPEN_READWRITE, (err) => {
-        if (err && err.code == "SQLITE_CANTOPEN") {
-            createDatabase();
-        } else if (err) {
-            console.log("Getting error " + err);
-        } else {
-            Auth.loadUsers()
-        }
-    });
-}
-
-function createDatabase() {
-    db = new sqlite3.Database(databaseName, (err) => {
-        if (err) {
-            console.log("Getting error " + err);
-        }
-        createTables();
-    });
-}
-
-function createTables() {
-    createCorrectAnswerTable()
-    createAuthTable()
-}
-
-function createCorrectAnswerTable() {
-    db.exec(`
-    create table correct_answer (
-        timestamp text not null,
-        userID text not null,
-        channelID text not null,
-        gameID text not null
-    );`, (err) => {
-        if (err) {
-            console.log("create table correct_answer err ");
-            console.log(err);
-        }
-    });
-}
-
-function createAuthTable() {
-    db.exec(`
-    create table auth (
-        broadcaster text not null,
-        userID text not null,
-        accessToken text not null,
-        refreshToken text not null,
-        rewardID text not null
-    );`, (err) => {
-        if (err) {
-            console.log("create table auth err ");
-            console.log(err);
-        }
-    });
-}
-
-init()
+initMySql()
 
 /////////////////////////////////////////////////////
 
@@ -94,15 +84,13 @@ export class CorrectAnswer {
         this.gameID = gameID
     }
 
-    insertCorrectAnswer() {
-        db.exec(`insert into correct_answer (timestamp, userID, channelID, gameID) 
-        values ('${this.timestamp}', '${this.userID}', '${this.channelID}',  '${this.gameID}'); `,
-            (err) => {
-                if (err) {
-                    console.log("insertCorrectAnswer err ");
-                    console.log(err);
-                }
-            });
+    async insertCorrectAnswer() {
+        try {
+            await sequelize.query(`insert into correct_answer (timestamp, userID, channelID, gameID) 
+            values ('${this.timestamp}', '${this.userID}', '${this.channelID}',  '${this.gameID}'); `);
+        } catch (error) {
+            console.error('error insertCorrectAnswer:', error);
+        }
     }
 }
 
@@ -116,23 +104,26 @@ class ScoreboardEntry {
 export class Scoreboard {
 
     // Top 5 of the month
-    getScoreboard(accessToken, chatbot, channelId) {
-
+    async getScoreboard(accessToken, chatbot, channelId) {
         const startOfTheMonth = this.getTimestampForStartOfMonth()
-        db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channelId}' AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC LIMIT 5;`,
-            (err, result) => {
-                if (err) {
-                    console.log("getScoreboard err ");
-                    console.log(err);
-                } else {
-                    console.log("Scoreboard");
-                    console.log(result);
-                    this.getScoreboardUserNames(accessToken, result, chatbot)
-                }
-            });
+        try {
+            let result = await sequelize.query(`Select userID, COUNT(userId) as score from correct_answer 
+            WHERE channelID = '${channelId}' 
+            AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC LIMIT 5;`,
+                { type: Sequelize.QueryTypes.SELECT })
+            console.log("Scoreboard");
+            console.log(result);
+            this.getScoreboardUserNames(accessToken, result, chatbot)
+        } catch (error) {
+            console.error('error getScoreboard:', error);
+        }
     }
 
     getScoreboardUserNames = async (accessToken, result, chatbot) => {
+
+        console.log("getScoreboardUserNames")
+        console.log("result")
+        console.log(result)
 
         const twitchUserResponse = await fetch(`https://api.twitch.tv/helix/users?id=${result[0].userID}&id=${result[1].userID}&id=${result[2].userID}&id=${result[3].userID}&id=${result[4].userID}`, {
             method: 'GET',
@@ -144,6 +135,8 @@ export class Scoreboard {
         });
 
         const users = await twitchUserResponse.json();
+        console.log("users")
+        console.log(users)
 
         const scoreboardWithNames =
             result.map(x => new ScoreboardEntry(users.data.find(y => y.id == x.userID).display_name, x.score))
@@ -152,46 +145,46 @@ export class Scoreboard {
     }
 
     //All time
-    getUserScore(chatbot, userId, channel, userDisplayName) {
-        db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channel}' GROUP BY userID ORDER BY Score DESC;`,
-            (err, result) => {
-                if (err) {
-                    console.log("getUserScore alltime err ");
-                    console.log(err);
-                } else {
-                    console.log("getUserScore alltime");
-                    console.log(result);
-                    const allTimeRow = result.find(x => x.userID == userId)
-                    var allTimeScore = 0
-                    var allTimePosition = "last"
-                    if (allTimeRow != undefined) {
-                        allTimeScore = allTimeRow.score
-                        allTimePosition = result.findIndex(x => x.userID == userId) + 1
-                    }
+    async getUserScore(chatbot, userId, channel, userDisplayName) {
 
-                    //Month
-                    const startOfTheMonth = this.getTimestampForStartOfMonth()
-                    db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channel}' AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC;`,
-                        (err, result) => {
-                            if (err) {
-                                console.log("getUserScore month err ");
-                                console.log(err);
-                            } else {
-                                console.log("getUserScore month");
-                                console.log(result);
-                                const monthRow = result.find(x => x.userID == userId)
-                                var monthScore = 0
-                                var monthPosition = "last"
-                                if (monthRow != undefined) {
-                                    monthScore = monthRow.score
-                                    monthPosition = result.findIndex(x => x.userID == userId) + 1
-                                }
-                                chatbot.chat(`This month ${userDisplayName} is ${this.numberToOrdinal(monthPosition)} with ${monthScore} ${monthScore != 1 ? "points" : "point"}.
-                                All-time ${this.numberToOrdinal(allTimePosition)} with ${allTimeScore} ${allTimeScore != 1 ? "points" : "point"}.`)
-                            }
-                        });
+        try {
+            let result = await sequelize.query(`Select userID, COUNT(userId) as score from correct_answer 
+            WHERE channelID = '${channel}' GROUP BY userID ORDER BY Score DESC;`,
+                { type: Sequelize.QueryTypes.SELECT })
+            console.log("getUserScore alltime");
+            console.log(result);
+            const allTimeRow = result.find(x => x.userID == userId)
+            var allTimeScore = 0
+            var allTimePosition = "last"
+            if (allTimeRow != undefined) {
+                allTimeScore = allTimeRow.score
+                allTimePosition = result.findIndex(x => x.userID == userId) + 1
+            }
+
+            //Month
+            const startOfTheMonth = this.getTimestampForStartOfMonth()
+            try {
+                let result2 = await sequelize.query(`Select userID, COUNT(userId) as score from correct_answer 
+            WHERE channelID = '${channel}' 
+            AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC;`,
+                    { type: Sequelize.QueryTypes.SELECT })
+                console.log("getUserScore month");
+                console.log(result2);
+                const monthRow = result2.find(x => x.userID == userId)
+                var monthScore = 0
+                var monthPosition = "last"
+                if (monthRow != undefined) {
+                    monthScore = monthRow.score
+                    monthPosition = result2.findIndex(x => x.userID == userId) + 1
                 }
-            });
+                chatbot.chat(`This month ${userDisplayName} is ${this.numberToOrdinal(monthPosition)} with ${monthScore} ${monthScore != 1 ? "points" : "point"}.
+                        All-time ${this.numberToOrdinal(allTimePosition)} with ${allTimeScore} ${allTimeScore != 1 ? "points" : "point"}.`)
+            } catch (error) {
+                console.error('Error getUserScore 2:', error);
+            }
+        } catch (error) {
+            console.error('Error getUserScore 1:', error);
+        }
     }
 
     getTimestampForStartOfMonth() {
@@ -242,68 +235,51 @@ export class Scoreboard {
         }
     }
 
-    //All time
     async getUserScoreAndRival(chatbot, userId, channel, userDisplayName, accessToken, prefix) {
-        db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channel}' GROUP BY userID ORDER BY Score DESC;`,
-            (err, result) => {
-                if (err) {
-                    console.log("getUserScore alltime err ");
-                    console.log(err);
-                } else {
-                    console.log("getUserScore alltime");
-                    console.log(result);
-                    const allTimeRow = result.find(x => x.userID == userId)
-                    var allTimeScore = 0
-                    var allTimePosition = "last"
-                    if (allTimeRow != undefined) {
-                        allTimeScore = allTimeRow.score
-                        allTimePosition = result.findIndex(x => x.userID == userId) + 1
+
+        //Month
+        const startOfTheMonth = this.getTimestampForStartOfMonth()
+        try {
+            let result2 = await sequelize.query(`Select userID, COUNT(userId) as score from correct_answer 
+                WHERE channelID = '${channel}' AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC;`,
+                { type: Sequelize.QueryTypes.SELECT })
+
+            console.log("getUserScore month");
+            console.log(result2);
+            const monthRow = result2.find(x => x.userID == userId)
+            var monthScore = 0
+            var monthPosition = "last"
+            if (monthRow != undefined) {
+                monthScore = monthRow.score
+                const index = result2.findIndex(x => x.userID == userId)
+                monthPosition = index + 1
+                var rivalIndex = index - 1
+                var rivalRow = null
+                while (rivalIndex > -1 && rivalRow == null) {
+                    var potentialRivalRow = result2[rivalIndex]
+                    if (potentialRivalRow.score > monthScore) {
+                        rivalRow = potentialRivalRow
+                    } else {
+                        rivalIndex--
                     }
-
-                    //Month
-                    const startOfTheMonth = this.getTimestampForStartOfMonth()
-                    db.all(`Select userID, COUNT(userId) as score from correct_answer WHERE channelID = '${channel}' AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC;`,
-                        (err, result) => {
-                            if (err) {
-                                console.log("getUserScore month err ");
-                                console.log(err);
-                            } else {
-                                console.log("getUserScore month");
-                                console.log(result);
-                                const monthRow = result.find(x => x.userID == userId)
-                                var monthScore = 0
-                                var monthPosition = "last"
-                                if (monthRow != undefined) {
-                                    monthScore = monthRow.score
-                                    const index = result.findIndex(x => x.userID == userId)
-                                    monthPosition = index + 1
-                                    var rivalIndex = index - 1
-                                    var rivalRow = null
-                                    while (rivalIndex > -1 && rivalRow == null) {
-                                        var potentialRivalRow = result[rivalIndex]
-                                        if (potentialRivalRow.score > monthScore) {
-                                            rivalRow = potentialRivalRow
-                                        } else {
-                                            rivalIndex--
-                                        }
-                                    }
-
-                                    if (rivalRow != null) {
-                                        const rivalScore = rivalRow.score
-                                        const pointsBehind = rivalScore - monthScore
-                                        const rivalUserID = rivalRow.userID
-                                        this.getRivalName(userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot, prefix)
-                                    } else {
-                                        chatbot.chat(`${prefix} They're in ${this.numberToOrdinal(monthPosition)} 
-                                        with ${monthScore} ${monthScore != 1 ? "points" : "point"}.`)
-                                    }
-                                } else {
-                                    chatbot.chat(`${prefix} ${userDisplayName} has not scored this month.`)
-                                }
-                            }
-                        });
                 }
-            });
+
+                if (rivalRow != null) {
+                    const rivalScore = rivalRow.score
+                    const pointsBehind = rivalScore - monthScore
+                    const rivalUserID = rivalRow.userID
+                    this.getRivalName(userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot, prefix)
+                } else {
+                    chatbot.chat(`${prefix} They're in ${this.numberToOrdinal(monthPosition)} 
+                        with ${monthScore} ${monthScore != 1 ? "points" : "point"}.`)
+                }
+            } else {
+                chatbot.chat(`${prefix} ${userDisplayName} has not scored this month.`)
+            }
+
+        } catch (error) {
+            console.error('error getUserScoreAndRival 2:', error);
+        }
     }
 
     getRivalName = async (userDisplayName, monthPosition, monthScore, accessToken, pointsBehind, rivalUserID, chatbot, prefix) => {
@@ -336,115 +312,117 @@ export class Auth {
         this.rewardID = rewardID
     }
 
-    insertOrUpdateAuth() {
-        db.all(`SELECT * FROM auth WHERE userID = '${this.userID}';`,
-            (err, result) => {
-                if (err) {
-                    console.log("insertOrUpdateAuth err ");
-                    console.log(err);
-                } else {
-                    console.log("insertOrUpdateAuth success");
-                    console.log(result);
-                    if (result.length == 0) {
-                        this.insertAuth()
-                    } else {
-                        this.updateAuth()
-                    }
-                }
-            });
+    async insertOrUpdateAuth() {
+        try {
+            let result = await sequelize.query(`SELECT * FROM auth WHERE userID = '${this.userID}';`,
+                { type: Sequelize.QueryTypes.SELECT })
+            console.log("insertOrUpdateAuth success");
+            console.log(result);
+            if (result.length == 0) {
+                this.insertAuth()
+            } else {
+                this.updateAuth()
+            }
+        } catch (error) {
+            console.error('error insertOrUpdateAuth:', error);
+        }
     }
 
-    insertAuth() {
-        db.exec(`INSERT INTO auth (broadcaster, userID, accessToken, refreshToken, rewardID) 
-        values ('${this.broadcaster}', ${this.userID}, '${this.accessToken}', '${this.refreshToken}', 'null'); `,
-            (err) => {
-                if (err) {
-                    console.log("auth insert err ");
-                    console.log(err);
-                } else {
-                    console.log("auth insert success ");
-                }
-            });
+    async insertAuth() {
+        try {
+            await sequelize.query(`INSERT INTO auth (broadcaster, userID, accessToken, refreshToken, rewardID) 
+            values ('${this.broadcaster}', ${this.userID}, '${this.accessToken}', '${this.refreshToken}', 'null'); `);
+        } catch (error) {
+            console.error('auth insertAuth err:', error);
+        }
     }
 
-    updateAuth() {
-        db.exec(`UPDATE auth 
-        SET broadcaster = '${this.broadcaster}',  accessToken = '${this.accessToken}', refreshToken = '${this.refreshToken}'
-        WHERE userID = '${this.userID}'`,
-            (err) => {
-                if (err) {
-                    console.log("auth update err ");
-                    console.log(err);
-                } else {
-                    console.log("auth update success ");
-                }
-            });
+    async updateAuth() {
+        try {
+            await sequelize.query(`UPDATE auth 
+            SET broadcaster = '${this.broadcaster}',  accessToken = '${this.accessToken}', refreshToken = '${this.refreshToken}'
+            WHERE userID = '${this.userID}'`);
+        } catch (error) {
+            console.error('auth updateAuth err:', error);
+        }
     }
 
     async selectAuthByBroadcasterName() {
         var auth = this
-        return new Promise(function (resolve, reject) {
-            db.all(`SELECT * FROM auth WHERE broadcaster = '${auth.broadcaster}';`,
-                (err, result) => {
-                    if (err) {
-                        console.log("selectAuthByBroadcasterName err ");
-                        console.log(err);
-                    } else {
-                        console.log("selectAuthByBroadcasterName success");
-                        console.log(result);
-                        if (result.length == 0) {
-                        } else {
-                            auth.userID = result[0].userID
-                            auth.accessToken = result[0].accessToken
-                            auth.refreshToken = result[0].refreshToken
-                            auth.rewardID = result[0].rewardID
-                        }
-                    }
-                    resolve()
-                });
-        });
+        try {
+            let result = await sequelize.query(`SELECT * FROM auth WHERE broadcaster = '${auth.broadcaster}';`,
+                { type: Sequelize.QueryTypes.SELECT })
+            console.log("selectAuthByBroadcasterName success");
+            console.log(result);
+            if (result.length == 0) {
+            } else {
+                console.log("result[0]");
+                console.log(result[0]);
+                console.log("result[0].userID");
+                console.log(result[0].userID);
+                auth.userID = result[0].userID
+                auth.accessToken = result[0].accessToken
+                auth.refreshToken = result[0].refreshToken
+                auth.rewardID = result[0].rewardID
+            }
+        } catch (error) {
+            console.error('auth selectAuthByBroadcasterName err:', error);
+        }
     }
 
-    saveRewardId() {
-        db.exec(`UPDATE auth 
-        SET rewardID = '${this.rewardID}'
-        WHERE broadcaster = '${this.broadcaster}'`,
-            (err) => {
-                if (err) {
-                    console.log("saveRewardId update err ");
-                    console.log(err);
-                } else {
-                    console.log("saveRewardId update success ");
-                }
-            });
+    async saveRewardId() {
+        try {
+            await sequelize.query(`UPDATE auth 
+            SET rewardID = '${this.rewardID}'
+            WHERE broadcaster = '${this.broadcaster}'`);
+        } catch (error) {
+            console.error('auth saveRewardId err:', error);
+        }
     }
 
-    static loadUsers() {
-        return new Promise(function (resolve, reject) {
-            db.all(`SELECT * FROM auth;`,
-                (err, result) => {
-                    if (err) {
-                        console.log("loadUsers err ");
-                        console.log(err);
-                    } else {
-                        console.log("loadUsers success");
-                        console.log(result);
-                        if (result.length == 0) {
-                        } else {
-                            for (let r of result)
-                                createChannel(
-                                    r.broadcaster,
-                                    r.userID,
-                                    r.accessToken,
-                                    r.refreshToken,
-                                    r.rewardID)
-                        }
-                    }
-                    resolve()
-                });
-        });
+    static async loadUsers() {
+        console.error(`loadUsers`);
+        try {
+
+            // await sequelize.query(`DELETE FROM correct_answer;`,
+            // // {plain:true}
+            // )
+
+            // await sequelize.query(`DELETE FROM auth;`,
+            // // {plain:true}
+            // )
+
+            // let resultz = await sequelize.query(`SELECT * FROM correct_answer;`,
+            // {plain:true}
+            // )
+
+            // {raw:true}
+            // {plain:true}
+
+            // console.error(`SELECT * FROM correct_answer;`);
+            // console.error(resultz);
+
+
+            let result = await sequelize.query(`SELECT * FROM auth;`,
+                { type: Sequelize.QueryTypes.SELECT }
+            )
+            // {raw:true}
+            // {plain:true}
+
+            console.error(`SELECT * FROM auth;`);
+            console.error(result);
+            for (let r of result) {
+                console.error("r");
+                console.error(r);
+                createChannel(
+                    r.broadcaster,
+                    r.userID,
+                    r.accessToken,
+                    r.refreshToken,
+                    r.rewardID)
+            }
+        } catch (error) {
+            console.error('auth loadUsers err:', error);
+        }
     }
-
-
-
 }
