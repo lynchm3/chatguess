@@ -11,7 +11,7 @@ var sequelize = null
 
 async function initMySql() {
     sequelize = new Sequelize('chatguessdb', 'root', chatGuessDBPassword, {
-        host: '35.195.21.2',
+        host: '35.195.21.2', //ENVIRONMENTX
         dialect: 'mysql'
     });
 

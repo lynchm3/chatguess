@@ -5,5 +5,5 @@ class Environment {
     }
 }
 
-const developmentEnvironment = new Environment("https://localhost:8080", "35.195.21.2")
-const productionEnvironment = new Environment("https://chatguess.com", "10.6.144.3")
+export const DEVELOPMENT_ENVIRONMENT = new Environment("https://localhost:8080", "35.195.21.2")
+export const PRODUCTION_ENVIRONMENT = new Environment("https://chatguess.com", "10.6.144.3")
