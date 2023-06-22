@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import { Sequelize } from 'sequelize';
 import { createChannel } from './app.js';
 import { chatGuessDBPassword } from './TwurpleSecrets.js'
+import { ENVIRONMENT } from './app.js'
 
 const databaseName = "chatguess.db"
 // var db = null
@@ -11,7 +12,7 @@ var sequelize = null
 
 async function initMySql() {
     sequelize = new Sequelize('chatguessdb', 'root', chatGuessDBPassword, {
-        host: '35.195.21.2', //ENVIRONMENTX
+        host: ENVIRONMENT.databaseIPV4,
         dialect: 'mysql'
     });
 

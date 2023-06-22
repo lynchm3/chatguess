@@ -12,6 +12,15 @@ import { Channel } from './Channel.js'
 import { Home } from './Home.js'
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
+import { PRODUCTION_ENVIRONMENT, DEVELOPMENT_ENVIRONMENT } from './environments.js';
+
+export var ENVIRONMENT = PRODUCTION_ENVIRONMENT
+process.argv.forEach(function (val, index, array) {
+    if (val == "dev_env") {
+        console.log("Environment is DEV")
+        ENVIRONMENT = DEVELOPMENT_ENVIRONMENT
+    }
+});
 
 //Not sure whether to do map or array here
 var channelMap = new Map();

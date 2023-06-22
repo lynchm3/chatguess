@@ -65,7 +65,9 @@
         //Twitch Auth Button
         const CLIENT_ID = "4wsujxiz1khg6h9afkutmiyxhom8qv"
         //ENVIRONMENTX
-        const REDIRECT_URL = "https://localhost:8080/twitchauthorizationredirect"
+        console.log("window.location.href")
+        console.log(window.location.href)
+        const REDIRECT_URL = window.location.href + "twitchauthorizationredirect"
         // const REDIRECT_URL = "https://www.chatguess.com/twitchauthorizationredirect"
         const SCOPE = "channel:read:redemptions+chat:edit+chat:read+channel:manage:redemptions"
         const AUTH_URL_1 = "https://id.twitch.tv/oauth2/authorize" +
