@@ -1,6 +1,6 @@
 //NEW HTTP WITH EXPRESS
 // import { express } from 'express';
-import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
+import { clientId, clientSecret } from './secrets.js'
 import { createHomeGame, createChannel } from './app.js'
 import express from 'express';
 // const { express } = pkg;

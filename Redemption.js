@@ -1,5 +1,5 @@
 import { copyFileSync, promises as fs } from 'fs';
-import { clientId, clientSecret, userId } from './TwurpleSecrets.js'
+import { clientId, clientSecret, userId } from './secrets.js'
 import fetch from 'node-fetch';
 import { Auth } from './db.js';
 import { refreshToken } from './network/auth.js';

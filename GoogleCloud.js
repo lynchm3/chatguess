@@ -2,6 +2,12 @@
 // Open Google CLoud SDK Shell
 // cd C:\Users\lynch\Documents\GitHub\chatguess\
 // gcloud run deploy
+// OR
+// gcloud app deploy
+// You can stream logs from the command line by running:
+//   $ gcloud app logs tail -s default
+// To view your application in the web browser run:
+//   $ gcloud app browse
 
 // App:
 // Google Cloud SDK Shell

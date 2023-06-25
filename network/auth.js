@@ -1,5 +1,5 @@
 import { createHomeGame, createChannel } from '../app.js?'
-import { clientId, clientSecret, userId } from '../TwurpleSecrets.js'
+import { clientId, clientSecret, userId } from '../secrets.js'
 import fetch from 'node-fetch';
 import { Auth } from '../db.js';
 

@@ -1,4 +1,4 @@
-import { oAuthToken, botName, channelName } from './env.js';
+import { oAuthToken, botName, channelName } from '../secrets.js';
 import pkg from 'tmi.js';
 
 export class Chatbot {
