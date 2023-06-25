@@ -200,8 +200,8 @@ body {
     margin-top: 0px;
     margin-left: 0px;
     z-index: 100;
-    left: -4%;
-    /* left: -30%; */
+    /* left: -4%; */
+    left: -30%;
     top: 10%;
     height: 20%;
     /* animation-name: logo-animation; */
