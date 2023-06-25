@@ -1,18 +1,29 @@
-import sqlite3 from 'sqlite3';
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
 import { Sequelize } from 'sequelize';
 import { createChannel } from './app.js';
-import { chatGuessDBPassword } from './TwurpleSecrets.js'
-import { ENVIRONMENT } from './app.js'
+import { chatGuessDBPassword } from './secrets.js'
+import { PRODUCTION_ENVIRONMENT, DEVELOPMENT_ENVIRONMENT } from './environments.js';
+
+
+export var ENVIRONMENT = PRODUCTION_ENVIRONMENT
+process.argv.forEach(function (val, index, array) {
+    if (val == "dev_env") {
+        console.log("Environment is DEV")
+        ENVIRONMENT = DEVELOPMENT_ENVIRONMENT
+    }
+});
 
 const databaseName = "chatguess.db"
-// var db = null
 var sequelize = null
 
 async function initMySql() {
+
+    console.log("ENVIRONMENT")
+    console.log(ENVIRONMENT)
+
     sequelize = new Sequelize('chatguessdb', 'root', chatGuessDBPassword, {
-        host: ENVIRONMENT.databaseIPV4,
+        host: ENVIRONMENT.databaseIPv4,
         dialect: 'mysql'
     });
 
