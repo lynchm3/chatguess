@@ -121,8 +121,10 @@ export class Scoreboard {
         try {
             let result = await sequelize.query(`Select userID, COUNT(userId) as score from correct_answer 
             WHERE channelID = '${channelId}' 
-            AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC LIMIT 5;`,
-                { type: Sequelize.QueryTypes.SELECT })
+            AND timestamp > ${startOfTheMonth} 
+            GROUP BY userID 
+            ORDER BY Score DESC LIMIT 5;`,
+            { type: Sequelize.QueryTypes.SELECT })
             console.log("Scoreboard");
             console.log(result);
             this.getScoreboardUserNames(accessToken, result, chatbot)
@@ -131,27 +133,52 @@ export class Scoreboard {
         }
     }
 
+    // async getFullScoreboardForTheMonth(accessToken, chatbot, channelId) {
+    //     const startOfTheMonth = this.getTimestampForStartOfMonth()
+    //     try {
+    //         let result = await sequelize.query(`Select userID, COUNT(userId) as score from correct_answer 
+    //         WHERE channelID = '${channelId}' 
+    //         AND timestamp > 1685574000000
+    //         AND timestamp < 1688169600000
+    //         AND userID != 57016188 
+    //         GROUP BY userID 
+    //         ORDER BY Score DESC;`,
+    //             { type: Sequelize.QueryTypes.SELECT })
+    //         console.log("Scoreboard");
+    //         console.log(result);
+    //         this.getScoreboardUserNames(accessToken, result, chatbot)
+    //     } catch (error) {
+    //         console.error('error getScoreboard:', error);
+    //     }
+    // }
+
     getScoreboardUserNames = async (accessToken, result, chatbot) => {
 
         console.log("getScoreboardUserNames")
         console.log("result")
         console.log(result)
+        
+        let twitchUserResponse = null
+        let scoreboardWithNames = []
+        for (let r of result) {
+            twitchUserResponse = await fetch(`https://api.twitch.tv/helix/users?id=${r.userID}`, {
+                method: 'GET',
+                headers: {
+                    "Client-ID": `${TWITCH_CLIENT_ID}`,
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Accept": "application/json"
+                }
+            });
+            const users = await twitchUserResponse.json();
+            scoreboardWithNames.push(new ScoreboardEntry(users.data[0].display_name, r.score))
 
-        const twitchUserResponse = await fetch(`https://api.twitch.tv/helix/users?id=${result[0].userID}&id=${result[1].userID}&id=${result[2].userID}&id=${result[3].userID}&id=${result[4].userID}`, {
-            method: 'GET',
-            headers: {
-                "Client-ID": `${TWITCH_CLIENT_ID}`,
-                "Authorization": `Bearer ${accessToken}`,
-                "Accept": "application/json"
-            }
-        });
+        }        
 
-        const users = await twitchUserResponse.json();
-        console.log("users")
-        console.log(users)
+        // console.log("users")
+        // console.log(users)
 
-        const scoreboardWithNames =
-            result.map(x => new ScoreboardEntry(users.data.find(y => y.id == x.userID).display_name, x.score))
+        // const scoreboardWithNames =
+        //     result.map(x => new ScoreboardEntry(users.data.find(y => y.id == x.userID).display_name, x.score))
 
         chatbot.chat("This Month's Scoreboard: " + scoreboardWithNames.map(x => x.username + ": " + x.score).join(", "))
     }
