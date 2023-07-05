@@ -1,10 +1,11 @@
-import { oAuthToken, botName, channelName } from '../secrets.js';
+import { botName } from '../secrets.js';
+//oAuthToken, channelName, callback
 import pkg from 'tmi.js';
 
 export class Chatbot {
 
-	constructor(callback) {
-		this.callback = callback
+	constructor(channel) {
+		this.channel = channel
 		this.client = new pkg.Client({
 			options: { debug: true, messagesLogLevel: "debug" },
 			connection: {
@@ -13,9 +14,9 @@ export class Chatbot {
 			},
 			identity: {
 				username: botName,
-				password: oAuthToken
+				password: channel.authToken
 			},
-			channels: [channelName]
+			channels: [this.channel.channelName]
 		});
 
 		this.client.connect().catch(console.error)
@@ -26,28 +27,28 @@ export class Chatbot {
 			const userId = tags['user-id']
 			const roomId = tags['room-id']
 			const userTextColor = tags.color
-			const channelId = channel
+			const channelId = roomId
 			const isBroadcaster = userId == roomId
 
 			if (message == "!brb" && isBroadcaster) {
-				callback.setAutoPlay(true, displayName)
+				this.channel.setAutoPlay(true, displayName)
 			} else if (message == "!unbrb" && isBroadcaster)
-				callback.setAutoPlay(false, displayName)
+				this.channel.setAutoPlay(false, displayName)
 			else if (message == "!cgg" && isBroadcaster)
-				callback.addGameToQueue(displayName)
+				this.channel.addGameToQueue(displayName)
 			else if (message == "!giveup" && isBroadcaster)
-				callback.giveUp(false)
+				this.channel.giveUp(false)
 			else if (message == "!points" || message == "!score")
-				callback.points(userId, channelId, displayName)
+				this.channel.points(userId, channelId, displayName)
 			else if (message == "!scoreboard" || message == "!top")
-				callback.scoreboard(channelId)
+				this.channel.scoreboard(channelId)
 			else
-				callback.messageCallback(message, tags, displayName, userId, channelId)
+				this.channel.messageCallback(message, tags, displayName, userId, channelId)
 		});
 	}
 
 	chat(message) {
-		this.client.say(channelName, message)
+		this.client.say(this.channel.channelName, message)
 	}
 
 	//Example message tags

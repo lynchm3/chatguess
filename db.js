@@ -34,7 +34,7 @@ async function initMySql() {
         console.error('Unable to connect to the database:', error);
     }
 
-    Auth.loadUsers()
+    await Auth.loadUsers()
 
     //Create tables
     // try {

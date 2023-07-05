@@ -310,7 +310,7 @@ export class Channel {
                 userId,
                 channelId,
                 this.game.id)
-            correctAnswer.insertCorrectAnswer()
+            await correctAnswer.insertCorrectAnswer()
 
             // this.chatbot.chat()
             await new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, igdbAccessToken, `${username} got it! ${this.game.name}!`)
