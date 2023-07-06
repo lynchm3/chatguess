@@ -15,7 +15,7 @@
   <!-- <img id="scream" width="220" height="277" src="https://www.w3schools.com/tags/img_the_scream.jpg"> -->
   <div class="gameBackground" id="gameBackground"></div>
 
-  <div class="div-physics" id="div-physics"></div>
+  <!-- <div class="div-physics" id="div-physics"></div> -->
   <div class="div-gifs" id="div-gifs"></div>
 
   <div id="box"></div>
@@ -301,21 +301,22 @@
         container.style.height = croppedHeight + "px"
 
         //Container position
-        var x = 0
-        var startY = 0
-        var endY = 0
-        const maxAttempts = 10
-        var attempts = 0
-        while ((x < 320 && endY < 210) || (x + croppedWidth > 1000 && endY + croppedHeight > 520)) {
-          var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
-          var endY = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
-          attempts++
-          if (attempts > maxAttempts)
-            break
-        }
 
-        container.style.left = x + 'px';
-        container.style.top = endY + 'px';
+        // var x = 0
+        // var startY = 0
+        // var endY = 0
+        // const maxAttempts = 10
+        // var attempts = 0
+        // while ((x < 320 && endY < 210) || (x + croppedWidth > 1000 && endY + croppedHeight > 520)) {
+        //   var x = 70 + Math.floor(Math.random() * (screenWidth - 140 - container.offsetWidth))
+        //   var endY = 70 + Math.floor(Math.random() * (screenHeight - 140 - container.offsetHeight))
+        //   attempts++
+        //   if (attempts > maxAttempts)
+        //     break
+        // }
+
+        container.style.left = Math.floor(Math.random() * (screenWidth - croppedWidth) - 16) + 'px';
+        container.style.top = Math.floor(Math.random() * (screenHeight - croppedHeight) - 16) + 'px';      
 
         var totalHorizontalMargin = croppedWidth - naturalWidth;
         var imgMarginLeft = totalHorizontalMargin / 2

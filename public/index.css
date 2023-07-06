@@ -10,22 +10,6 @@ body {
     background-color: #000000;
 }
 
-.gameBackground {
-    float: left;
-    position: fixed;
-    /* background: radial-gradient(#222222, #00000000); */
-    /* background-color: #22222288; */
-    width: 90%;
-    height: 90%;
-    border-radius: 25px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
-    overflow: hidden;
-    border: 2px solid #ccc;
-}
-
 /*GIFS*/
 .div-gifs {
     float: left;
@@ -107,11 +91,10 @@ body {
     padding-bottom: 16px;
     padding-left: 32px;
     padding-right: 32px;
-    right: 200px;
-    top: 50%;
-    transform: translate(0%, -50%);
+    right: 8%;
+    top: 9%;
     z-index: 1;
-    font-size: 32px;
+    font-size: 24px;
 }
 
 .try-in-browser-button {

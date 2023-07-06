@@ -216,23 +216,25 @@ const auth2 = async (authorizationCode, res) => {
     }
   });
 
-  console.log("auth2Response")
-  console.log(auth2Response.status)
   const auth2ResponseJSON = await auth2Response.json();
-  console.log(auth2ResponseJSON)
 
-  if (auth2Response.status != 200)
+  if (auth2Response.status != 200) {
+    console.warn("auth2Response")
+    console.warn(auth2Response.status)
+    console.warn(auth2ResponseJSON)
     res.redirect("/error")
+    return
+  }
 
-  console.log("auth2ResponseJSON")
-  console.log(auth2ResponseJSON)
+  // console.log("auth2ResponseJSON")
+  // console.log(auth2ResponseJSON)
 
   var accessToken = auth2ResponseJSON.access_token
   var refreshToken = auth2ResponseJSON.refresh_token
-  console.log("accessToken")
-  console.log(accessToken)
-  console.log("refreshToken")
-  console.log(refreshToken)
+  // console.log("accessToken")
+  // console.log(accessToken)
+  // console.log("refreshToken")
+  // console.log(refreshToken)
 
   // userId
   const usersResponse = await fetch("https://api.twitch.tv/helix/users", {
@@ -245,20 +247,26 @@ const auth2 = async (authorizationCode, res) => {
     }
   });
 
-  if (usersResponse.status != 200)
-    return
-
   const usersResponseJSON = await usersResponse.json();
+
+  if (usersResponse.status != 200) {
+    console.warn("usersResponse")
+    console.warn(usersResponse.status)
+    console.warn(usersResponseJSON)
+    res.redirect("/error")    
+    return
+  }
+
 
   var userId = usersResponseJSON.data[0].id
   var login = usersResponseJSON.data[0].login
 
-  console.log("usersResponseJSON")
-  console.log(usersResponseJSON)
-  console.log("userId")
-  console.log(userId)
-  console.log("login")
-  console.log(login)
+  // console.log("usersResponseJSON")
+  // console.log(usersResponseJSON)
+  // console.log("userId")
+  // console.log(userId)
+  // console.log("login")
+  // console.log(login)
 
   new Auth(login, userId, accessToken, refreshToken).insertOrUpdateAuth()
   createOrUpdateChannel(login, userId, accessToken, refreshToken)

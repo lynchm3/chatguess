@@ -12,6 +12,11 @@ body {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
+@font-face {
+    font-family: berlinSansFBDemiBold;
+    src: url(Berlin_Sans_FB_Demi_Bold.ttf);
+}
+
 /* @font-face {
     font-family: 'hylia_serif_betaregular';
     src: url('hyliaserifbeta-regular-webfont.woff2') format('woff2'),
@@ -32,30 +37,6 @@ body {
     float: left;
     position: fixed;
     z-index: 111;
-}
-
-.gameBackground {
-    /* display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    min-height: 100vh; */
-    float: left;
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.8);
-    /* background-color: rgba(0, 0, 0, 0); */
-    width: 90%;
-    height: 90%;
-
-    /* margin-top: 5%; */
-    /* margin-left: 5%;
-    margin-right: 5%; */
-    border-radius: 25px;
-    border: 5px #087be6 solid;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
 }
 
 .winner {
@@ -139,14 +120,30 @@ body {
 
 /*GIFS*/
 .div-gifs {
-    display: flex;
-    flex-wrap: wrap;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    opacity: 1;
+    float: left;
+    position: fixed;
+    width: 90%;
+    height: 90%;
+    border-radius: 25px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    border: 2px solid #00000000;
+}
+
+.gameBackground {
+    float: left;
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.8);
+    width: 90%;
+    height: 90%;
+    border-radius: 25px;
+    border: 2px solid #ccc;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
 }
 
 .div-gif-holder {
@@ -190,7 +187,7 @@ body {
     }
 
     to {
-        left: -30%;
+        left: -50%;
     }
 }
 
@@ -201,7 +198,7 @@ body {
     margin-left: 0px;
     z-index: 100;
     /* left: -4%; */
-    left: -30%;
+    left: -50%;
     top: 10%;
     height: 20%;
     /* animation-name: logo-animation; */
@@ -228,30 +225,21 @@ body {
     filter: drop-shadow(0px 10px 2px #000000AA);
 }
 
-@font-face {
-    font-family: berlinSansFBDemiBold;
-    src: url(Berlin_Sans_FB_Demi_Bold.ttf);
-}
-
-/* left: 0; */
 .countdown {
     width: 140px;
     float: left;
     position: fixed;
     z-index: 101;
     color: #ef3826;
-    /* margin-left: 5%; */
-    margin-top: 13%;
+    margin-top: 20%;
     font-size: 48px;
-    /* filter: drop-shadow(0px 10px 2px #000000AA); */
-    font-family: berlinSansFBDemiBold;
-    
+    font-family: berlinSansFBDemiBold;    
     background-color: #222222FF;
     border-radius: 0px 25px 25px 0px;
     padding-left: 5%;
     padding-top: 0.5%;
     padding-right: 0.5%;
-    padding-bottom: 0.5%;
+    padding-bottom: 0.7%;
     border-top: 2px solid #ccc;
     border-right: 2px solid #ccc;
     border-bottom: 2px solid #ccc;
@@ -270,7 +258,7 @@ body {
     color: #FFFFFF;
     margin-top: 9.5%;
     margin-left: 12.5%;
-    font-size: 32px;
+    font-size: 200%;
     font-family: brushscript;
     text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
   
