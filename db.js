@@ -1,17 +1,21 @@
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
 import { Sequelize } from 'sequelize';
-import { createChannel } from './app.js';
+import { createOrUpdateChannel } from './app.js';
 import { chatGuessDBPassword } from './secrets.js'
 import { PRODUCTION_ENVIRONMENT, DEVELOPMENT_ENVIRONMENT } from './environments.js';
 
 
-export var ENVIRONMENT = PRODUCTION_ENVIRONMENT
+let ENVIRONMENT = PRODUCTION_ENVIRONMENT
 process.argv.forEach(function (val, index, array) {
     if (val == "dev_env") {
-        console.log("Environment is DEV")
+        console.log("Environment is DEV A")
         ENVIRONMENT = DEVELOPMENT_ENVIRONMENT
-    }
+    } 
+    // else {
+    //     console.log("Environment is PRODUCTION A")
+    //     ENVIRONMENT = PRODUCTION_ENVIRONMENT
+    // }
 });
 
 const databaseName = "chatguess.db"
@@ -22,10 +26,21 @@ async function initMySql() {
     console.log("ENVIRONMENT")
     console.log(ENVIRONMENT)
 
-    sequelize = new Sequelize('chatguessdb', 'root', chatGuessDBPassword, {
-        host: ENVIRONMENT.databaseIPv4,
-        dialect: 'mysql'
-    });
+    if (ENVIRONMENT == PRODUCTION_ENVIRONMENT) {
+        sequelize = new Sequelize('chatguessdb', 'root', chatGuessDBPassword, {
+            dialect: 'mysql',
+            host: `/cloudsql/${ENVIRONMENT.databaseInstanceConnectionName}`,
+            timestamps: false,
+            dialectOptions: {
+                socketPath: `/cloudsql/${ENVIRONMENT.databaseInstanceConnectionName}`
+            },
+        });
+    } else {
+        sequelize = new Sequelize('chatguessdb', 'root', chatGuessDBPassword, {
+            host: ENVIRONMENT.databaseIPv4,
+            dialect: 'mysql'
+        });
+    }
 
     try {
         await sequelize.authenticate();
@@ -124,9 +139,9 @@ export class Scoreboard {
             AND timestamp > ${startOfTheMonth} 
             GROUP BY userID 
             ORDER BY Score DESC LIMIT 5;`,
-            { type: Sequelize.QueryTypes.SELECT })
-            console.log("Scoreboard");
-            console.log(result);
+                { type: Sequelize.QueryTypes.SELECT })
+            // console.log("Scoreboard");
+            // console.log(result);
             this.getScoreboardUserNames(accessToken, result, chatbot)
         } catch (error) {
             console.error('error getScoreboard:', error);
@@ -154,10 +169,10 @@ export class Scoreboard {
 
     getScoreboardUserNames = async (accessToken, result, chatbot) => {
 
-        console.log("getScoreboardUserNames")
-        console.log("result")
-        console.log(result)
-        
+        // console.log("getScoreboardUserNames")
+        // console.log("result")
+        // console.log(result)
+
         let twitchUserResponse = null
         let scoreboardWithNames = []
         for (let r of result) {
@@ -172,7 +187,7 @@ export class Scoreboard {
             const users = await twitchUserResponse.json();
             scoreboardWithNames.push(new ScoreboardEntry(users.data[0].display_name, r.score))
 
-        }        
+        }
 
         // console.log("users")
         // console.log(users)
@@ -190,8 +205,8 @@ export class Scoreboard {
             let result = await sequelize.query(`Select userID, COUNT(userId) as score from correct_answer 
             WHERE channelID = '${channel}' GROUP BY userID ORDER BY Score DESC;`,
                 { type: Sequelize.QueryTypes.SELECT })
-            console.log("getUserScore alltime");
-            console.log(result);
+            // console.log("getUserScore alltime");
+            // console.log(result);
             const allTimeRow = result.find(x => x.userID == userId)
             var allTimeScore = 0
             var allTimePosition = "last"
@@ -207,8 +222,8 @@ export class Scoreboard {
             WHERE channelID = '${channel}' 
             AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC;`,
                     { type: Sequelize.QueryTypes.SELECT })
-                console.log("getUserScore month");
-                console.log(result2);
+                // console.log("getUserScore month");
+                // console.log(result2);
                 const monthRow = result2.find(x => x.userID == userId)
                 var monthScore = 0
                 var monthPosition = "last"
@@ -283,8 +298,8 @@ export class Scoreboard {
                 WHERE channelID = '${channel}' AND timestamp > ${startOfTheMonth} GROUP BY userID ORDER BY Score DESC;`,
                 { type: Sequelize.QueryTypes.SELECT })
 
-            console.log("getUserScore month");
-            console.log(result2);
+            // console.log("getUserScore month");
+            // console.log(result2);
             const monthRow = result2.find(x => x.userID == userId)
             var monthScore = 0
             var monthPosition = "last"
@@ -355,8 +370,8 @@ export class Auth {
         try {
             let result = await sequelize.query(`SELECT * FROM auth WHERE userID = '${this.userID}';`,
                 { type: Sequelize.QueryTypes.SELECT })
-            console.log("insertOrUpdateAuth success");
-            console.log(result);
+            // console.log("insertOrUpdateAuth success");
+            // console.log(result);
             if (result.length == 0) {
                 this.insertAuth()
             } else {
@@ -391,14 +406,14 @@ export class Auth {
         try {
             let result = await sequelize.query(`SELECT * FROM auth WHERE broadcaster = '${auth.broadcaster}';`,
                 { type: Sequelize.QueryTypes.SELECT })
-            console.log("selectAuthByBroadcasterName success");
-            console.log(result);
+            // console.log("selectAuthByBroadcasterName success");
+            // console.log(result);
             if (result.length == 0) {
             } else {
-                console.log("result[0]");
-                console.log(result[0]);
-                console.log("result[0].userID");
-                console.log(result[0].userID);
+                // console.log("result[0]");
+                // console.log(result[0]);
+                // console.log("result[0].userID");
+                // console.log(result[0].userID);
                 auth.userID = result[0].userID
                 auth.accessToken = result[0].accessToken
                 auth.refreshToken = result[0].refreshToken
@@ -453,7 +468,7 @@ export class Auth {
             for (let r of result) {
                 console.error("r");
                 console.error(r);
-                createChannel(
+                createOrUpdateChannel(
                     r.broadcaster,
                     r.userID,
                     r.accessToken,

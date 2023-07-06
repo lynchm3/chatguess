@@ -1,7 +1,7 @@
 //NEW HTTP WITH EXPRESS
 // import { express } from 'express';
 import { clientId, clientSecret } from './secrets.js'
-import { createHomeGame, createChannel } from './app.js'
+import { createHomeGame, createOrUpdateChannel } from './app.js'
 import express from 'express';
 // const { express } = pkg;
 const expressApp = express();
@@ -91,15 +91,15 @@ export function showHomeImage(gameImage, maxWidth, socket) {
 
 const sockets = {}
 io.on("connection", (socket) => {
-  console.log("connection EVENT")
+  // console.log("connection EVENT")
 
-  console.log("socket.handshake.headers.referer")
-  console.log(socket.handshake.headers.referer)
+  // console.log("socket.handshake.headers.referer")
+  // console.log(socket.handshake.headers.referer)
 
   var broadcasterUsername = socket.handshake.headers.referer.split('/').pop();
 
-  console.log("broadcasterUsername:")
-  console.log(broadcasterUsername)
+  // console.log("broadcasterUsername:")
+  // console.log(broadcasterUsername)
 
   if (broadcasterUsername == "") {
     createHomeGame(socket)
@@ -172,7 +172,7 @@ expressApp.use((req, res, next) => {
 expressApp.use(express.static('public'));
 
 httpServer.listen(port, () => {
-  console.log(`chatguess: listening on port ${port}`);
+  // console.log(`chatguess: listening on port ${port}`);
 });
 
 
@@ -181,8 +181,8 @@ async function userRegisteredCheck(channelName, res) {
   var auth = new Auth(channelName, null, null, null)
   await auth.selectAuthByBroadcasterName(res)
 
-  console.log("auth")
-  console.log(auth)
+  // console.log("auth")
+  // console.log(auth)
 
   if (!auth.accessToken) { 
     res.set('Content-Type', 'text/html');    
@@ -216,10 +216,14 @@ const auth2 = async (authorizationCode, res) => {
     }
   });
 
-  if (auth2Response.status != 200)
-    return
-
+  console.log("auth2Response")
+  console.log(auth2Response.status)
   const auth2ResponseJSON = await auth2Response.json();
+  console.log(auth2ResponseJSON)
+
+  if (auth2Response.status != 200)
+    res.redirect("/error")
+
   console.log("auth2ResponseJSON")
   console.log(auth2ResponseJSON)
 
@@ -257,7 +261,7 @@ const auth2 = async (authorizationCode, res) => {
   console.log(login)
 
   new Auth(login, userId, accessToken, refreshToken).insertOrUpdateAuth()
-  createChannel(login, userId, accessToken, refreshToken)
+  createOrUpdateChannel(login, userId, accessToken, refreshToken)
 
   let channelName = login
   // res.sendFile(__dirname + '/public/chatguessgames.html');

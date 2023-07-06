@@ -67,14 +67,19 @@
         //ENVIRONMENTX
         console.log("window.location.href")
         console.log(window.location.href)
-        const REDIRECT_URL = window.location.href + "twitchauthorizationredirect"
+        let redirectURI = ""
+        if(window.location.href.includes("localhost"))
+            redirectURI = "https://localhost:8080/twitchauthorizationredirect"
+        else 
+            redirectURI = "https://chatguess.com/twitchauthorizationredirect"
+
         // const REDIRECT_URL = "https://www.chatguess.com/twitchauthorizationredirect"
         const SCOPE = "channel:read:redemptions+chat:edit+chat:read+channel:manage:redemptions"
         const AUTH_URL_1 = "https://id.twitch.tv/oauth2/authorize" +
             "?client_id=" + CLIENT_ID +
             "&response_type=code" +
-            "&redirect_uri=" + REDIRECT_URL +
-            "&scope=" + SCOPE
+            "&scope=" + SCOPE +
+            "&redirect_uri=" + redirectURI
         var twitchAuthButton = document.getElementById('twitch-auth-button');
         twitchAuthButton.href = AUTH_URL_1       
 

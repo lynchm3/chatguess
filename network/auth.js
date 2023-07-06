@@ -1,11 +1,11 @@
-import { createHomeGame, createChannel } from '../app.js?'
+import { createHomeGame, createOrUpdateChannel } from '../app.js?'
 import { clientId, clientSecret, userId } from '../secrets.js'
 import fetch from 'node-fetch';
 import { Auth } from '../db.js';
 
 export async function refreshToken(channel) {
 
-    console.log("refreshToken")
+    // console.log("refreshToken")
 
     var auth2URL = "https://id.twitch.tv/oauth2/token" +
         "?client_id=" + clientId +
@@ -25,15 +25,15 @@ export async function refreshToken(channel) {
         return
 
     const auth2ResponseJSON = await auth2Response.json();
-    console.log("auth2ResponseJSON")
-    console.log(auth2ResponseJSON)
+    // console.log("auth2ResponseJSON")
+    // console.log(auth2ResponseJSON)
 
     var accessToken = auth2ResponseJSON.access_token
     var refreshToken = auth2ResponseJSON.refresh_token
-    console.log("accessToken")
-    console.log(accessToken)
-    console.log("refreshToken")
-    console.log(refreshToken)
+    // console.log("accessToken")
+    // console.log(accessToken)
+    // console.log("refreshToken")
+    // console.log(refreshToken)
 
     // userId
     const usersResponse = await fetch("https://api.twitch.tv/helix/users", {
@@ -54,15 +54,15 @@ export async function refreshToken(channel) {
     var userId = usersResponseJSON.data[0].id
     var login = usersResponseJSON.data[0].login
 
-    console.log("usersResponseJSON")
-    console.log(usersResponseJSON)
-    console.log("userId")
-    console.log(userId)
-    console.log("login")
-    console.log(login)
+    // console.log("usersResponseJSON")
+    // console.log(usersResponseJSON)
+    // console.log("userId")
+    // console.log(userId)
+    // console.log("login")
+    // console.log(login)
 
     new Auth(login, userId, accessToken, refreshToken).insertOrUpdateAuth()
-    createChannel(login, userId, accessToken, refreshToken)
+    createOrUpdateChannel(login, userId, accessToken, refreshToken)
 
     // let channelName = login
     // res.sendFile(__dirname + '/public/chatguessgames.html');

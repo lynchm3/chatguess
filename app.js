@@ -10,14 +10,20 @@ import { Channel } from './Channel.js'
 import { Home } from './Home.js'
 import { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } from './secrets.js';
 import fetch from 'node-fetch';
+
+console.log("APP.JS")
+
 export var ENVIRONMENT = PRODUCTION_ENVIRONMENT
 process.argv.forEach(function (val, index, array) {
     if (val == "dev_env") {
-        console.log("Environment is DEV")
+        console.log("Environment is DEV B")
         ENVIRONMENT = DEVELOPMENT_ENVIRONMENT
-    }
+    } 
+    // else{
+    //     console.log("Environment is PRODUCTION B")
+    //     ENVIRONMENT = PRODUCTION_ENVIRONMENT
+    // }
 });
-
 
 //Not sure whether to do map or array here
 var channelMap = new Map();
@@ -53,7 +59,7 @@ export const getIgdbAccessToken = async () => {
 }
 getIgdbAccessToken()
 
-export function createChannel(channelName, channelId, authToken, refreshToken, rewardID) {
+export function createOrUpdateChannel(channelName, channelId, authToken, refreshToken, rewardID) {
     const oldChannel = channelMap.get(channelName)
     if (oldChannel == undefined) {
         let channel = new Channel(channelName, channelId, authToken, refreshToken, rewardID)

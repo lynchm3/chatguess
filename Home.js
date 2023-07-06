@@ -61,15 +61,15 @@ export class Home {
     }
 
     addGameToQueue(username) {
-        console.log("addGameToQueue gc")
-        console.log("this.queue")
-        console.log(this.queue)
+        // console.log("addGameToQueue gc")
+        // console.log("this.queue")
+        // console.log(this.queue)
         // console.log("this.game")
         // console.log(this.game)
         this.queue += gc
         if (this.queue > 0 && this.game == null) {
             this.queue--
-            console.log("calling get game")
+            // console.log("calling get game")
             this.getGame(this.igdbAccessToken)
         } else {
             this.chatbot.chat(`There's a game running right now, but yours has been queued up ${username}!`)

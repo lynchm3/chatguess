@@ -314,7 +314,7 @@ export class Channel {
 
             // this.chatbot.chat()
             await new Scoreboard().getUserScoreAndRival(this.chatbot, userId, channelId, username, igdbAccessToken, `${username} got it! ${this.game.name}!`)
-            this.generatHumbleURL()
+            // this.generatHumbleURL()
 
             // if (game.steamURL != null) {
             //   chatbot.chat(`lynchm1Youwhat Here's the steam URL: ${game.steamURL} lynchm1Youwhat`)
@@ -392,8 +392,8 @@ export class Channel {
             // else
             this.chatbot.chat(`${this.game.name} is on Humble! ${url}`)
         } else {
-            console.log("humbleResponse.status")
-            console.log(humbleResponse.status)
+            // console.log("humbleResponse.status")
+            // console.log(humbleResponse.status)
         }
     }
 
@@ -427,7 +427,7 @@ export class Channel {
         this.queue++
         if (this.queue > 0 && this.gameInProgress == false) {
             this.queue--
-            console.log("calling get game")
+            // console.log("calling get game")
             this.gameInProgress = true
             this.getGame(igdbAccessToken)
         } else {
@@ -475,9 +475,9 @@ export class Channel {
     }
 
     roundEnded() {
-        console.log("roundEnded()")
-        console.log("this.autoplay")
-        console.log(this.autoplay)
+        // console.log("roundEnded()")
+        // console.log("this.autoplay")
+        // console.log(this.autoplay)
         this.game = null
         if (this.autoplay) {
             this.getGame(igdbAccessToken)

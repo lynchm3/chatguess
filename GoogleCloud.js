@@ -15,6 +15,10 @@
 //Region:
 //europe-west1
 
+//DB
+//instance connection name
+//chatguess:europe-west1:chatguessdb
+
 // Cloud Console Documentation
 // https://cloud.google.com/shell/docs
 

@@ -1,4 +1,4 @@
-import { botName } from '../secrets.js';
+import { botName, oAuthToken } from '../secrets.js';
 //oAuthToken, channelName, callback
 import pkg from 'tmi.js';
 
@@ -15,6 +15,7 @@ export class Chatbot {
 			identity: {
 				username: botName,
 				password: channel.authToken
+				// password: oAuthToken
 			},
 			channels: [this.channel.channelName]
 		});
@@ -30,17 +31,26 @@ export class Chatbot {
 			const channelId = roomId
 			const isBroadcaster = userId == roomId
 
-			if (message == "!brb" && isBroadcaster) {
+			// make lowercase        
+			let cleanedUpMessage = message.toLowerCase().replace(/[^a-z]/gm, "")
+
+			// remove unwanted short words
+			// cleanedUpGuess = cleanedUpGuess.replace(WORD_REMOVAL_REGEX, '')
+
+			// remove non-alphabetic
+			// cleanedUpGuess = cleanedUpGuess.replace(/[^a-z]/gm, "") 
+
+			if (cleanedUpMessage == "cggbrb" && isBroadcaster) {
 				this.channel.setAutoPlay(true, displayName)
-			} else if (message == "!unbrb" && isBroadcaster)
+			} else if (cleanedUpMessage == "cggunbrb" && isBroadcaster)
 				this.channel.setAutoPlay(false, displayName)
-			else if (message == "!cgg" && isBroadcaster)
+			else if (cleanedUpMessage == "cgg" && isBroadcaster)
 				this.channel.addGameToQueue(displayName)
-			else if (message == "!giveup" && isBroadcaster)
+			else if (cleanedUpMessage == "cgggiveup" && isBroadcaster)
 				this.channel.giveUp(false)
-			else if (message == "!points" || message == "!score")
+			else if (cleanedUpMessage == "cggpoints" || cleanedUpMessage == "cggscore")
 				this.channel.points(userId, channelId, displayName)
-			else if (message == "!scoreboard" || message == "!top")
+			else if (cleanedUpMessage == "cggscoreboard" || cleanedUpMessage == "cggtop")
 				this.channel.scoreboard(channelId)
 			else
 				this.channel.messageCallback(message, tags, displayName, userId, channelId)

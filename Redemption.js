@@ -11,33 +11,33 @@ import { refreshToken } from './network/auth.js';
 export class Redemption {
 
 	constructor(channel) {
-		console.log("Redemption constructor")
+		// console.log("Redemption constructor")
 		this.channel = channel
 		this.checkRewardID()
 	}
 
 	async startPolling() {
-		console.log("Redemption startPolling")
+		// console.log("Redemption startPolling")
 		setTimeout(this.pollForRedemptions, 5 * 1000)
 	}
 
 	async checkRewardID() {
-		console.log("Redemption checkRewardID")
-		console.log("this.channel.channelName")
-		console.log(this.channel.channelName)
+		// console.log("Redemption checkRewardID")
+		// console.log("this.channel.channelName")
+		// console.log(this.channel.channelName)
 		var auth = new Auth(this.channel.channelName, null, null, null, null)
 		await auth.selectAuthByBroadcasterName()
-		console.log("auth.rewardID")
-		console.log(auth.rewardID)
+		// console.log("auth.rewardID")
+		// console.log(auth.rewardID)
 		if (auth.rewardID != 'null'
 			&& auth.rewardID != 'undefined'
 			&& auth.rewardID != null
 			&& auth.rewardID != undefined) {
-			console.log("Redemption checkRewardID branch A")
+			// console.log("Redemption checkRewardID branch A")
 			this.channel.rewardId = auth.rewardID
 			this.startPolling()
 		} else {
-			console.log("Redemption checkRewardID branch B")
+			// console.log("Redemption checkRewardID branch B")
 			await this.createReward()
 			this.startPolling()
 		}
@@ -64,7 +64,7 @@ export class Redemption {
 
 	createReward = async () => {
 
-		console.log("Redemption createReward")
+		// console.log("Redemption createReward")
 
 		const createRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${this.channel.broadcasterId}`, {
 			method: 'POST',
@@ -84,15 +84,15 @@ export class Redemption {
 
 		if (createRedemptionResponse.status == 200) {
 			const createRewardJson = await createRedemptionResponse.json();
-			console.log("createRewardJson")
-			console.log(createRewardJson)
+			// console.log("createRewardJson")
+			// console.log(createRewardJson)
 			let rewardId = createRewardJson.data[0].id
 			let auth = new Auth(this.channel.channelName, null, null, null, rewardId)
 			auth.saveRewardId()
 			this.channel.rewardId = rewardId
 		} else {
-			console.log("createRedemptionResponse error")
-			console.log(createRedemptionResponse.status)
+			console.error("createRedemptionResponse error")
+			// console.error(createRedemptionResponse.status)
 		}
 	}
 
@@ -131,9 +131,10 @@ export class Redemption {
 		} else if (redemptionResponse.status == 404) {
 			this.createReward()
 		} else if (redemptionResponse.status == 401) {
-			console.log("redemptionResponse err")
-			console.log(redemptionResponse)
 			refreshToken(this.channel)
+		} else {			
+			console.error("pollForRedemptions err" + redemptionResponse.status)
+			// console.log(redemptionResponse)
 		}
 
 		setTimeout(this.pollForRedemptions, 5 * 1000)
@@ -153,8 +154,5 @@ export class Redemption {
 		});
 
 		const fulfillRedemptionResponseJson = await fulfillRedemptionResponse.json();
-
-		// console.log("fulfillRedemptionResponse")
-		// console.log(fulfillRedemptionResponse)
 	}
 }
