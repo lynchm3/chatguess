@@ -135,8 +135,8 @@ const mapWhereClauseToCategoryName = new Map([
 const SEARCH_TERM_MARIO = "Mario"
 const WHERE_CLAUSE_BAD_MARIO = "${BASE_WHERE_CLAUSE} & aggregated_rating < 70;"
 
-const WHERE_CLAUSE = DEFAULT_WHERE_CLAUSE
-const CATEGORY = "Popular Games"
+const WHERE_CLAUSE = NORMAL_AUGHTIES_WHERE_CLAUSE
+const CATEGORY = CATEGORY_NAME_00s_NORMAL
 const SEARCH_TERM = ""
 
 const FIELDS = `name, follows, hypes, aggregated_rating, aggregated_rating_count, alternative_names.name, artworks.*, cover.*,

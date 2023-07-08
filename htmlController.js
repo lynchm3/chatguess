@@ -5,6 +5,7 @@ import { createHomeGame, createOrUpdateChannel } from './app.js'
 import express from 'express';
 // const { express } = pkg;
 const expressApp = express();
+// expressApp.use(requireHTTPS);
 import { Server } from 'http';
 const httpServer = Server(expressApp);
 import { Server as SocketIOServer } from 'socket.io';
@@ -16,13 +17,26 @@ import { Auth } from './db.js';
 
 import fetch from 'node-fetch';
 
+import { PRODUCTION_ENVIRONMENT, DEVELOPMENT_ENVIRONMENT } from './environments.js';
+
+let ENVIRONMENT = PRODUCTION_ENVIRONMENT
+process.argv.forEach(function (val, index, array) {
+    if (val == "dev_env") {
+        console.log("Environment is DEV A")
+        ENVIRONMENT = DEVELOPMENT_ENVIRONMENT
+    } 
+    // else {
+    //     console.log("Environment is PRODUCTION A")
+    //     ENVIRONMENT = PRODUCTION_ENVIRONMENT
+    // }
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const port = 8080;
 // expressApp.listen(port, () => {
 //   console.log(`chatguess: listening on port ${port}`);
 // });
-
 
 // expressApp.get('/', (req, res) => {
 //   const name = process.env.NAME || 'World';
@@ -122,11 +136,25 @@ expressApp.use((req, res, next) => {
   // console.log(`Req: ${req.originalUrl} Time: ${Date.now()}`)
   console.log("req.originalUrl")
   console.log(req.originalUrl)
-
+  console.log("req.secure")
+  console.log(req.secure)
+  // console.log("req.headers")
+  // console.log(req.headers)
+  
+  if (!req.secure && req.get('x-forwarded-proto') !== 'https' && ENVIRONMENT != DEVELOPMENT_ENVIRONMENT) {
+    return res.redirect('https://' + req.get('host') + req.url);
+  }
   // console.log("__dirname")
   // console.log(__dirname)
 
   //https://id.twitch.tv/oauth2/authorize?client_id=4wsujxiz1khg6h9afkutmiyxhom8qv&response_type=code&redirect_uri=https://www.chatguess.com/twitchauthorizationredirect&scope=channel:read:redemptions+chat:edit+chat:read+channel:manage:redemptions
+
+//   if (
+//     ENVIRONMENT != DEVELOPMENT_ENVIRONMENT && 
+//   !req.secure) {
+//     res.redirect("https://" + req.headers.host + req.url);
+//     return 
+//  }
 
   if (
     req.originalUrl == "" ||
@@ -206,7 +234,7 @@ const auth2 = async (authorizationCode, res) => {
     "&client_secret=" + clientSecret +
     "&code=" + authorizationCode +
     "&grant_type=authorization_code" +
-    "&redirect_uri=https://www.chatguess.com"
+    "&redirect_uri=" + ENVIRONMENT.homeURL + "/twitchauthorizationredirect"
 
   const auth2Response = await fetch(auth2URL, {
     method: 'POST',
@@ -256,7 +284,6 @@ const auth2 = async (authorizationCode, res) => {
     res.redirect("/error")    
     return
   }
-
 
   var userId = usersResponseJSON.data[0].id
   var login = usersResponseJSON.data[0].login

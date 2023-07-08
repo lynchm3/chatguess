@@ -13,6 +13,7 @@ export class Redemption {
 	constructor(channel) {
 		// console.log("Redemption constructor")
 		this.channel = channel
+		// let isAfilliateOrPartner = await this.affiliateOrPartnerCheck()
 		this.checkRewardID()
 	}
 
@@ -20,6 +21,23 @@ export class Redemption {
 		// console.log("Redemption startPolling")
 		setTimeout(this.pollForRedemptions, 5 * 1000)
 	}
+
+	// async affiliateOrPartnerCheck() {
+	// 	const usersResponse = await fetch("https://api.twitch.tv/helix/users", {
+	// 		method: 'GET',
+	// 		headers: {
+	// 			"Client-ID": `${clientId}`,
+	// 			"Authorization": `Bearer ${accessToken}`,
+	// 			"Accept": "application/json",
+	// 			"Content-Type": "application/json"
+	// 		}
+	// 	});
+
+	// 	const usersResponseJSON = await usersResponse.json();
+
+	// 	if (usersResponse.status != 200) {
+	// 	}
+	// }
 
 	async checkRewardID() {
 		// console.log("Redemption checkRewardID")
@@ -39,7 +57,6 @@ export class Redemption {
 		} else {
 			// console.log("Redemption checkRewardID branch B")
 			await this.createReward()
-			this.startPolling()
 		}
 	}
 
@@ -63,13 +80,10 @@ export class Redemption {
 	// }
 
 	createReward = async () => {
-
-		// console.log("Redemption createReward")
-
 		const createRedemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id=${this.channel.broadcasterId}`, {
 			method: 'POST',
 			headers: {
-				"Client-ID": `${this.channel.clientId}`,
+				"Client-ID": `${clientId}`,
 				"Authorization": `Bearer ${this.channel.authToken}`,
 				"Accept": "application/json",
 				"Content-Type": "application/json"
@@ -84,15 +98,21 @@ export class Redemption {
 
 		if (createRedemptionResponse.status == 200) {
 			const createRewardJson = await createRedemptionResponse.json();
-			// console.log("createRewardJson")
-			// console.log(createRewardJson)
 			let rewardId = createRewardJson.data[0].id
 			let auth = new Auth(this.channel.channelName, null, null, null, rewardId)
 			auth.saveRewardId()
 			this.channel.rewardId = rewardId
+		} else if (createRedemptionResponse.status == 403) {
+
 		} else {
-			console.error("createRedemptionResponse error")
-			// console.error(createRedemptionResponse.status)
+			const createRewardJson = await createRedemptionResponse.json();
+			console.log("createReward error " + createRedemptionResponse.status)
+			console.log(createRewardJson)
+			refreshToken(this.channel)
+		}
+
+		if (createRedemptionResponse.status != 403) {
+			startPolling()
 		}
 	}
 
@@ -103,7 +123,7 @@ export class Redemption {
 
 		// console.log("Redemption pollForRedemptions")
 
-		const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${userId}&reward_id=${this.channel.rewardId}&status=UNFULFILLED`, {
+		const redemptionResponse = await fetch(`https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${this.channel.broadcasterId}&reward_id=${this.channel.rewardId}&status=UNFULFILLED`, {
 			method: 'GET',
 			headers: {
 				"Client-ID": `${clientId}`,
@@ -129,15 +149,22 @@ export class Redemption {
 				}
 			}
 		} else if (redemptionResponse.status == 404) {
+			console.log("pollForRedemptions 404")
 			this.createReward()
 		} else if (redemptionResponse.status == 401) {
+			const redemptionResponseJson = await redemptionResponse.json();
+			console.log("pollForRedemptions 401")
+			console.log("response")
+			console.log(redemptionResponseJson)
 			refreshToken(this.channel)
-		} else {			
+		} else {
 			console.error("pollForRedemptions err" + redemptionResponse.status)
 			// console.log(redemptionResponse)
 		}
 
-		setTimeout(this.pollForRedemptions, 5 * 1000)
+		if (redemptionResponse.status == 404) {
+			setTimeout(this.pollForRedemptions, 5 * 1000)
+		}
 	}
 
 	fulfillRedemption = async (redemptionId) => {

@@ -13,9 +13,9 @@ export class Chatbot {
 				secure: true
 			},
 			identity: {
-				username: botName,
-				password: channel.authToken
-				// password: oAuthToken
+				username: "ChatGuess",
+				// password: channel.authToken
+				password: oAuthToken
 			},
 			channels: [this.channel.channelName]
 		});
@@ -50,7 +50,7 @@ export class Chatbot {
 				this.channel.giveUp(false)
 			else if (cleanedUpMessage == "cggpoints" || cleanedUpMessage == "cggscore")
 				this.channel.points(userId, channelId, displayName)
-			else if (cleanedUpMessage == "cggscoreboard" || cleanedUpMessage == "cggtop")
+			else if (cleanedUpMessage == "cggscoreboard" || cleanedUpMessage == "cggtop" || cleanedUpMessage == "cggleaderboard")
 				this.channel.scoreboard(channelId)
 			else
 				this.channel.messageCallback(message, tags, displayName, userId, channelId)

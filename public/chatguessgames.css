@@ -122,27 +122,28 @@ body {
 .div-gifs {
     float: left;
     position: fixed;
-    width: 90%;
-    height: 90%;
-    border-radius: 25px;
+    width: 100%;
+    height: 100%;
+    /* border-radius: 25px; */
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     overflow: hidden;
-    border: 2px solid #00000000;
+    /* border: 2px solid #00000000; */
 }
 
 .gameBackground {
     float: left;
     position: fixed;
-    background-color: rgba(0, 0, 0, 0.8);
-    width: 90%;
-    height: 90%;
-    border-radius: 25px;
-    border: 2px solid #ccc;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    /* background-color: rgba(0, 0, 0, 0.8); */
+    background-color: rgba(0, 0, 0, 0);
+    width: 100%;
+    height: 100%;
+    /* border-radius: 25px; */
+    /* border: 2px solid #ccc; */
+    /* left: 50%;
+    top: 50%; */
+    /* transform: translate(-50%, -50%); */
     z-index: -1;
 }
 
@@ -213,7 +214,7 @@ body {
     margin-top: 0px;
     margin-left: 0px;
     z-index: 100;
-    height: 20%;
+    height: 120px;
     background-color: #222222FF;
     border-radius: 0px 25px 25px 0px;
     padding-top: 0.5%;
@@ -225,13 +226,26 @@ body {
     filter: drop-shadow(0px 10px 2px #000000AA);
 }
 
+.subtitle {
+    float: left;
+    position: fixed;
+    z-index: 102;
+    color: #FFFFFF;
+    margin-top: 105px;
+    margin-left: 110px;font-size: 16pt;
+    font-family: brushscript;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+  
+    /* -webkit-text-stroke: 0.5px #000000; */
+}
+
 .countdown {
     width: 140px;
     float: left;
     position: fixed;
     z-index: 101;
     color: #ef3826;
-    margin-top: 20%;
+    margin-top: 150px;
     font-size: 48px;
     font-family: berlinSansFBDemiBold;    
     background-color: #222222FF;
@@ -249,18 +263,4 @@ body {
 @font-face {
     font-family: brushscript;
     src: url(brushscript.ttf);
-}
-
-.subtitle {
-    float: left;
-    position: fixed;
-    z-index: 102;
-    color: #FFFFFF;
-    margin-top: 9.5%;
-    margin-left: 12.5%;
-    font-size: 200%;
-    font-family: brushscript;
-    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
-  
-    /* -webkit-text-stroke: 0.5px #000000; */
 }

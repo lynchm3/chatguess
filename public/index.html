@@ -65,12 +65,12 @@
         console.log(window.location.href)
         let redirectURI = ""
         if(window.location.href.includes("localhost"))
-            redirectURI = "https://localhost:8080/twitchauthorizationredirect"
+            redirectURI = "http://localhost:8080/twitchauthorizationredirect"
         else 
             redirectURI = "https://chatguess.com/twitchauthorizationredirect"
 
         // const REDIRECT_URL = "https://www.chatguess.com/twitchauthorizationredirect"
-        const SCOPE = "channel:read:redemptions+chat:edit+chat:read+channel:manage:redemptions"
+        const SCOPE = "channel:read:redemptions+channel:manage:redemptions"
         const AUTH_URL_1 = "https://id.twitch.tv/oauth2/authorize" +
             "?client_id=" + CLIENT_ID +
             "&response_type=code" +

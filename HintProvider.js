@@ -211,12 +211,27 @@ class CrawlingTextHint extends TextHint {
     }
 
     hint() {
-        let hint = this.hintName + ": " + this.text
+        let firstSentence = this.extractFirstSentence(this.text)
+        if(firstSentence == null) {
+            firstSentence = this.text
+        }
+        let hint = this.hintName + ": " + firstSentence
         if (hint.length > MAX_HINT_LENGTH) {
             hint = hint.substring(0, MAX_HINT_LENGTH - 1) + "…";
         }
         return hint
     }
+
+    extractFirstSentence(text) {
+        // Regular expression to match the first sentence
+        const regex = /^([^!?\.]+[!?\.])/;
+      
+        // Extract the first sentence using the regular expression
+        const match = text.match(regex);
+      
+        // Return the first sentence or an empty string if no match found
+        return match ? match[0] : null;
+      }
 }
 
 class ImageHint extends Hint {

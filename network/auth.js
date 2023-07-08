@@ -5,7 +5,7 @@ import { Auth } from '../db.js';
 
 export async function refreshToken(channel) {
 
-    // console.log("refreshToken")
+    console.log("refreshToken")
 
     var auth2URL = "https://id.twitch.tv/oauth2/token" +
         "?client_id=" + clientId +
