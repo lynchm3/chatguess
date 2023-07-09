@@ -1,0 +1,18 @@
+//RUN//
+
+Production:
+node app run
+
+Dev:
+node app run dev_env
+
+//INSTALLATION//
+
+TODO - package.json file so I can just use the single command npm install (maybe npm i ?)
+
+npm i node-fetch
+npm i socket.io
+npm i express
+npm i tmi.js
+npm i sequelize
+npm i mysql2

@@ -13,10 +13,10 @@
         "matter": "^0.2.0",
         "matter-js": "^0.19.0",
         "mysql": "^2.18.1",
-        "mysql2": "^3.4.0",
+        "mysql2": "^3.5.0",
         "node-fetch": "^3.3.1",
         "sequelize": "^6.32.1",
-        "socket.io": "^4.6.1",
+        "socket.io": "^4.7.1",
         "sqlite3": "^5.1.6",
         "tmi.js": "^1.8.5"
     },

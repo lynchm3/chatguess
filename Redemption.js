@@ -112,7 +112,7 @@ export class Redemption {
 		}
 
 		if (createRedemptionResponse.status != 403) {
-			startPolling()
+			this.startPolling()
 		}
 	}
 
